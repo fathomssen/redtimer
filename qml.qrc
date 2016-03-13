@@ -1,8 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
-        <file>MainForm.ui.qml</file>
+        <file>Redtimer.qml</file>
+        <file>RedTimerForm.ui.qml</file>
         <file>icons/pause.png</file>
         <file>icons/play.png</file>
+        <file>Settings.qml</file>
+        <file>SettingsForm.ui.qml</file>
     </qresource>
 </RCC>

@@ -1,4 +1,4 @@
-#include <redtimer.h>
+#include "RedTimer.h"
 
 #include <memory>
 
@@ -7,8 +7,6 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-  RedTimer_p redTimer = make_shared<RedTimer>( argc, argv );
-  redTimer->init();
+  shared_ptr<RedTimer> redTimer = make_shared<RedTimer>( argc, argv );
   return redTimer->display();
 }
-

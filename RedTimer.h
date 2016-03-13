@@ -1,37 +1,58 @@
 #ifndef REDTIMER_H
 #define REDTIMER_H
 
+#include "Settings.h"
+//#include "redmine-qt/RedmineClient.hpp"
+
 #include <QApplication>
-#include <QQmlApplicationEngine>
+#include <QObject>
+#include <QQuickView>
 
 #include <memory>
 
 namespace redtimer {
 
+// forward declaration of class RedTimer
 class RedTimer;
 
-using RedTimer_p  = std::shared_ptr<RedTimer>;
-using RedTimer_cp = const RedTimer_p;
+// some typedefs for shared pointers
+//using RedmineClient_p  = std::shared_ptr<RedmineClient>;
+//using RedmineClient_cp = const RedmineClient_p;
 
-class RedTimer
+class RedTimer : public QObject
 {
-private:
-  QApplication app;
-  QQmlApplicationEngine engine;
+  Q_OBJECT
 
-public:
-  RedTimer( int argc, char *argv[] );
+private:
+  QApplication app_;
 
   /**
-   * @brief Display the main window
+   * @brief Redmine client object
+   *
+   * Object that holds the connection to a Redmine instance
    */
-  void init();
+//  RedmineClient_p redmineClient_;
+
+  /**
+   * @brief Redmine connection dialog object
+   */
+  Settings* settings_;
+
+  /**
+   * @brief Main window object
+   */
+  QQuickView* win_;
+
+public:
+  explicit RedTimer( int argc, char *argv[] );
 
   /**
    * @brief Run the application
    * @return Status code
    */
   int display();
+
+public slots:
 };
 
 } // redtimer

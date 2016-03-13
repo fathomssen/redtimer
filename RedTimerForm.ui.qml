@@ -6,9 +6,38 @@ Item {
     width: 600
     height: 400
 
+    ToolBar {
+        id: toolBar1
+
+        RowLayout {
+            id: rowLayout1
+            anchors.right: parent.right
+            anchors.rightMargin: 488
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+            anchors.top: parent.top
+            anchors.topMargin: 0
+
+            ToolButton {
+                id: settings
+                objectName: "settings"
+                text: "Settings"
+                anchors.top: parent.top
+                anchors.topMargin: 0
+            }
+        }
+    }
+
     GridLayout {
         id: gridLayout1
-        anchors.fill: parent
+        anchors.top: toolBar1.bottom
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.topMargin: 0
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 5
 
 
         ColumnLayout {
@@ -162,7 +191,7 @@ Item {
                             height: 50
                         }
 
-                        Button {
+                        ToolButton {
                             id: sendComment
                             text: qsTr("Send")
                             anchors.bottom: parent.bottom
