@@ -1,3 +1,3 @@
-[submodule "redmine-qt"]
-	path = redmine-qt
-	url = https://github.com/fathomssen/redmine-qt.git
+[submodule "qtredmine"]
+	path = qtredmine
+	url = https://github.com/fathomssen/qtredmine.git
