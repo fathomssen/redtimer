@@ -27,11 +27,12 @@ HEADERS += \
 
 CONFIG += c++11
 
-CONFIG(release, debug|release): LIBS += -L$$PWD/qtredmine/release/ -lqtredmine
-else:CONFIG(debug, debug|release): LIBS += -L$$PWD/qtredmine/debug/ -lqtredmine
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qtredmine/release/ -lqtredmine
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qtredmine/debug/ -lqtredmine
+else:unix: LIBS += -L$$PWD/qtredmine/ -lqtredmine
 
-INCLUDEPATH += $$PWD/qtredmine/debug
-DEPENDPATH += $$PWD/qtredmine/debug
+INCLUDEPATH += $$PWD/qtredmine
+DEPENDPATH += $$PWD/qtredmine
 
 DISTFILES += \
     .travis.yml \
