@@ -1,10 +1,14 @@
 <RCC>
     <qresource prefix="/">
-        <file>Redtimer.qml</file>
+        <file>RedTimer.qml</file>
         <file>RedTimerForm.ui.qml</file>
-        <file>icons/pause.png</file>
-        <file>icons/play.png</file>
         <file>Settings.qml</file>
         <file>SettingsForm.ui.qml</file>
+        <file>IssueSelector.qml</file>
+        <file>IssueSelectorForm.ui.qml</file>
+        <file>open-iconic/svg/media-pause.svg</file>
+        <file>open-iconic/svg/media-play.svg</file>
+        <file>open-iconic/svg/wrench.svg</file>
+        <file>open-iconic/svg/list.svg</file>
     </qresource>
 </RCC>

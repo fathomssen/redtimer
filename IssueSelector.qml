@@ -1,12 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Controls 1.4
 
 Item {
-    visible: true
-    width: 250
-    height: 400
-
     RedTimerForm {
+        id: redtimer
         anchors.rightMargin: 0
         anchors.bottomMargin: 0
         anchors.leftMargin: 0

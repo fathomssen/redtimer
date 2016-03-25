@@ -1,14 +1,11 @@
 import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Dialogs 1.2
 
 Item {
     visible: true
     width: 400
-    height: 300
-
-    property alias url: form1.url;
-    property alias apikey: form1.apikey;
+    height: 100
+    property alias url: settings.url
+    property alias apikey: settings.apikey
 
     function getUrl()
     {
@@ -31,7 +28,7 @@ Item {
     }
 
     SettingsForm {
-        id: form1;
+        id: settings;
         anchors.rightMargin: 0
         anchors.bottomMargin: 0
         anchors.leftMargin: 0

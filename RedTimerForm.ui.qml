@@ -3,207 +3,166 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
-    width: 600
+    width: 250
     height: 400
+    Layout.minimumWidth: 250
+    Layout.minimumHeight: 400
+    property alias tracker: tracker
+    property alias status: status
+    property alias activity: activity
 
     ToolBar {
         id: toolBar1
+        anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.top: parent.top
 
-        RowLayout {
-            id: rowLayout1
-            anchors.right: parent.right
-            anchors.rightMargin: 488
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.top: parent.top
-            anchors.topMargin: 0
-
-            ToolButton {
-                id: settings
-                objectName: "settings"
-                text: "Settings"
-                anchors.top: parent.top
-                anchors.topMargin: 0
-            }
+        ToolButton {
+            id: settings
+            x: 0
+            y: 0
+            objectName: "settings"
+            text: "&Settings"
+            tooltip: "Open Settings"
+            iconSource: "open-iconic/svg/wrench.svg"
         }
     }
 
-    GridLayout {
-        id: gridLayout1
+    SplitView {
+        id: splitView1
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 5
+        anchors.topMargin: 5
         anchors.top: toolBar1.bottom
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.topMargin: 0
-        anchors.rightMargin: 5
-        anchors.leftMargin: 5
-        anchors.bottomMargin: 5
+        orientation: Qt.Vertical
+
+        Item {
+            id: top
+            Layout.minimumHeight: 200
+            Layout.fillHeight: true
+
+            GroupBox {
+                id: groupBox2
+                anchors.fill: parent
+                Layout.fillHeight: true
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                title: qsTr("Issue data")
 
 
-        ColumnLayout {
-            id: columnLayout1
-            width: 220
-            height: 100
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.top: parent.top
-            anchors.topMargin: 0
+                ColumnLayout {
+                    id: columnLayout4
+                    anchors.fill: parent
 
-            TextField {
-                id: searchText
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                placeholderText: qsTr("Issue ID")
-            }
+                    RowLayout {
+                        id: rowLayout3
+                        Layout.fillWidth: true
 
-            ListView {
-                id: listView1
-                y: 0
-                height: 160
-                anchors.right: parent.right
-                anchors.rightMargin: 17
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                model: ListModel {
-                    ListElement {
-                        name: "Grey"
-                        colorCode: "grey"
-                    }
-
-                    ListElement {
-                        name: "Red"
-                        colorCode: "red"
-                    }
-
-                    ListElement {
-                        name: "Blue"
-                        colorCode: "blue"
-                    }
-
-                    ListElement {
-                        name: "Green"
-                        colorCode: "green"
-                    }
-                }
-                delegate: Item {
-                    x: 5
-                    width: 80
-                    height: 40
-                    Row {
-                        id: row1
-                        Rectangle {
-                            width: 40
-                            height: 40
-                            color: colorCode
+                        TextField {
+                            id: quickPick
+                            Layout.fillWidth: true
+                            placeholderText: qsTr("Enter issue number")
                         }
 
-                        Text {
-                            text: name
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.bold: true
+                        ToolButton {
+                            id: selectIssue
+                            width: 23
+                            iconSource: "open-iconic/svg/list.svg"
+                            tooltip: "Select issue from list"
                         }
-                        spacing: 10
                     }
+
+
+                    TextArea {
+                        id: textArea1
+                        height: 50
+                        Layout.minimumHeight: 50
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        readOnly: true
+                    }
+
+
                 }
             }
-
         }
 
-        ColumnLayout {
-            id: columnLayout2
-            height: 100
-            anchors.right: parent.right
-            anchors.rightMargin: -156
-            anchors.left: parent.left
-            anchors.leftMargin: 220
-            anchors.top: parent.top
-            anchors.topMargin: 0
+        Item {
+            id: bottom
+            Layout.minimumHeight: 150
 
-
-            RowLayout {
-                id: rowLayout2
-                width: 100
-                height: 100
-
-                ToolButton {
-                    id: startStop
-                    width: 40
-                    height: 40
-                    iconSource: "icons/play.png"
-                    tooltip: "Start"
-                }
-
-                TextField {
-                    id: time
-                    text: "00:00:00"
-                    readOnly: true
-                    placeholderText: qsTr("")
-                }
-            }
             GroupBox {
                 id: groupBox1
-                title: qsTr("Properties")
+                anchors.fill: parent
+                Layout.fillHeight: false
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                Layout.fillWidth: true
+                title: qsTr("Tracking")
 
                 ColumnLayout {
                     id: columnLayout3
+                    anchors.fill: parent
+                    Layout.fillWidth: true
 
+
+                    RowLayout {
+                        id: rowLayout2
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        anchors.fill: parent
+
+                        ToolButton {
+                            id: startStop
+                            width: 40
+                            height: 40
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            iconSource: "open-iconic/svg/media-play.svg"
+                            tooltip: "Start time tracking"
+                        }
+
+                        TextField {
+                            id: time
+                            text: "00:00:00"
+                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                            readOnly: true
+                            placeholderText: qsTr("")
+                        }
+                    }
 
                     ComboBox {
                         id: activity
-                        model: ListModel {
-                            id: activityItems
-                            ListElement { text: "Choose an activity"; color: "Yellow" }
-                        }
+                        Layout.fillWidth: true
+                        objectName: "activity"
+                        model: activityModel
                     }
+
 
 
                     ComboBox {
                         id: status
-                        model: ListModel {
-                            id: statusItems
-                            ListElement { text: "Choose a status"; color: "Yellow" }
-                        }
+                        Layout.fillWidth: true
+                        objectName: "status"
+                        model: statusModel
                     }
-
 
 
                     ComboBox {
                         id: tracker
-                        model: ListModel {
-                            id: tItems
-                            ListElement { text: "Choose a status"; color: "Yellow" }
-                        }
+                        Layout.fillWidth: true
+                        objectName: "tracker"
+                        model: trackerModel
                     }
 
-                    Label {
-                        id: label1
-                        text: qsTr("Add Comment")
-                    }
-
-                    RowLayout {
-                        id: rowLayout3
-
-                        TextArea {
-                            id: comment
-                            width: 100
-                            height: 50
-                        }
-
-                        ToolButton {
-                            id: sendComment
-                            text: qsTr("Send")
-                            anchors.bottom: parent.bottom
-                            anchors.bottomMargin: 0
-                            anchors.top: parent.top
-                            anchors.topMargin: 0
-                        }
-                    }
 
                 }
+
             }
         }
     }
+
 }
 

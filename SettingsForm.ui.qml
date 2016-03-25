@@ -3,10 +3,10 @@ import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.2
 
 Item {
-    id: item1
     width: 400
     height: 100
-
+    Layout.minimumWidth: 400
+    Layout.minimumHeight: 100
     property alias url: url
     property alias apikey: apikey
 
@@ -51,6 +51,7 @@ Item {
             id: save
             objectName: "save"
             text: qsTr("&Save")
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             isDefault: true
         }
 
@@ -58,6 +59,7 @@ Item {
             id: cancel
             objectName: "cancel"
             text: qsTr("&Cancel")
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
     }
 }

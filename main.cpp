@@ -1,12 +1,17 @@
 #include "RedTimer.h"
 
+#include <QApplication>
+
 #include <memory>
 
 using namespace redtimer;
 using namespace std;
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  shared_ptr<RedTimer> redTimer = make_shared<RedTimer>( argc, argv );
-  return redTimer->display();
+    QApplication app( argc, argv );
+
+    new RedTimer( &app );
+
+    return app.exec();
 }

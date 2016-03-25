@@ -9,91 +9,110 @@ using namespace redtimer;
 using namespace std;
 
 Settings::Settings( QObject* parent )
-  : QObject( parent ),
-    settings_( "Thomssen IT", "RedTimer" )
+    : QObject( parent ),
+      settings_( "Thomssen IT", "RedTimer" )
 {
-  qEnter();
+    ENTER();
 
-  win_ = new QQuickView();
-  win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
-  win_->setModality( Qt::ApplicationModal );
+    win_ = new QQuickView();
+    win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
+    win_->setModality( Qt::ApplicationModal );
 
-  item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
+    item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
 
-  // Connect the cancel button
-  connect( win_->rootObject()->findChild<QObject*>("cancel"), SIGNAL(clicked()),
-           this, SLOT(close()) );
+    // Connect the cancel button
+    connect( item_->findChild<QQuickItem*>("cancel"), SIGNAL(clicked()),
+             this, SLOT(close()) );
 
-  // Connect the save button
-  connect( win_->rootObject()->findChild<QObject*>("save"), SIGNAL(clicked()),
-           this, SLOT(save()) );
+    // Connect the save button
+    connect( item_->findChild<QQuickItem*>("save"), SIGNAL(clicked()),
+             this, SLOT(save()) );
 }
 
 void
 Settings::close()
 {
-  qEnter();
+    ENTER();
 
-  if( win_->isVisible() )
-  {
-    qDebug() << "Closing settings window";
+    if( win_->isVisible() )
+    {
+        DEBUG() << "Closing settings window";
 
-    QVariant ret;
+        QVariant ret;
 
-    QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
-    QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
+        QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
+        QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
 
-    win_->close();
-  }
+        win_->close();
+    }
 }
 
 void
 Settings::display()
 {
-  qEnter();
+    ENTER();
 
-  QVariant ret;
+    QVariant ret;
 
-  QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, url_) );
-  QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, apikey_) );
+    QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, url_) );
+    QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, apiKey_) );
 
-  if( !win_->isVisible() )
-  {
-    qDebug() << "Displaying settings window";
-    win_->show();
-  }
+    if( !win_->isVisible() )
+    {
+        DEBUG() << "Displaying settings window";
+        win_->show();
+    }
+}
+
+QString
+Settings::getApiKey() const
+{
+    ENTER();
+    RETURN( apiKey_ );
+}
+
+QString
+Settings::getUrl() const
+{
+    ENTER();
+    RETURN( url_ );
 }
 
 void
 Settings::load()
 {
-  qEnter();
+    ENTER();
 
-  url_ = settings_.value( "url" ).toString();
-  apikey_ = settings_.value( "apikey" ).toString();
+    url_ = settings_.value( "url" ).toString();
+    apiKey_ = settings_.value( "apikey" ).toString();
 
-  qDebug() << "Loaded settings from file:" << _(url_) << _(apikey_);
+    DEBUG() << "Loaded settings from file:";
+    DEBUG()(url_)(apiKey_);
 
-  if( url_.isEmpty() || apikey_.isEmpty() )
-    display();
+    if( url_.isEmpty() || apiKey_.isEmpty() )
+        display();
 }
 
 void
 Settings::save()
 {
-  qEnter();
+    ENTER();
 
-  QVariant ret;
+    QVariant ret;
 
-  QMetaObject::invokeMethod( item_, "getUrl", Q_RETURN_ARG(QVariant, ret) );
-  url_ = ret.toString();
-  settings_.setValue( "url", url_ );
+    QMetaObject::invokeMethod( item_, "getUrl", Q_RETURN_ARG(QVariant, ret) );
+    url_ = ret.toString();
+    settings_.setValue( "url", url_ );
 
-  QMetaObject::invokeMethod( item_, "getApiKey", Q_RETURN_ARG(QVariant, ret) );
-  apikey_ = ret.toString();
-  settings_.setValue( "apikey", apikey_ );
+    QMetaObject::invokeMethod( item_, "getApiKey", Q_RETURN_ARG(QVariant, ret) );
+    apiKey_ = ret.toString();
+    settings_.setValue( "apikey", apiKey_ );
 
-  qDebug() << "Changed settings to" << _(url_) << _(apikey_);
+    DEBUG() << "Changed settings to";
+    DEBUG(url_)(apiKey_);
 
-  close();
+    DEBUG() << "Emitting saved() signal";
+    saved();
+
+    close();
 }

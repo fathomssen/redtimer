@@ -6,63 +6,75 @@
 #include <QQuickView>
 #include <QSettings>
 
-#include <memory>
-
 namespace redtimer {
 
 class Settings : public QObject
 {
-  Q_OBJECT
+    Q_OBJECT
 
 private:
-  /**
-   * @brief Main window object
-   */
-  QQuickView* win_;
+    /// Main window object
+    QQuickView* win_;
 
-  /**
-   * @brief Main item object
-   */
-  QQuickItem* item_;
+    /// Main item object
+    QQuickItem* item_;
 
-  /**
-   * @brief Application settings
-   */
-  QSettings settings_;
+    /// Application settings
+    QSettings settings_;
 
-  /**
-   * @brief Redmine API key
-   */
-  QString apikey_;
+    /// Redmine API key
+    QString apiKey_;
 
-  /**
-   * @brief Redmine URL
-   */
-  QString url_;
+    /// Redmine base URL
+    QString url_;
+
+    /// Last opened project
+    int projectId_;
 
 public:
-  explicit Settings( QObject *parent = 0 );
+    explicit Settings( QObject *parent = 0 );
 
-  /**
-   * @brief Load settings from settings file
-   */
-  void load();
+    /**
+     * @brief Get the Redmine API key
+     *
+     * @return Redmine API key
+     */
+    QString getApiKey() const;
+
+    /**
+     * @brief Get the Redmine base URL
+     *
+     * @return Redmine base URL
+     */
+    QString getUrl() const;
+
+    /**
+     * @brief Load settings from settings file
+     */
+    void load();
 
 public slots:
-  /**
-   * @brief Close the Redmine connection dialog
-   */
-  void close();
+    /**
+     * @brief Close the Redmine connection dialog
+     */
+    void close();
 
-  /**
-   * @brief Display the Redmine connection dialog
-   */
-  void display();
+    /**
+     * @brief Display the Redmine connection dialog
+     */
+    void display();
 
-  /**
-   * @brief Save preferences from settings dialog to settings file
-   */
-  void save();
+    /**
+     * @brief Save preferences from settings dialog to settings file
+     */
+    void save();
+
+signals:
+
+    /**
+     * @brief Emitted when data have been saved
+     */
+    void saved();
 };
 
 } // redtimer
