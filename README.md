@@ -1,2 +1,3 @@
-# redtimer
-RedTimer Redmine Time Logger
+# RedTimer
+
+Redmine Time Logger
