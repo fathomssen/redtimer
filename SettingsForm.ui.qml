@@ -7,8 +7,6 @@ Item {
     height: 100
     Layout.minimumWidth: 400
     Layout.minimumHeight: 100
-    property alias url: url
-    property alias apikey: apikey
 
     GridLayout {
         id: gridLayout1
@@ -26,6 +24,7 @@ Item {
 
         TextField {
             id: url
+            objectName: "url"
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.left: parent.left
@@ -40,6 +39,7 @@ Item {
 
         TextField {
             id: apikey
+            objectName: "apikey"
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.left: parent.left
@@ -48,9 +48,9 @@ Item {
         }
 
         ToolButton {
-            id: save
-            objectName: "save"
-            text: qsTr("&Save")
+            id: apply
+            objectName: "apply"
+            text: qsTr("A&pply")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             isDefault: true
         }

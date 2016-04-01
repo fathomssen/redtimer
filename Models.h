@@ -1,7 +1,7 @@
 #ifndef MODELITEMS_H
 #define MODELITEMS_H
 
-#include "qtredmine/Redmine.h"
+#include "qtredmine/SimpleRedmineClient.h"
 
 #include <QAbstractListModel>
 #include <QObject>
@@ -18,10 +18,56 @@ private:
 public:
     SimpleItem( const QString& name );
     SimpleItem( int id, const QString& name );
-    SimpleItem( qtredmine::Redmine::Project project );
+    SimpleItem( qtredmine::Enumeration enumeration );
+    SimpleItem( qtredmine::Project project );
 
     int id() const;
     QString name() const;
+};
+
+class IssueModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+private:
+    QList<qtredmine::Issue> items_;
+
+public:
+    enum IssueRoles {
+        IdRole = Qt::UserRole + 1,
+        DescriptionRole,
+        DoneRatioRole,
+        SubjectRole,
+        AuthorRole,
+        CategoryRole,
+        PriorityRole,
+        ProjectRole,
+        StatusRole,
+        TrackerRole,
+        CreatedOnRole,
+        DueDateRole,
+        EstimatedHoursRole,
+        StartDateRole,
+        UpdatedOnRole,
+        CustomFieldsRole
+    };
+
+    IssueModel( QObject* parent = nullptr );
+
+    void clear();
+
+    QList<qtredmine::Issue> data() const;
+
+    void insert( const qtredmine::Issue& item );
+
+    qtredmine::Issue at( const int index ) const;
+
+    int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+
+protected:
+    QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
+
+    QHash<int, QByteArray> roleNames() const;
 };
 
 class SimpleModel : public QAbstractListModel
@@ -47,12 +93,12 @@ public:
 
     SimpleItem at( const int index ) const;
 
+    int rowCount( const QModelIndex& parent = QModelIndex() ) const;
+
 protected:
     QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
 
     QHash<int, QByteArray> roleNames() const;
-
-    int rowCount( const QModelIndex& parent = QModelIndex() ) const;
 };
 
 inline QDebug
@@ -60,6 +106,17 @@ operator<<( QDebug debug, const SimpleItem& item )
 {
     QDebugStateSaver saver( debug );
     debug.nospace() << "[" << item.id() << ", \"" << item.name() << "\"]";
+
+    return debug;
+}
+
+inline QDebug
+operator<<( QDebug debug, const IssueModel& model )
+{
+    QDebugStateSaver saver( debug );
+
+    for( const auto& item : model.data() )
+        debug.nospace() << item;
 
     return debug;
 }

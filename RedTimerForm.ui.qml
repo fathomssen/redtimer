@@ -7,9 +7,15 @@ Item {
     height: 400
     Layout.minimumWidth: 250
     Layout.minimumHeight: 400
-    property alias tracker: tracker
-    property alias status: status
+
     property alias activity: activity
+    property alias issueData: issueData
+    property alias quickPick: quickPick
+    property alias selectIssue: selectIssue
+    property alias settings: settings
+    property alias startStop: startStop
+    property alias status: status
+    property alias counter: counter
 
     ToolBar {
         id: toolBar1
@@ -19,17 +25,18 @@ Item {
 
         ToolButton {
             id: settings
-            x: 0
-            y: 0
             objectName: "settings"
             text: "&Settings"
+            anchors.left: parent.left
+            anchors.leftMargin: 0
             tooltip: "Open Settings"
-            iconSource: "open-iconic/svg/wrench.svg"
+            iconSource: "qrc:///open-iconic/svg/cog.svg"
         }
     }
 
     SplitView {
         id: splitView1
+        orientation: Qt.Vertical
         anchors.rightMargin: 5
         anchors.leftMargin: 5
         anchors.bottomMargin: 5
@@ -38,51 +45,49 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        orientation: Qt.Vertical
 
         Item {
-            id: top
-            Layout.minimumHeight: 200
+            id: item1
             Layout.fillHeight: true
+            Layout.minimumHeight: 100
 
             GroupBox {
-                id: groupBox2
+                id: groupBox1
                 anchors.fill: parent
-                Layout.fillHeight: true
-                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                Layout.fillWidth: true
-                title: qsTr("Issue data")
+                title: qsTr("Issue")
 
 
                 ColumnLayout {
-                    id: columnLayout4
+                    id: columnLayout2
                     anchors.fill: parent
 
                     RowLayout {
-                        id: rowLayout3
+                        id: rowLayout1
                         Layout.fillWidth: true
 
                         TextField {
                             id: quickPick
+                            objectName: "quickPick"
                             Layout.fillWidth: true
                             placeholderText: qsTr("Enter issue number")
                         }
 
                         ToolButton {
                             id: selectIssue
+                            objectName: "selectIssue"
                             width: 23
-                            iconSource: "open-iconic/svg/list.svg"
+                            iconSource: "qrc:///open-iconic/svg/list.svg"
                             tooltip: "Select issue from list"
                         }
                     }
 
 
                     TextArea {
-                        id: textArea1
-                        height: 50
-                        Layout.minimumHeight: 50
+                        id: issueData
                         Layout.fillHeight: true
+                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                         Layout.fillWidth: true
+                        objectName: "issueData"
                         readOnly: true
                     }
 
@@ -92,44 +97,38 @@ Item {
         }
 
         Item {
-            id: bottom
-            Layout.minimumHeight: 150
+            id: item2
+            height: 100
+            Layout.minimumHeight: 100
+            Layout.maximumHeight: 100
 
             GroupBox {
-                id: groupBox1
+                id: groupBox2
                 anchors.fill: parent
-                Layout.fillHeight: false
-                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                Layout.fillWidth: true
                 title: qsTr("Tracking")
 
                 ColumnLayout {
                     id: columnLayout3
                     anchors.fill: parent
-                    Layout.fillWidth: true
-
 
                     RowLayout {
                         id: rowLayout2
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                        anchors.fill: parent
 
                         ToolButton {
                             id: startStop
+                            objectName: "startStop"
                             width: 40
                             height: 40
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                            iconSource: "open-iconic/svg/media-play.svg"
+                            isDefault: true
+                            iconSource: "qrc:///open-iconic/svg/media-play.svg"
                             tooltip: "Start time tracking"
                         }
 
                         TextField {
-                            id: time
+                            id: counter
+                            objectName: "counter"
                             text: "00:00:00"
-                            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                             readOnly: true
-                            placeholderText: qsTr("")
                         }
                     }
 
@@ -138,6 +137,7 @@ Item {
                         Layout.fillWidth: true
                         objectName: "activity"
                         model: activityModel
+                        textRole: "name"
                     }
 
 
@@ -147,19 +147,13 @@ Item {
                         Layout.fillWidth: true
                         objectName: "status"
                         model: statusModel
+                        textRole: "name"
                     }
 
 
-                    ComboBox {
-                        id: tracker
-                        Layout.fillWidth: true
-                        objectName: "tracker"
-                        model: trackerModel
-                    }
 
 
                 }
-
             }
         }
     }

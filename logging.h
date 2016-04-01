@@ -61,17 +61,17 @@ inline QDebug operator<<( QDebug debug, argLast )
 #define POS C( QFileInfo(__FILE__).fileName().toStdString().append(":").append(TOS(__LINE__)).append(":") )
 
 // Enter and return helpers with filename and position
-#define DBG(...) qDebug().noquote().nospace() << POS << " " << #__VA_ARGS__ << " "
+#define DBG(...) qDebug().noquote().nospace() << POS << " " << QString(__VA_ARGS__) << " "
 
 #define DEBUG(...) DBG(__VA_ARGS__) << ARGS
 #define ENTER(...) DBG(__VA_ARGS__) << "Entering " << FUNC << ARGS
-#define RETURN(x) {DBG() << "Leaving " << FUNC; return x;}
+#define RETURN(x) do{ DBG() << "Leaving " << FUNC; return x; }while(0)
 
 #else
 
-#define DEBUG(...) qDebug() << #__VA_ARGS__ << ARGS
+#define DEBUG(...) qDebug() << QString(__VA_ARGS__) << ARGS
 #define ENTER(...) DEBUG(__VA_ARGS__) << "Entering" << Q_FUNC_INFO << ARGS
-#define RETURN(x) {DEBUG() << "Leaving" << Q_FUNC_INFO; return x;}
+#define RETURN(x) do{ DEBUG() << "Leaving" << Q_FUNC_INFO; return x; }while(0)
 
 #endif
 

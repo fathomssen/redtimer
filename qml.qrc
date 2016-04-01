@@ -6,9 +6,11 @@
         <file>SettingsForm.ui.qml</file>
         <file>IssueSelector.qml</file>
         <file>IssueSelectorForm.ui.qml</file>
-        <file>open-iconic/svg/media-pause.svg</file>
         <file>open-iconic/svg/media-play.svg</file>
-        <file>open-iconic/svg/wrench.svg</file>
         <file>open-iconic/svg/list.svg</file>
+        <file>open-iconic/svg/clock.svg</file>
+        <file>open-iconic/svg/cog.svg</file>
+        <file>open-iconic/svg/power-standby.svg</file>
+        <file>open-iconic/svg/media-stop.svg</file>
     </qresource>
 </RCC>

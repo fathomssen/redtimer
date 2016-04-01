@@ -18,6 +18,11 @@ Settings::Settings( QObject* parent )
     win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
     win_->setModality( Qt::ApplicationModal );
 
+    Qt::WindowFlags flags = Qt::Dialog;
+    flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
+    flags |= Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
+    win_->setFlags( flags );
+
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
 
     // Connect the cancel button
@@ -25,8 +30,28 @@ Settings::Settings( QObject* parent )
              this, SLOT(close()) );
 
     // Connect the save button
-    connect( item_->findChild<QQuickItem*>("save"), SIGNAL(clicked()),
-             this, SLOT(save()) );
+    connect( item_->findChild<QQuickItem*>("apply"), SIGNAL(clicked()),
+             this, SLOT(apply()) );
+
+    RETURN();
+}
+
+void
+Settings::apply()
+{
+    ENTER();
+
+    url_ = item_->findChild<QQuickItem*>("url")->property( "text" ).toString();
+    apiKey_ = item_->findChild<QQuickItem*>("apikey")->property( "text" ).toString();
+
+    DEBUG("Changed settings to")(url_)(apiKey_);
+
+    DEBUG() << "Emitting applied() signal";
+    applied();
+
+    close();
+
+    RETURN();
 }
 
 void
@@ -37,14 +62,10 @@ Settings::close()
     if( win_->isVisible() )
     {
         DEBUG() << "Closing settings window";
-
-        QVariant ret;
-
-        QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
-        QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, "") );
-
         win_->close();
     }
+
+    RETURN();
 }
 
 void
@@ -52,16 +73,64 @@ Settings::display()
 {
     ENTER();
 
-    QVariant ret;
-
-    QMetaObject::invokeMethod( item_, "setUrl", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, url_) );
-    QMetaObject::invokeMethod( item_, "setApiKey", Q_RETURN_ARG(QVariant, ret), Q_ARG(QVariant, apiKey_) );
+    item_->findChild<QQuickItem*>("url")->setProperty( "text", url_ );
+    item_->findChild<QQuickItem*>("apikey")->setProperty( "text", apiKey_ );
 
     if( !win_->isVisible() )
     {
         DEBUG() << "Displaying settings window";
         win_->show();
     }
+
+    RETURN();
+}
+
+void
+Settings::load()
+{
+    ENTER();
+
+    // GUI
+    apiKey_ = settings_.value( "apikey" ).toString();
+    url_    = settings_.value( "url" ).toString();
+
+    // External
+    activityId_ = settings_.value("activity").toInt();
+    issueId_    = settings_.value("issue").toInt();
+    projectId_  = settings_.value("project").toInt();
+
+    DEBUG("Loaded settings from file:")(url_)(apiKey_)(activityId_)(issueId_)(projectId_);
+
+    if( url_.isEmpty() || apiKey_.isEmpty() )
+        display();
+
+    applied();
+
+    RETURN();
+}
+
+void
+Settings::save()
+{
+    ENTER();
+
+    // From GUI
+    settings_.setValue( "apikey", apiKey_ );
+    settings_.setValue( "url",    url_ );
+
+    // From external
+    settings_.setValue( "activity", activityId_ );
+    settings_.setValue( "issue",    issueId_ );
+    settings_.setValue( "project",  projectId_ );
+
+    RETURN();
+}
+
+int
+Settings::getActivity()
+{
+    ENTER();
+    RETURN( activityId_ );
 }
 
 QString
@@ -69,6 +138,20 @@ Settings::getApiKey() const
 {
     ENTER();
     RETURN( apiKey_ );
+}
+
+int
+Settings::getIssue()
+{
+    ENTER();
+    RETURN( issueId_ );
+}
+
+int
+Settings::getProject()
+{
+    ENTER();
+    RETURN( projectId_ );
 }
 
 QString
@@ -79,40 +162,25 @@ Settings::getUrl() const
 }
 
 void
-Settings::load()
+Settings::setActivity( int id )
 {
     ENTER();
-
-    url_ = settings_.value( "url" ).toString();
-    apiKey_ = settings_.value( "apikey" ).toString();
-
-    DEBUG() << "Loaded settings from file:";
-    DEBUG()(url_)(apiKey_);
-
-    if( url_.isEmpty() || apiKey_.isEmpty() )
-        display();
+    activityId_ = id;
+    RETURN();
 }
 
 void
-Settings::save()
+Settings::setIssue( int id )
 {
     ENTER();
+    issueId_ = id;
+    RETURN();
+}
 
-    QVariant ret;
-
-    QMetaObject::invokeMethod( item_, "getUrl", Q_RETURN_ARG(QVariant, ret) );
-    url_ = ret.toString();
-    settings_.setValue( "url", url_ );
-
-    QMetaObject::invokeMethod( item_, "getApiKey", Q_RETURN_ARG(QVariant, ret) );
-    apiKey_ = ret.toString();
-    settings_.setValue( "apikey", apiKey_ );
-
-    DEBUG() << "Changed settings to";
-    DEBUG(url_)(apiKey_);
-
-    DEBUG() << "Emitting saved() signal";
-    saved();
-
-    close();
+void
+Settings::setProject( int id )
+{
+    ENTER();
+    projectId_ = id;
+    RETURN();
 }

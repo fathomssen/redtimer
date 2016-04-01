@@ -1,6 +1,8 @@
 #include "RedTimer.h"
-
 #include "logging.h"
+
+#include <QMessageBox>
+#include <QObject>
 
 using namespace qtredmine;
 using namespace redtimer;
@@ -11,70 +13,145 @@ RedTimer::RedTimer( QObject* parent )
 {
     ENTER();
 
-    // Settings initialisation
-    settings_ = new Settings( this );
-
     // Main window initialisation
     win_ = new QQuickView();
+    win_->installEventFilter( this );
     win_->setResizeMode( QQuickView::SizeRootObjectToView );
     win_->setSource( QUrl(QStringLiteral("qrc:/RedTimer.qml")) );
     win_->setModality( Qt::ApplicationModal );
 
+    // Additional window manager properties
+    Qt::WindowFlags flags = Qt::Window;
+    flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
+    flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
+    win_->setFlags( flags );
+
+    win_->show();
+
     // Main window access members
     ctx_ = win_->rootContext();
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
+    qmlCounter_ = item_->findChild<QQuickItem*>( "counter" );
+
+    // Connect to Redmine
+    redmine_ = new SimpleRedmineClient( this );
+
+    // Settings initialisation
+    settings_ = new Settings( this );
+    settings_->load();
+    reconnect();
+
+    // Issue selector initialisation
+    issueSelector_ = new IssueSelector( redmine_, this );
+    issueSelector_->setProjectId( settings_->getProject() );
+
+    // Timer initialisation
+    timer_ = new QTimer( this );
+    timer_->setTimerType( Qt::VeryCoarseTimer );
+    timer_->setInterval( 1000 );
+
+    // Counter initialisation
+    counter_ = 0;
+
+    // Apply loaded settings
+    activityId_ = settings_->getActivity();
+    issueSelector_->setProjectId( settings_->getProject() );
+    loadIssue( settings_->getIssue(), false );
+
+    init();
+
+    RETURN();
+}
+
+RedTimer::~RedTimer()
+{
+    ENTER();
+
+    // Save settings
+    settings_->setActivity( activityId_ );
+    settings_->setIssue( issue_.id );
+    settings_->setProject( issueSelector_->getProjectId() );
+    settings_->save();
+
+    RETURN();
+}
+
+bool RedTimer::eventFilter( QObject* obj, QEvent* event )
+{
+    // Show warning on close and if timer is running
+    if( event->type() == QEvent::Close && timer_->isActive() )
+    {
+        DEBUG() << "Received close event while timer is running";
+
+        QMessageBox msgBox( QMessageBox::Warning, QString("RedTimer"),
+                            QString("The timer is currently running"),
+                            QMessageBox::NoButton, qobject_cast<QWidget*>(win_) );
+        msgBox.setInformativeText( "Do you want to save the logged time?" );
+        msgBox.setWindowModality( Qt::ApplicationModal );
+        msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
+        msgBox.setDefaultButton( QMessageBox::Cancel );
+
+        int ret = msgBox.exec();
+
+        switch( ret )
+        {
+        case QMessageBox::Cancel:
+            // Ignore the event
+            DEBUG() << "Ignoring the close event";
+            return true;
+
+        case QMessageBox::Save:
+            // Save the currently tracked time by stopping the tracking
+            stop();
+
+        default:
+            // The call to QObject::eventFilter below will eventually close the window
+            break;
+        }
+
+        DEBUG() << "Passing the close event to QObject";
+    }
+
+    return QObject::eventFilter( obj, event );
+}
+
+void
+RedTimer::init()
+{
+    ENTER();
 
     // Connect the settings button
     connect( item_->findChild<QQuickItem*>("settings"), SIGNAL(clicked()),
              settings_, SLOT(display()) );
 
-    if( !win_->isVisible() )
-    {
-        DEBUG() << "Displaying main window";
-        win_->show();
-    }
+    // Connect the issue selector button
+    connect( item_->findChild<QQuickItem*>("selectIssue"), SIGNAL(clicked()),
+             issueSelector_, SLOT(display()) );
 
-    // Load settings
-    settings_->load();
+    // Connect the text field
+    connect( item_->findChild<QQuickItem*>("quickPick"), SIGNAL(accepted()),
+             this, SLOT(loadIssue()) );
 
-    // Connect to Redmine
-    redmine_ = new Redmine( settings_->getUrl(), settings_->getApiKey(), this );
+    // Connect the start/stop button
+    connect( item_->findChild<QQuickItem*>("startStop"), SIGNAL(clicked()),
+             this, SLOT(startStop()) );
+
+    // Connect the project selected signal to the projectSelected slot
+    connect( item_->findChild<QQuickItem*>("activity"), SIGNAL(activated(int)),
+             this, SLOT(activitySelected(int)) );
+
+    // Connect the settings saved signal to the reconnect slot
+    connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
+
+    // Connect the issue selected signal to the setIssue slot
+    connect( issueSelector_, &IssueSelector::selected,
+             [=](int issueId){ loadIssue(issueId); } );
+
+    // Connect the timer to the tracking counter
+    connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
 
     // Initially update the GUI
     update();
-
-    // Connect the settings saved signal to the reconnect slot
-    connect( settings_, &Settings::saved, this, &RedTimer::reconnect );
-
-    // Connect the project selected signal to the updateIssues slot
-//    connect( item_->findChild<QQuickItem*>("project"), SIGNAL(activated(int)),
-//             this, SLOT(projectSelected(int)) );
-
-    RETURN();
-}
-
-void
-RedTimer::projectSelected( int index )
-{
-    ENTER();
-
-    DEBUG()(index);
-
-    int projectId = projectModel_.at(index).id();
-    DEBUG()(projectId);
-
-    if( projectId == -1 )
-        RETURN();
-
-    // Search for project with ID
-    // No map required here as there are usually just a few projects
-    for( const auto& project : projects_ )
-        if( project.id == projectId )
-            project_ = project;
-
-    DEBUG()(project_.id)(project_.name);
-
-    updateIssues();
 
     RETURN();
 }
@@ -93,83 +170,130 @@ RedTimer::reconnect()
 }
 
 void
-RedTimer::refreshActivities()
+RedTimer::refreshCounter()
+{
+    ++counter_;
+    qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
+}
+
+void
+RedTimer::loadIssue()
 {
     ENTER();
 
-    QStringList list;
-    list.append( "Choose activity" );
-    for( const auto& activity : activities_ )
-        list.append( activity.name );
+    int issueId = item_->findChild<QQuickItem*>("quickPick")->property("text").toInt();
+    item_->findChild<QQuickItem*>("quickPick")->setProperty( "text", "" );
 
-    DEBUG(Activities:)(list);
-
-    ctx_->setContextProperty( "activityModel", QVariant::fromValue(list) );
+    loadIssue( issueId );
 
     RETURN();
 }
 
 void
-RedTimer::refreshIssues()
+RedTimer::loadIssue( int issueId, bool startTimer )
 {
-    ENTER();
+    ENTER()(issueId)(startTimer);
 
-    QStringList list;
-    for( const auto& issue : issues_ )
-        list.append( issue.subject+" (#"+issue.id+")" );
+    redmine_->retrieveIssue( [=]( Issue issue )
+    {
+        ENTER()(issue);
 
-    DEBUG() << "Issues:" << list;
+        issue_ = issue;
 
-    ctx_->setContextProperty( "issuesModel", QVariant::fromValue(list) );
+        QString issueData = QString( "Issue #%1\n\nSubject: %2\n\n%3" )
+                .arg(issue.id)
+                .arg(issue.subject)
+                .arg(issue.description);
+        item_->findChild<QQuickItem*>("issueData")->setProperty( "text", issueData );
+
+        if( startTimer )
+            start();
+
+        RETURN();
+    },
+    issueId );
 
     RETURN();
 }
 
 void
-RedTimer::refreshIssueStatuses()
+RedTimer::start()
 {
     ENTER();
 
-    QStringList list;
-    list.append( "Choose status" );
-    for( const auto& issueStatus : issueStatuses_ )
-        list.append( issueStatus.name );
+    // If no issue is selected, show issue selector
+    if( issue_.id == -1 )
+    {
+        issueSelector_->display();
+        RETURN();
+    }
 
-    DEBUG(Issue statuses:)(list);
+    // If the timer is currently active, save the currently logged time first
+    if( timer_->isActive() )
+        stop( true, false );
 
-    ctx_->setContextProperty( "statusModel", QVariant::fromValue(list) );
+    // Afterwards, start the timer again
+    timer_->start();
+
+    // Set the start/stop button icon to stop
+    item_->findChild<QQuickItem*>("startStop")->setProperty(
+                "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
+    item_->findChild<QQuickItem*>("startStop")->setProperty( "text", "Stop time tracking" );
 
     RETURN();
 }
 
 void
-RedTimer::refreshProjects()
+RedTimer::startStop()
 {
     ENTER();
 
-    projectModel_.clear();
-    projectModel_.insert( SimpleItem("Choose project") );
-    for( const auto& project : projects_ )
-        projectModel_.insert( SimpleItem(project) );
-
-    DEBUG(Projects:)(projectModel_);
-
-    ctx_->setContextProperty( "projectModel", &projectModel_ );
+    // If the timer is currently active, stop it; otherwise, start it
+    if( timer_->isActive() )
+        stop( false );
+    else
+        start();
 
     RETURN();
 }
 
 void
-RedTimer::refreshTrackers()
+RedTimer::stop( bool resetTimerOnError, bool stopTimer )
 {
     ENTER();
 
-    QStringList list;
-    list.append( "Choose tracker" );
-    for( const auto& tracker : trackers_ )
-        list.append( tracker.name );
+    // Save the tracked time
+    TimeEntry timeEntry;
+    timeEntry.activity.id = activityId_;
+    timeEntry.hours       = (double)counter_ / 3600; // Seconds to hours conversion
+    timeEntry.issue.id    = issue_.id;
 
-    ctx_->setContextProperty( "trackerModel", QVariant::fromValue(list) );
+    redmine_->createTimeEntry( timeEntry, [=](bool success, Error reason)
+    {
+        ENTER();
+
+        if( !success && reason != Error::TIME_ENTRY_TOO_SHORT )
+            RETURN();
+
+        if( stopTimer )
+        {
+            timer_->stop();
+
+            // Set the start/stop button icon to start
+            item_->findChild<QQuickItem*>("startStop")->setProperty(
+                        "iconSource", "qrc:///open-iconic/svg/media-play.svg" );
+            item_->findChild<QQuickItem*>("startStop")->setProperty( "text", "Start time tracking" );
+        }
+
+        if( success ||
+            (resetTimerOnError && reason != Error::TIME_ENTRY_TOO_SHORT) )
+        {
+            counter_ = 0;
+            qmlCounter_->setProperty( "text", "00:00:00" );
+        }
+
+        RETURN();
+    });
 
     RETURN();
 }
@@ -179,28 +303,19 @@ RedTimer::update()
 {
     ENTER();
 
-    activity_   = Redmine::Enumeration();
-    activities_ = Redmine::Enumerations();
+    updateActivities();
+    updateIssueStatuses();
 
-    issue_  = Redmine::Issue();
-    issues_ = Redmine::Issues();
+    RETURN();
+}
 
-    issueStatus_   = Redmine::IssueStatus();
-    issueStatuses_ = Redmine::IssueStatuses();
+void
+RedTimer::activitySelected( int index )
+{
+    ENTER();
 
-    project_  = Redmine::Project();
-    projects_ = Redmine::Projects();
-
-    tracker_  = Redmine::Tracker();
-    trackers_ = Redmine::Trackers();
-
-    refreshActivities();
-    refreshIssues();
-    refreshIssueStatuses();
-    refreshProjects();
-    refreshTrackers();
-
-    updateProjects();
+    activityId_ = activityModel_.at(index).id();
+    DEBUG()(index)(activityId_);
 
     RETURN();
 }
@@ -210,102 +325,40 @@ RedTimer::updateActivities()
 {
     ENTER();
 
-    redmine_->retrieveTimeEntryActivities( [&]( Redmine::Enumerations activities )
+    redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities )
     {
         ENTER();
 
-        activities_ = activities;
-        //refreshActivities();
+        int currentIndex = 0;
+
+        // Sort issues ascending by ID
+        qSort( activities.begin(), activities.end(),
+               []( const Enumeration& a, const Enumeration& b ){ return a.id < b.id; } );
+
+        activityModel_.clear();
+        activityModel_.insert( SimpleItem("Choose activity") );
+        for( const auto& activity : activities )
+        {
+            if( activity.id == activityId_ )
+                currentIndex = activityModel_.rowCount();
+
+            activityModel_.insert( SimpleItem(activity) );
+        }
+
+        DEBUG()(activityModel_)(activityId_)(currentIndex);
+
+        ctx_->setContextProperty( "activityModel", &activityModel_ );
+
+        if( currentIndex != 0 )
+            item_->findChild<QQuickItem*>("activity")->setProperty( "currentIndex", currentIndex );
 
         RETURN();
     } );
-
-    RETURN();
-}
-
-void
-RedTimer::updateIssues()
-{
-    ENTER();
-
-    updateIssues( -1 );
-
-    RETURN();
-}
-
-void
-RedTimer::updateIssues( int projectId )
-{
-    ENTER()(projectId);
-
-    if( projectId == -1 )
-        projectId = project_.id;
-
-    DEBUG(Using project ID:)(projectId);
-
-    redmine_->retrieveIssues( [=]( Redmine::Issues issues )
-    {
-        ENTER();
-
-        issues_ = issues;
-        qSort( issues_.begin(), issues_.end(),
-               []( const Redmine::Issue& a, const Redmine::Issue& b ){ return a.id > b.id; } );
-
-        refreshIssues();
-    },
-    QString("project_id=%1").arg(projectId) );
 }
 
 void
 RedTimer::updateIssueStatuses()
 {
     ENTER();
-
-    redmine_->retrieveIssueStatuses( [&]( Redmine::IssueStatuses issueStatuses )
-    {
-        ENTER();
-
-        issueStatuses_ = issueStatuses;
-        //refreshIssueStatuses();
-
-        RETURN();
-    } );
-}
-
-void
-RedTimer::updateProjects()
-{
-    ENTER();
-
-    redmine_->retrieveProjects( [&]( Redmine::Projects projects )
-    {
-        ENTER();
-
-        projects_ = projects;
-        qSort( projects_.begin(), projects_.end(),
-               []( const Redmine::Project& a, const Redmine::Project& b ){ return a.name < b.name; } );
-
-        refreshProjects();
-
-        RETURN();
-    } );
-}
-
-void
-RedTimer::updateTrackers()
-{
-    ENTER();
-
-    redmine_->retrieveTrackers( [&]( Redmine::Trackers trackers )
-    {
-        ENTER();
-
-        trackers_ = trackers;
-        qSort( trackers_.begin(), trackers_.end(),
-               []( const Redmine::Tracker& a, const Redmine::Tracker& b ){ return a.name < b.name; } );
-
-        refreshTrackers();
-
-        RETURN();
-    } );
+    RETURN();
 }

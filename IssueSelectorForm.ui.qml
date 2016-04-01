@@ -3,15 +3,23 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
-    id: issueSelector
     width: 200
-    property alias search: search
+    height: 400
+
+    Layout.fillHeight: true
+    Layout.fillWidth: true
+    Layout.minimumWidth: 200
+
     property alias issues: issues
     property alias project: project
-    Layout.minimumWidth: 200
+    property alias search: search
 
     GroupBox {
         id: groupBox1
+        anchors.rightMargin: 5
+        anchors.leftMargin: 5
+        anchors.bottomMargin: 5
+        anchors.topMargin: 5
         anchors.fill: parent
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         Layout.fillHeight: true
@@ -42,13 +50,19 @@ Item {
 
             ListView {
                 id: issues
+                clip: true
+                boundsBehavior: Flickable.StopAtBounds
+                Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                 objectName: "issues"
                 model: issuesModel
 
-                delegate: Item {
-                    height: 25
-                    width: 100
-                    Text { text: modelData }
+                signal activated( int index )
+
+                delegate: issueDelegate
+
+                highlight: Rectangle {
+                    color: "lightsteelblue";
+                    radius: 5
                 }
 
                 Layout.fillWidth: true
@@ -58,10 +72,6 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 0
             }
-
-
-
-
 
         }
     }

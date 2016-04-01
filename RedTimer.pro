@@ -5,7 +5,8 @@ QT += qml quick widgets gui
 SOURCES += main.cpp \
     RedTimer.cpp \
     Settings.cpp \
-    Models.cpp
+    Models.cpp \
+    IssueSelector.cpp
 
 RESOURCES += qml.qrc
 
@@ -23,7 +24,8 @@ HEADERS += \
     RedTimer.h \
     Settings.h \
     logging.h \
-    Models.h
+    Models.h \
+    IssueSelector.h
 
 CONFIG += c++11
 

@@ -1,17 +1,21 @@
 #ifndef REDTIMER_H
 #define REDTIMER_H
 
+#include "IssueSelector.h"
 #include "Models.h"
 #include "Settings.h"
 
-#include "qtredmine/Redmine.h"
+#include "qtredmine/SimpleRedmineClient.h"
 
+#include <QEvent>
 #include <QList>
 #include <QMap>
 #include <QObject>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickView>
+#include <QTimer>
+#include <QTime>
 
 #include <memory>
 
@@ -23,10 +27,13 @@ class RedTimer : public QObject
 
 private:
     /// Redmine connection object
-    qtredmine::Redmine* redmine_;
+    qtredmine::SimpleRedmineClient* redmine_;
 
     /// Redmine connection dialog object
     Settings* settings_;
+
+    /// Redmine issue selector dialog object
+    IssueSelector* issueSelector_;
 
     /// Main window object
     QQuickView* win_;
@@ -37,91 +44,69 @@ private:
     /// Main item object
     QQuickItem* item_;
 
+    /// Timer for stopping the worked on time
+    QTimer* timer_;
+
+    /// Currently tracked time in seconds
+    int counter_;
+
+    /// Counter QML element for quick access
+    QQuickItem* qmlCounter_;
+
     /// Current activity
-    qtredmine::Redmine::Enumeration activity_;
+    int activityId_;
 
     /// Cached activities
-    qtredmine::Redmine::Enumerations activities_;
+    SimpleModel activityModel_;
 
     /// Current issue
-    qtredmine::Redmine::Issue issue_;
-
-    /// Cached issues
-    qtredmine::Redmine::Issues issues_;
+    qtredmine::Issue issue_;
 
     /// Current issue status
-    qtredmine::Redmine::IssueStatus issueStatus_;
+    int issueStatusId_;
 
     /// Cached issue statuses
-    qtredmine::Redmine::IssueStatuses issueStatuses_;
-
-    /// Current project
-    qtredmine::Redmine::Project project_;
-
-    /// List of projects in the GUI
-    SimpleModel projectModel_;
-
-    /// Cached projects
-    qtredmine::Redmine::Projects projects_;
-
-    /// Current tracker
-    qtredmine::Redmine::Tracker tracker_;
-
-    /// Cached trackers
-    qtredmine::Redmine::Trackers trackers_;
+    SimpleModel issueStatusModel_;
 
 public:
+    /**
+     * @brief RedTimer constructor
+     *
+     * @param parent Parent QObject
+     */
     explicit RedTimer( QObject* parent = nullptr );
 
     /**
-     * @brief Run the application
+     * @brief Destructor
+     */
+    ~RedTimer();
+
+    /**
+     * @brief Initialise the GUI
+     */
+    void init();
+
+protected:
+    /**
+     * @brief Prevent the GUI from closing when timer is running
      *
-     * @return Status code
+     * @param obj Watched object
+     * @param event Received event
+     *
+     * @return true if event has been processed, false otherwise
      */
-    int display();
+    bool eventFilter( QObject* obj, QEvent* event );
 
+private slots:
     /**
-     * @brief Update the issue list in the GUI
+     * @brief Slot to a selected activity
      */
-    void refreshIssues();
+    void activitySelected( int index );
 
-    /**
-     * @brief Update the issue statuse list in the GUI
-     */
-    void refreshIssueStatuses();
-
-    /**
-     * @brief Update the project list in the GUI
-     */
-    void refreshProjects();
-
-    /**
-     * @brief Update the activities list in the GUI
-     */
-    void refreshActivities();
-
-    /**
-     * @brief Update the tracker list in the GUI
-     */
-    void refreshTrackers();
-
-public slots:
     /**
      * @brief Update Redmine entities
      */
     void update();
-
-    /**
-     * @brief Update issues
-     */
-    void updateIssues();
-
-    /**
-     * @brief Update issues
-     *
-     * @param projectId Project ID to get issues for
-     */
-    void updateIssues( int projectId );
 
     /**
      * @brief Update issue statuses
@@ -129,30 +114,67 @@ public slots:
     void updateIssueStatuses();
 
     /**
-     * @brief Update projects
-     */
-    void updateProjects();
-
-    /**
      * @brief Update activities
      */
     void updateActivities();
 
-    /**
-     * @brief Update trackers
-     */
-    void updateTrackers();
-
-private slots:
     /**
      * @brief Slot to reconnect to Redmine
      */
     void reconnect();
 
     /**
-     * @brief Slot to a selected project
+     * @brief Refresh the counter
      */
-    void projectSelected( int index );
+    void refreshCounter();
+
+    /**
+     * @brief Load issue from Redmine
+     *
+     * Uses the issue ID from the quick pick text field.
+     */
+    void loadIssue();
+
+    /**
+     * @brief Load issue from Redmine
+     *
+     * @param issueId Issue ID
+     * @param startTimer Automatically start the timer after loading the issue
+     */
+    void loadIssue( int issueId, bool startTimer = true );
+
+    /**
+     * @brief Start time tracking
+     *
+     * Starts time tracking using the timer. If the timer is already active, the previously tracked time will
+     * be saved first and the the new time tracking will be started. Requires the current issue to be set.
+     *
+     * \sa timer_
+     * \sa issue_
+     */
+    void start();
+
+    /**
+     * @brief Start or stop time tracking
+     *
+     * Start time tracking if the timer is currently inactive. Stop time tracking if the timer is currently
+     * active.
+     *
+     * \sa timer_
+     */
+    void startStop();
+
+    /**
+     * @brief Stop time tracking
+     *
+     * Stops time tracking using the timer.
+     *
+     * @param resetTimerOnError Reset timer even after an error occurred
+     * @param stopTimer Stop the timer after saving the time and resetting the counter.
+     *
+     * \sa timer_
+     */
+    void stop( bool resetTimerOnError = true, bool stopTimer = true );
 };
 
 } // redtimer

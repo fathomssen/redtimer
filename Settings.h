@@ -13,10 +13,10 @@ class Settings : public QObject
     Q_OBJECT
 
 private:
-    /// Main window object
+    /// Settings window object
     QQuickView* win_;
 
-    /// Main item object
+    /// Settings item object
     QQuickItem* item_;
 
     /// Application settings
@@ -28,11 +28,42 @@ private:
     /// Redmine base URL
     QString url_;
 
+    /// Last used activity
+    int activityId_;
+
+    /// Last opened issue
+    int issueId_;
+
     /// Last opened project
     int projectId_;
 
 public:
-    explicit Settings( QObject *parent = 0 );
+    /**
+     * @brief Constructor for a Settings object
+     *
+     * @param parent Parent QObject
+     */
+    explicit Settings( QObject* parent = nullptr );
+
+    /**
+     * @brief Load settings from settings file
+     */
+    void load();
+
+    /**
+     * @brief Save settings to settings file
+     */
+    void save();
+
+    /// @name Getters
+    /// @{
+
+    /**
+     * @brief Get last used activity
+     *
+     * @return Activity ID
+     */
+    int getActivity();
 
     /**
      * @brief Get the Redmine API key
@@ -42,39 +73,75 @@ public:
     QString getApiKey() const;
 
     /**
+     * @brief Get last used issue
+     *
+     * @return Issue ID
+     */
+    int getIssue();
+
+    /**
+     * @brief Get last used project
+     *
+     * @return Project ID
+     */
+    int getProject();
+
+    /**
      * @brief Get the Redmine base URL
      *
      * @return Redmine base URL
      */
     QString getUrl() const;
 
+    /// @}
+
+    /// @name Setters
+    /// @{
+
     /**
-     * @brief Load settings from settings file
+     * @brief Set last used activity
+     *
+     * @param id Activity ID
      */
-    void load();
+    void setActivity( int id );
+
+    /**
+     * @brief Set last used issue
+     *
+     * @param id Issue ID
+     */
+    void setIssue( int id );
+
+    /**
+     * @brief Set last used project
+     *
+     * @param id Project ID
+     */
+    void setProject( int id );
+
+    /// @}
 
 public slots:
     /**
-     * @brief Close the Redmine connection dialog
+     * @brief Store the settings from the settings dialog in this class
+     */
+    void apply();
+
+    /**
+     * @brief Close the settings dialog
      */
     void close();
 
     /**
-     * @brief Display the Redmine connection dialog
+     * @brief Display the settings dialog
      */
     void display();
 
-    /**
-     * @brief Save preferences from settings dialog to settings file
-     */
-    void save();
-
 signals:
-
     /**
-     * @brief Emitted when data have been saved
+     * @brief Emitted when data have been applied in this GUI
      */
-    void saved();
+    void applied();
 };
 
 } // redtimer
