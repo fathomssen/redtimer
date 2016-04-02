@@ -108,7 +108,7 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
 
             DEBUG() << "Entering quit loop";
             QEventLoop* quitLoop = new QEventLoop( this );
-            connect( this, &timeEntrySaved, [=](){ quitLoop->quit(); } );
+            connect( this, &RedTimer::timeEntrySaved, [=](){ quitLoop->quit(); } );
             quitLoop->exec();
             DEBUG() << "Leaving quit loop";
         }
