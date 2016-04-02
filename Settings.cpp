@@ -17,11 +17,7 @@ Settings::Settings( QObject* parent )
     win_ = new QQuickView();
     win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
     win_->setModality( Qt::ApplicationModal );
-
-    Qt::WindowFlags flags = Qt::Dialog;
-    flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
-    flags |= Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
-    win_->setFlags( flags );
+    win_->setFlags( Qt::Tool );
 
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
 
@@ -100,16 +96,18 @@ Settings::load()
 {
     ENTER();
 
-    // GUI
+    // Settings GUI
     apiKey_ = settings_.value( "apikey" ).toString();
     url_    = settings_.value( "url" ).toString();
 
-    // External
+    // Other GUIs
     activityId_ = settings_.value("activity").toInt();
     issueId_    = settings_.value("issue").toInt();
     projectId_  = settings_.value("project").toInt();
 
-    DEBUG("Loaded settings from file:")(url_)(apiKey_)(activityId_)(issueId_)(projectId_);
+    position_   = settings_.value("position").toPoint();
+
+    DEBUG("Loaded settings from file:")(url_)(apiKey_)(activityId_)(issueId_)(projectId_)(position_);
 
     if( url_.isEmpty() || apiKey_.isEmpty() )
         display();
@@ -124,14 +122,16 @@ Settings::save()
 {
     ENTER();
 
-    // From GUI
+    // From Settings GUI
     settings_.setValue( "apikey", apiKey_ );
     settings_.setValue( "url",    url_ );
 
-    // From external
+    // From other GUIs
     settings_.setValue( "activity", activityId_ );
     settings_.setValue( "issue",    issueId_ );
     settings_.setValue( "project",  projectId_ );
+
+    settings_.setValue( "position", position_ );
 
     RETURN();
 }
@@ -155,6 +155,13 @@ Settings::getIssue()
 {
     ENTER();
     RETURN( issueId_ );
+}
+
+QPoint
+Settings::getPosition()
+{
+    ENTER();
+    RETURN( position_ );
 }
 
 int
@@ -188,9 +195,24 @@ Settings::setIssue( int id )
 }
 
 void
+Settings::setPosition( QPoint position )
+{
+    ENTER();
+    position_ = position;
+    RETURN();
+}
+
+void
 Settings::setProject( int id )
 {
     ENTER();
     projectId_ = id;
     RETURN();
+}
+
+QQuickView*
+Settings::window() const
+{
+    ENTER();
+    RETURN( win_ );
 }

@@ -3,6 +3,8 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
+    id: redTimer
+    objectName: "redTimer"
     width: 250
     height: 400
     Layout.minimumWidth: 250
@@ -18,7 +20,8 @@ Item {
     property alias counter: counter
 
     ToolBar {
-        id: toolBar1
+        id: toolBar
+        objectName: "toolBar"
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
@@ -34,6 +37,7 @@ Item {
         }
     }
 
+
     SplitView {
         id: splitView1
         orientation: Qt.Vertical
@@ -41,7 +45,7 @@ Item {
         anchors.leftMargin: 5
         anchors.bottomMargin: 5
         anchors.topMargin: 5
-        anchors.top: toolBar1.bottom
+        anchors.top: toolBar.bottom
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
@@ -113,6 +117,7 @@ Item {
 
                     RowLayout {
                         id: rowLayout2
+                        Layout.fillWidth: true
 
                         ToolButton {
                             id: startStop
@@ -128,6 +133,7 @@ Item {
                             id: counter
                             objectName: "counter"
                             text: "00:00:00"
+                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                             readOnly: true
                         }
                     }
@@ -157,6 +163,8 @@ Item {
             }
         }
     }
+
+
 
 }
 

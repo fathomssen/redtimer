@@ -16,11 +16,7 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QObject* parent )
     win_ = new QQuickView();
     win_->setSource( QUrl(QStringLiteral("qrc:/IssueSelector.qml")) );
     win_->setModality( Qt::ApplicationModal );
-
-    Qt::WindowFlags flags = Qt::Dialog;
-    flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
-    flags |= Qt::WindowSystemMenuHint | Qt::WindowCloseButtonHint;
-    win_->setFlags( flags );
+    win_->setFlags( Qt::Tool );
 
     // Issue selector window access members
     ctx_ = win_->rootContext();
@@ -175,4 +171,11 @@ IssueSelector::setProjectId( int id )
     ENTER();
     projectId_ = id;
     RETURN();
+}
+
+QQuickView*
+IssueSelector::window() const
+{
+    ENTER();
+    RETURN( win_ );
 }

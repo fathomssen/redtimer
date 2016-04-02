@@ -12,5 +12,7 @@
         <file>open-iconic/svg/cog.svg</file>
         <file>open-iconic/svg/power-standby.svg</file>
         <file>open-iconic/svg/media-stop.svg</file>
+        <file>MessageBox.qml</file>
+        <file>MessageBoxForm.ui.qml</file>
     </qresource>
 </RCC>

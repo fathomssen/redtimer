@@ -34,6 +34,9 @@ private:
     /// Last opened issue
     int issueId_;
 
+    /// Last window position
+    QPoint position_;
+
     /// Last opened project
     int projectId_;
 
@@ -80,6 +83,13 @@ public:
     int getIssue();
 
     /**
+     * @brief Get last window position
+     *
+     * @return Window position
+     */
+    QPoint getPosition();
+
+    /**
      * @brief Get last used project
      *
      * @return Project ID
@@ -92,6 +102,13 @@ public:
      * @return Redmine base URL
      */
     QString getUrl() const;
+
+    /**
+     * @brief Get the settings window
+     *
+     * @return Settings window
+     */
+    QQuickView* window() const;
 
     /// @}
 
@@ -111,6 +128,13 @@ public:
      * @param id Issue ID
      */
     void setIssue( int id );
+
+    /**
+     * @brief Set last window position
+     *
+     * @param position Window position
+     */
+    void setPosition( QPoint position );
 
     /**
      * @brief Set last used project

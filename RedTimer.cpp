@@ -14,12 +14,20 @@ RedTimer::RedTimer( QObject* parent )
 {
     ENTER();
 
+    // Settings initialisation
+    settings_ = new Settings( this );
+    settings_->load();
+
     // Main window initialisation
     win_ = new QQuickView();
     win_->installEventFilter( this );
     win_->setResizeMode( QQuickView::SizeRootObjectToView );
     win_->setSource( QUrl(QStringLiteral("qrc:/RedTimer.qml")) );
     win_->setModality( Qt::ApplicationModal );
+
+    QPoint position = settings_->getPosition();
+    if( !position.isNull() )
+        win_->setFramePosition( position );
 
     // Additional window manager properties
     Qt::WindowFlags flags = Qt::Window;
@@ -32,14 +40,11 @@ RedTimer::RedTimer( QObject* parent )
     // Main window access members
     ctx_ = win_->rootContext();
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
-    qmlCounter_ = item_->findChild<QQuickItem*>( "counter" );
+    qmlCounter_ = qml( "counter" );
 
     // Connect to Redmine
     redmine_ = new SimpleRedmineClient( this );
 
-    // Settings initialisation
-    settings_ = new Settings( this );
-    settings_->load();
     reconnect();
 
     // Issue selector initialisation
@@ -59,6 +64,10 @@ RedTimer::RedTimer( QObject* parent )
     issueSelector_->setProjectId( settings_->getProject() );
     loadIssue( settings_->getIssue(), false );
 
+    // Set transient window parent
+    settings_->window()->setTransientParent( win_ );
+    issueSelector_->window()->setTransientParent( win_ );
+
     init();
 
     RETURN();
@@ -72,7 +81,60 @@ RedTimer::~RedTimer()
     settings_->setActivity( activityId_ );
     settings_->setIssue( issue_.id );
     settings_->setProject( issueSelector_->getProjectId() );
+    settings_->setPosition( win_->framePosition() );
     settings_->save();
+
+    RETURN();
+}
+
+void
+RedTimer::activitySelected( int index )
+{
+    ENTER();
+
+    activityId_ = activityModel_.at(index).id();
+    DEBUG()(index)(activityId_);
+
+    RETURN();
+}
+
+void
+RedTimer::init()
+{
+    ENTER();
+
+    // Connect the settings button
+    connect( qml("settings"), SIGNAL(clicked()),
+             settings_, SLOT(display()) );
+
+    // Connect the issue selector button
+    connect( qml("selectIssue"), SIGNAL(clicked()),
+             issueSelector_, SLOT(display()) );
+
+    // Connect the text field
+    connect( qml("quickPick"), SIGNAL(accepted()),
+             this, SLOT(loadIssue()) );
+
+    // Connect the start/stop button
+    connect( qml("startStop"), SIGNAL(clicked()),
+             this, SLOT(startStop()) );
+
+    // Connect the project selected signal to the projectSelected slot
+    connect( qml("activity"), SIGNAL(activated(int)),
+             this, SLOT(activitySelected(int)) );
+
+    // Connect the settings saved signal to the reconnect slot
+    connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
+
+    // Connect the issue selected signal to the setIssue slot
+    connect( issueSelector_, &IssueSelector::selected,
+             [=](int issueId){ loadIssue(issueId); } );
+
+    // Connect the timer to the tracking counter
+    connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
+
+    // Initially update the GUI
+    update();
 
     RETURN();
 }
@@ -85,9 +147,9 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
         DEBUG() << "Received close event while timer is running";
 
         QMessageBox msgBox( QMessageBox::Warning, QString("RedTimer"),
-                            QString("The timer is currently running"),
+                            tr("The timer is currently running"),
                             QMessageBox::NoButton, qobject_cast<QWidget*>(win_) );
-        msgBox.setInformativeText( "Do you want to save the logged time?" );
+        msgBox.setInformativeText( tr("Do you want to save the logged time?") );
         msgBox.setWindowModality( Qt::ApplicationModal );
         msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
         msgBox.setDefaultButton( QMessageBox::Cancel );
@@ -125,64 +187,41 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
 }
 
 void
-RedTimer::init()
+RedTimer::message( QString text, QtMsgType type, int timeout )
 {
-    ENTER();
+    ENTER()(text)(type)(timeout);
 
-    // Connect the settings button
-    connect( item_->findChild<QQuickItem*>("settings"), SIGNAL(clicked()),
-             settings_, SLOT(display()) );
+    QString colour;
 
-    // Connect the issue selector button
-    connect( item_->findChild<QQuickItem*>("selectIssue"), SIGNAL(clicked()),
-             issueSelector_, SLOT(display()) );
+    switch( type )
+    {
+    case QtInfoMsg:
+        colour = "#000000";
+        break;
+    case QtWarningMsg:
+        colour = "#FFA500";
+        break;
+    case QtCriticalMsg:
+        colour = "#FF0000";
+        break;
+    case QtDebugMsg:
+    case QtFatalMsg:
+        DEBUG() << "Error: Unsupported message type";
+        RETURN();
+    }
 
-    // Connect the text field
-    connect( item_->findChild<QQuickItem*>("quickPick"), SIGNAL(accepted()),
-             this, SLOT(loadIssue()) );
+    QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), win_ );
+    QQuickItem* item = view->rootObject();
+    item->setParentItem( qml("redTimer") );
+    item->setY( 30 );
 
-    // Connect the start/stop button
-    connect( item_->findChild<QQuickItem*>("startStop"), SIGNAL(clicked()),
-             this, SLOT(startStop()) );
+    item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
+    item->findChild<QQuickItem*>("message")->setProperty( "text", text );
 
-    // Connect the project selected signal to the projectSelected slot
-    connect( item_->findChild<QQuickItem*>("activity"), SIGNAL(activated(int)),
-             this, SLOT(activitySelected(int)) );
-
-    // Connect the settings saved signal to the reconnect slot
-    connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
-
-    // Connect the issue selected signal to the setIssue slot
-    connect( issueSelector_, &IssueSelector::selected,
-             [=](int issueId){ loadIssue(issueId); } );
-
-    // Connect the timer to the tracking counter
-    connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
-
-    // Initially update the GUI
-    update();
+    QTimer* errorTimer = new QTimer( this );
+    errorTimer->singleShot( timeout, this, [=](){ if(item) item->deleteLater(); } );
 
     RETURN();
-}
-
-void
-RedTimer::reconnect()
-{
-    ENTER();
-
-    redmine_->setUrl( settings_->getUrl() );
-    redmine_->setAuthenticator( settings_->getApiKey() );
-
-    update();
-
-    RETURN();
-}
-
-void
-RedTimer::refreshCounter()
-{
-    ++counter_;
-    qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
 }
 
 void
@@ -190,8 +229,8 @@ RedTimer::loadIssue()
 {
     ENTER();
 
-    int issueId = item_->findChild<QQuickItem*>("quickPick")->property("text").toInt();
-    item_->findChild<QQuickItem*>("quickPick")->setProperty( "text", "" );
+    int issueId = qml("quickPick")->property("text").toInt();
+    qml("quickPick")->setProperty( "text", "" );
 
     loadIssue( issueId );
 
@@ -217,7 +256,7 @@ RedTimer::loadIssue( int issueId, bool startTimer )
                 .arg(issue.id)
                 .arg(issue.subject)
                 .arg(issue.description);
-        item_->findChild<QQuickItem*>("issueData")->setProperty( "text", issueData );
+        qml("issueData")->setProperty( "text", issueData );
 
         if( startTimer )
             start();
@@ -227,6 +266,33 @@ RedTimer::loadIssue( int issueId, bool startTimer )
     issueId );
 
     RETURN();
+}
+
+QQuickItem*
+RedTimer::qml( QString qmlItem )
+{
+    ENTER()(qmlItem);
+    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
+}
+
+void
+RedTimer::reconnect()
+{
+    ENTER();
+
+    redmine_->setUrl( settings_->getUrl() );
+    redmine_->setAuthenticator( settings_->getApiKey() );
+
+    update();
+
+    RETURN();
+}
+
+void
+RedTimer::refreshCounter()
+{
+    ++counter_;
+    qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
 }
 
 void
@@ -245,9 +311,9 @@ RedTimer::start()
     timer_->start();
 
     // Set the start/stop button icon to stop
-    item_->findChild<QQuickItem*>("startStop")->setProperty(
+    qml("startStop")->setProperty(
                 "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
-    item_->findChild<QQuickItem*>("startStop")->setProperty( "text", "Stop time tracking" );
+    qml("startStop")->setProperty( "text", "Stop time tracking" );
 
     RETURN();
 }
@@ -282,16 +348,22 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimer )
         ENTER();
 
         if( !success && reason != Error::TIME_ENTRY_TOO_SHORT )
+        {
+            message( tr("Could not save time entry. Please check your internet connection."), QtCriticalMsg );
             RETURN();
+        }
+
+        if( reason == Error::TIME_ENTRY_TOO_SHORT )
+            message( tr("Not saving time entries less than 1 minute"), QtWarningMsg );
 
         if( stopTimer )
         {
             timer_->stop();
 
             // Set the start/stop button icon to start
-            item_->findChild<QQuickItem*>("startStop")->setProperty(
+            qml("startStop")->setProperty(
                         "iconSource", "qrc:///open-iconic/svg/media-play.svg" );
-            item_->findChild<QQuickItem*>("startStop")->setProperty( "text", "Start time tracking" );
+            qml("startStop")->setProperty( "text", tr("Start time tracking") );
         }
 
         if( success ||
@@ -316,17 +388,6 @@ RedTimer::update()
 
     updateActivities();
     updateIssueStatuses();
-
-    RETURN();
-}
-
-void
-RedTimer::activitySelected( int index )
-{
-    ENTER();
-
-    activityId_ = activityModel_.at(index).id();
-    DEBUG()(index)(activityId_);
 
     RETURN();
 }
@@ -361,7 +422,7 @@ RedTimer::updateActivities()
         ctx_->setContextProperty( "activityModel", &activityModel_ );
 
         if( currentIndex != 0 )
-            item_->findChild<QQuickItem*>("activity")->setProperty( "currentIndex", currentIndex );
+            qml("activity")->setProperty( "currentIndex", currentIndex );
 
         RETURN();
     } );

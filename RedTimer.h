@@ -7,6 +7,7 @@
 
 #include "qtredmine/SimpleRedmineClient.h"
 
+#include <QApplication>
 #include <QEvent>
 #include <QList>
 #include <QMap>
@@ -68,6 +69,15 @@ private:
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
 
+    /**
+     * @brief Get a QML GUI item
+     *
+     * @param qmlItem Name of the QML GUI item
+     *
+     * @return QML GUI item
+     */
+    QQuickItem* qml( QString qmlItem );
+
 public:
     /**
      * @brief RedTimer constructor
@@ -88,7 +98,9 @@ public:
 
 protected:
     /**
-     * @brief Prevent the GUI from closing when timer is running
+     * @brief Filter Qt events
+     *
+     * Prevent the GUI from closing when timer is running.
      *
      * @param obj Watched object
      * @param event Received event
@@ -104,29 +116,13 @@ private slots:
     void activitySelected( int index );
 
     /**
-     * @brief Update Redmine entities
+     * @brief Display a message
+     *
+     * @param text Message to display
+     * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
+     * @param timeout Duration in milliseconds that the message will be displayed
      */
-    void update();
-
-    /**
-     * @brief Update issue statuses
-     */
-    void updateIssueStatuses();
-
-    /**
-     * @brief Update activities
-     */
-    void updateActivities();
-
-    /**
-     * @brief Slot to reconnect to Redmine
-     */
-    void reconnect();
-
-    /**
-     * @brief Refresh the counter
-     */
-    void refreshCounter();
+    void message( QString text, QtMsgType type = QtInfoMsg, int timeout = 5000 );
 
     /**
      * @brief Load issue from Redmine
@@ -142,6 +138,16 @@ private slots:
      * @param startTimer Automatically start the timer after loading the issue
      */
     void loadIssue( int issueId, bool startTimer = true );
+
+    /**
+     * @brief Reconnect to Redmine
+     */
+    void reconnect();
+
+    /**
+     * @brief Refresh the counter
+     */
+    void refreshCounter();
 
     /**
      * @brief Start time tracking
@@ -175,6 +181,21 @@ private slots:
      * \sa timer_
      */
     void stop( bool resetTimerOnError = true, bool stopTimer = true );
+
+    /**
+     * @brief Update Redmine entities
+     */
+    void update();
+
+    /**
+     * @brief Update activities
+     */
+    void updateActivities();
+
+    /**
+     * @brief Update issue statuses
+     */
+    void updateIssueStatuses();
 
 signals:
     /**
