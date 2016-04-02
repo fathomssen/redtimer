@@ -1,6 +1,7 @@
 #include "RedTimer.h"
 #include "logging.h"
 
+#include <QEventLoop>
 #include <QMessageBox>
 #include <QObject>
 
@@ -101,8 +102,16 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
             return true;
 
         case QMessageBox::Save:
-            // Save the currently tracked time by stopping the tracking
+        {
+            // Save the currently tracked time by stopping the tracking            
             stop();
+
+            DEBUG() << "Entering quit loop";
+            QEventLoop* quitLoop = new QEventLoop( this );
+            connect( this, &timeEntrySaved, [=](){ quitLoop->quit(); } );
+            quitLoop->exec();
+            DEBUG() << "Leaving quit loop";
+        }
 
         default:
             // The call to QObject::eventFilter below will eventually close the window
@@ -194,6 +203,10 @@ RedTimer::loadIssue( int issueId, bool startTimer )
 {
     ENTER()(issueId)(startTimer);
 
+    // If the timer is currently active, save the currently logged time first
+    if( timer_->isActive() )
+        stop( true, false );
+
     redmine_->retrieveIssue( [=]( Issue issue )
     {
         ENTER()(issue);
@@ -227,10 +240,6 @@ RedTimer::start()
         issueSelector_->display();
         RETURN();
     }
-
-    // If the timer is currently active, save the currently logged time first
-    if( timer_->isActive() )
-        stop( true, false );
 
     // Afterwards, start the timer again
     timer_->start();
@@ -291,6 +300,8 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimer )
             counter_ = 0;
             qmlCounter_->setProperty( "text", "00:00:00" );
         }
+
+        timeEntrySaved();
 
         RETURN();
     });

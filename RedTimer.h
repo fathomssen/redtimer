@@ -175,6 +175,12 @@ private slots:
      * \sa timer_
      */
     void stop( bool resetTimerOnError = true, bool stopTimer = true );
+
+signals:
+    /**
+     * @brief Signal emitted when a time entry has been saved
+     */
+    void timeEntrySaved();
 };
 
 } // redtimer

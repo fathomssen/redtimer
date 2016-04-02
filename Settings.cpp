@@ -10,7 +10,7 @@ using namespace std;
 
 Settings::Settings( QObject* parent )
     : QObject( parent ),
-      settings_( "Thomssen IT", "RedTimer" )
+      settings_( "RedTimer.ini", QSettings::IniFormat, this )
 {
     ENTER();
 
@@ -41,8 +41,18 @@ Settings::apply()
 {
     ENTER();
 
+    QString oldUrl    = url_;
+    QString oldApiKey = apiKey_;
+
     url_ = item_->findChild<QQuickItem*>("url")->property( "text" ).toString();
     apiKey_ = item_->findChild<QQuickItem*>("apikey")->property( "text" ).toString();
+
+    if( oldUrl != url_ || oldApiKey != apiKey_ )
+    {
+        activityId_ = -1;
+        issueId_    = -1;
+        projectId_  = -1;
+    }
 
     DEBUG("Changed settings to")(url_)(apiKey_);
 
