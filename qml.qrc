@@ -14,5 +14,6 @@
         <file>open-iconic/svg/media-stop.svg</file>
         <file>MessageBox.qml</file>
         <file>MessageBoxForm.ui.qml</file>
+        <file>open-iconic/svg/reload.svg</file>
     </qresource>
 </RCC>

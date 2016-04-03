@@ -36,6 +36,9 @@ private:
     /// Redmine issue selector dialog object
     IssueSelector* issueSelector_;
 
+    /// Main application
+    QApplication* app_;
+
     /// Main window object
     QQuickView* win_;
 
@@ -49,13 +52,13 @@ private:
     QTimer* timer_;
 
     /// Currently tracked time in seconds
-    int counter_;
+    int counter_ = 0;
 
     /// Counter QML element for quick access
     QQuickItem* qmlCounter_;
 
     /// Current activity
-    int activityId_;
+    int activityId_ = -1;
 
     /// Cached activities
     SimpleModel activityModel_;
@@ -64,7 +67,7 @@ private:
     qtredmine::Issue issue_;
 
     /// Current issue status
-    int issueStatusId_;
+    int issueStatusId_ = -1;
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
@@ -78,13 +81,23 @@ private:
      */
     QQuickItem* qml( QString qmlItem );
 
+    /**
+     * @brief Start the timer
+     */
+    void startTimer();
+
+    /**
+     * @brief Stop the timer
+     */
+    void stopTimer();
+
 public:
     /**
      * @brief RedTimer constructor
      *
      * @param parent Parent QObject
      */
-    explicit RedTimer( QObject* parent = nullptr );
+    explicit RedTimer( QApplication* parent = nullptr );
 
     /**
      * @brief Destructor
@@ -176,11 +189,11 @@ private slots:
      * Stops time tracking using the timer.
      *
      * @param resetTimerOnError Reset timer even after an error occurred
-     * @param stopTimer Stop the timer after saving the time and resetting the counter.
+     * @param stopTimerAfterSaving Stop the timer after saving the time and resetting the counter.
      *
      * \sa timer_
      */
-    void stop( bool resetTimerOnError = true, bool stopTimer = true );
+    void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true );
 
     /**
      * @brief Update Redmine entities

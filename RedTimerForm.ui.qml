@@ -31,9 +31,19 @@ Item {
             objectName: "settings"
             text: "&Settings"
             anchors.left: parent.left
-            anchors.leftMargin: 0
+            anchors.leftMargin: 5
             tooltip: "Open Settings"
             iconSource: "qrc:///open-iconic/svg/cog.svg"
+        }
+
+        ToolButton {
+            id: reload
+            objectName: "reload"
+            text: "&Reload"
+            anchors.right: parent.right
+            anchors.rightMargin: 5
+            tooltip: "Reload"
+            iconSource: "qrc:///open-iconic/svg/reload.svg"
         }
     }
 

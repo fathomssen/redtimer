@@ -1,7 +1,6 @@
 #include "RedTimer.h"
 #include "logging.h"
 
-#include <QEventLoop>
 #include <QMessageBox>
 #include <QObject>
 
@@ -9,8 +8,9 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-RedTimer::RedTimer( QObject* parent )
-    : QObject( parent )
+RedTimer::RedTimer( QApplication* parent )
+    : QObject( parent ),
+      app_( parent )
 {
     ENTER();
 
@@ -27,7 +27,7 @@ RedTimer::RedTimer( QObject* parent )
 
     QPoint position = settings_->getPosition();
     if( !position.isNull() )
-        win_->setFramePosition( position );
+        win_->setPosition( position );
 
     // Additional window manager properties
     Qt::WindowFlags flags = Qt::Window;
@@ -56,9 +56,6 @@ RedTimer::RedTimer( QObject* parent )
     timer_->setTimerType( Qt::VeryCoarseTimer );
     timer_->setInterval( 1000 );
 
-    // Counter initialisation
-    counter_ = 0;
-
     // Apply loaded settings
     activityId_ = settings_->getActivity();
     issueSelector_->setProjectId( settings_->getProject() );
@@ -81,7 +78,7 @@ RedTimer::~RedTimer()
     settings_->setActivity( activityId_ );
     settings_->setIssue( issue_.id );
     settings_->setProject( issueSelector_->getProjectId() );
-    settings_->setPosition( win_->framePosition() );
+    settings_->setPosition( win_->position() );
     settings_->save();
 
     RETURN();
@@ -106,6 +103,10 @@ RedTimer::init()
     // Connect the settings button
     connect( qml("settings"), SIGNAL(clicked()),
              settings_, SLOT(display()) );
+
+    // Connect the reload button
+    connect( qml("reload"), SIGNAL(clicked()),
+             this, SLOT(reconnect()) );
 
     // Connect the issue selector button
     connect( qml("selectIssue"), SIGNAL(clicked()),
@@ -165,63 +166,20 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
 
         case QMessageBox::Save:
         {
-            // Save the currently tracked time by stopping the tracking            
+            DEBUG() << "Saving time entry before closing the application";
+            connect( this, &RedTimer::timeEntrySaved, [=](){ app_->quit(); } );
             stop();
-
-            DEBUG() << "Entering quit loop";
-            QEventLoop* quitLoop = new QEventLoop( this );
-            connect( this, &RedTimer::timeEntrySaved, [=](){ quitLoop->quit(); } );
-            quitLoop->exec();
-            DEBUG() << "Leaving quit loop";
+            return true;
         }
 
         default:
+            DEBUG() << "Passing the close event to QObject";
             // The call to QObject::eventFilter below will eventually close the window
             break;
         }
-
-        DEBUG() << "Passing the close event to QObject";
     }
 
     return QObject::eventFilter( obj, event );
-}
-
-void
-RedTimer::message( QString text, QtMsgType type, int timeout )
-{
-    ENTER()(text)(type)(timeout);
-
-    QString colour;
-
-    switch( type )
-    {
-    case QtInfoMsg:
-        colour = "#000000";
-        break;
-    case QtWarningMsg:
-        colour = "#FFA500";
-        break;
-    case QtCriticalMsg:
-        colour = "#FF0000";
-        break;
-    case QtDebugMsg:
-    case QtFatalMsg:
-        DEBUG() << "Error: Unsupported message type";
-        RETURN();
-    }
-
-    QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), win_ );
-    QQuickItem* item = view->rootObject();
-    item->setParentItem( qml("redTimer") );
-    item->setY( 30 );
-
-    item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
-    item->findChild<QQuickItem*>("message")->setProperty( "text", text );
-
-    QTimer* errorTimer = new QTimer( this );
-    errorTimer->singleShot( timeout, this, [=](){ if(item) item->deleteLater(); } );
-
-    RETURN();
 }
 
 void
@@ -268,6 +226,44 @@ RedTimer::loadIssue( int issueId, bool startTimer )
     RETURN();
 }
 
+void
+RedTimer::message( QString text, QtMsgType type, int timeout )
+{
+    ENTER()(text)(type)(timeout);
+
+    QString colour;
+
+    switch( type )
+    {
+    case QtInfoMsg:
+        colour = "#006400";
+        break;
+    case QtWarningMsg:
+        colour = "#FF8C00";
+        break;
+    case QtCriticalMsg:
+        colour = "#8B0000";
+        break;
+    case QtDebugMsg:
+    case QtFatalMsg:
+        DEBUG() << "Error: Unsupported message type";
+        RETURN();
+    }
+
+    QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), win_ );
+    QQuickItem* item = view->rootObject();
+    item->setParentItem( qml("redTimer") );
+    item->setY( 30 );
+
+    item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
+    item->findChild<QQuickItem*>("message")->setProperty( "text", text );
+
+    QTimer* errorTimer = new QTimer( this );
+    errorTimer->singleShot( timeout, this, [=](){ if(item) item->deleteLater(); } );
+
+    RETURN();
+}
+
 QQuickItem*
 RedTimer::qml( QString qmlItem )
 {
@@ -308,12 +304,7 @@ RedTimer::start()
     }
 
     // Afterwards, start the timer again
-    timer_->start();
-
-    // Set the start/stop button icon to stop
-    qml("startStop")->setProperty(
-                "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
-    qml("startStop")->setProperty( "text", "Stop time tracking" );
+    startTimer();
 
     RETURN();
 }
@@ -333,9 +324,30 @@ RedTimer::startStop()
 }
 
 void
-RedTimer::stop( bool resetTimerOnError, bool stopTimer )
+RedTimer::startTimer()
 {
     ENTER();
+
+    timer_->start();
+
+    // Set the start/stop button icon to stop
+    qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
+    qml("startStop")->setProperty( "text", "Stop time tracking" );
+
+    RETURN();
+}
+
+void
+RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
+{
+    ENTER();
+
+    // Check that an activity has been selected
+    if( activityId_ == -1 )
+    {
+        message( tr("Please select an activity before saving the time entry."), QtCriticalMsg );
+        RETURN();
+    }
 
     // Save the tracked time
     TimeEntry timeEntry;
@@ -343,28 +355,29 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimer )
     timeEntry.hours       = (double)counter_ / 3600; // Seconds to hours conversion
     timeEntry.issue.id    = issue_.id;
 
+    // Stop the timer for now - might be started again later
+    stopTimer();
+
     redmine_->createTimeEntry( timeEntry, [=](bool success, Error reason)
     {
         ENTER();
 
         if( !success && reason != Error::TIME_ENTRY_TOO_SHORT )
         {
-            message( tr("Could not save time entry. Please check your internet connection."), QtCriticalMsg );
+            message( tr("Could not save the time entry. Please check your internet connection."),
+                     QtCriticalMsg );
+            startTimer();
             RETURN();
         }
 
         if( reason == Error::TIME_ENTRY_TOO_SHORT )
-            message( tr("Not saving time entries less than 1 minute"), QtWarningMsg );
+            message( tr("Not saving time entries shorter than one minute."), QtWarningMsg );
 
-        if( stopTimer )
-        {
-            timer_->stop();
+        if( !stopTimerAfterSaving )
+            startTimer();
 
-            // Set the start/stop button icon to start
-            qml("startStop")->setProperty(
-                        "iconSource", "qrc:///open-iconic/svg/media-play.svg" );
-            qml("startStop")->setProperty( "text", tr("Start time tracking") );
-        }
+        if( success )
+            message( tr("Saved time %1").arg(QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss")) );
 
         if( success ||
             (resetTimerOnError && reason != Error::TIME_ENTRY_TOO_SHORT) )
@@ -373,10 +386,25 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimer )
             qmlCounter_->setProperty( "text", "00:00:00" );
         }
 
+        DEBUG() << "Emitting signal timeEntrySaved()";
         timeEntrySaved();
 
         RETURN();
     });
+
+    RETURN();
+}
+
+void
+RedTimer::stopTimer()
+{
+    ENTER();
+
+    timer_->stop();
+
+    // Set the start/stop button icon to start
+    qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-play.svg" );
+    qml("startStop")->setProperty( "text", tr("Start time tracking") );
 
     RETURN();
 }
