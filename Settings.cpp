@@ -160,6 +160,15 @@ Settings::updateIssueStatuses()
 {
     ENTER();
 
+    if( apiKey_.isEmpty() || url_.isEmpty() )
+    {
+        issueStatusModel_.clear();
+        issueStatusModel_.insert( SimpleItem("Currently not available") );
+        ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+
+        RETURN();
+    }
+
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses )
     {
         ENTER();
