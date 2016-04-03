@@ -1,33 +1,36 @@
 #include "Settings.h"
-
 #include "logging.h"
 
 #include <QAbstractButton>
 #include <QQuickItem>
 
+using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-Settings::Settings( QObject* parent )
+Settings::Settings( SimpleRedmineClient* redmine, QObject* parent )
     : QObject( parent ),
+      redmine_( redmine ),
       settings_( "RedTimer.ini", QSettings::IniFormat, this )
 {
     ENTER();
 
+    // Settings window initialisation
     win_ = new QQuickView();
+    win_->setResizeMode( QQuickView::SizeRootObjectToView );
     win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
     win_->setModality( Qt::ApplicationModal );
     win_->setFlags( Qt::Tool );
 
+    // Settings window access members
+    ctx_ = win_->rootContext();
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
 
     // Connect the cancel button
-    connect( item_->findChild<QQuickItem*>("cancel"), SIGNAL(clicked()),
-             this, SLOT(close()) );
+    connect( qml("cancel"), SIGNAL(clicked()), this, SLOT(close()) );
 
     // Connect the save button
-    connect( item_->findChild<QQuickItem*>("apply"), SIGNAL(clicked()),
-             this, SLOT(apply()) );
+    connect( qml("apply"), SIGNAL(clicked()), this, SLOT(apply()) );
 
     RETURN();
 }
@@ -37,20 +40,25 @@ Settings::apply()
 {
     ENTER();
 
-    QString oldUrl    = url_;
-    QString oldApiKey = apiKey_;
+    QString oldUrl = url_;
 
-    url_ = item_->findChild<QQuickItem*>("url")->property( "text" ).toString();
-    apiKey_ = item_->findChild<QQuickItem*>("apikey")->property( "text" ).toString();
+    apiKey_ = qml("apikey")->property("text").toString();
+    url_    = qml("url")->property("text").toString();
 
-    if( oldUrl != url_ || oldApiKey != apiKey_ )
+    if( oldUrl == url_ )
     {
-        activityId_ = -1;
-        issueId_    = -1;
-        projectId_  = -1;
+        int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
+        workedOnId_ = issueStatusModel_.at(workedOnIndex).id();
+    }
+    else
+    {
+        activityId_ = NULL_ID;
+        issueId_    = NULL_ID;
+        projectId_  = NULL_ID;
+        workedOnId_ = NULL_ID;
     }
 
-    DEBUG("Changed settings to")(url_)(apiKey_);
+    DEBUG("Changed settings to")(apiKey_)(url_)(workedOnId_);
 
     DEBUG() << "Emitting applied() signal";
     applied();
@@ -79,8 +87,9 @@ Settings::display()
 {
     ENTER();
 
-    item_->findChild<QQuickItem*>("url")->setProperty( "text", url_ );
-    item_->findChild<QQuickItem*>("apikey")->setProperty( "text", apiKey_ );
+    qml("url")->setProperty( "text", url_ );
+    qml("apikey")->setProperty( "text", apiKey_ );
+    updateIssueStatuses();
 
     if( !win_->isVisible() )
     {
@@ -97,8 +106,9 @@ Settings::load()
     ENTER();
 
     // Settings GUI
-    apiKey_ = settings_.value( "apikey" ).toString();
-    url_    = settings_.value( "url" ).toString();
+    apiKey_     = settings_.value("apikey").toString();
+    url_        = settings_.value("url").toString();
+    workedOnId_ = settings_.value("workedOnId").toInt();
 
     // Other GUIs
     activityId_ = settings_.value("activity").toInt();
@@ -107,14 +117,22 @@ Settings::load()
 
     position_   = settings_.value("position").toPoint();
 
-    DEBUG("Loaded settings from file:")(url_)(apiKey_)(activityId_)(issueId_)(projectId_)(position_);
+    DEBUG("Loaded settings from file:")
+            (apiKey_)(url_)(workedOnId_)(activityId_)(issueId_)(projectId_)(position_);
 
-    if( url_.isEmpty() || apiKey_.isEmpty() )
+    if( apiKey_.isEmpty() || url_.isEmpty() )
         display();
 
     applied();
 
     RETURN();
+}
+
+QQuickItem*
+Settings::qml( QString qmlItem )
+{
+    ENTER()(qmlItem);
+    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
 }
 
 void
@@ -123,8 +141,9 @@ Settings::save()
     ENTER();
 
     // From Settings GUI
-    settings_.setValue( "apikey", apiKey_ );
-    settings_.setValue( "url",    url_ );
+    settings_.setValue( "apikey",     apiKey_ );
+    settings_.setValue( "url",        url_ );
+    settings_.setValue( "workedOnId", workedOnId_ );
 
     // From other GUIs
     settings_.setValue( "activity", activityId_ );
@@ -132,6 +151,44 @@ Settings::save()
     settings_.setValue( "project",  projectId_ );
 
     settings_.setValue( "position", position_ );
+
+    RETURN();
+}
+
+void
+Settings::updateIssueStatuses()
+{
+    ENTER();
+
+    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses )
+    {
+        ENTER();
+
+        int currentIndex = 0;
+
+        // Sort issues ascending by ID
+        qSort( issueStatuses.begin(), issueStatuses.end(),
+               []( const IssueStatus& a, const IssueStatus& b ){ return a.id < b.id; } );
+
+        issueStatusModel_.clear();
+        issueStatusModel_.insert( SimpleItem("Choose issue status") );
+        for( const auto& issueStatus : issueStatuses )
+        {
+            if( issueStatus.id == workedOnId_ )
+                currentIndex = issueStatusModel_.rowCount();
+
+            issueStatusModel_.insert( SimpleItem(issueStatus) );
+        }
+
+        DEBUG()(issueStatusModel_)(workedOnId_)(currentIndex);
+
+        ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+
+        if( currentIndex != 0 )
+            qml("workedOn")->setProperty( "currentIndex", currentIndex );
+
+        RETURN();
+    } );
 
     RETURN();
 }
@@ -176,6 +233,13 @@ Settings::getUrl() const
 {
     ENTER();
     RETURN( url_ );
+}
+
+int
+Settings::getWorkedOnId() const
+{
+    ENTER();
+    RETURN( workedOnId_ );
 }
 
 void

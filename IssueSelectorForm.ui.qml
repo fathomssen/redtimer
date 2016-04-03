@@ -1,14 +1,12 @@
-import QtQuick 2.4
+import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
     width: 200
     height: 400
-
-    Layout.fillHeight: true
-    Layout.fillWidth: true
     Layout.minimumWidth: 200
+    Layout.minimumHeight: 400
 
     property alias issues: issues
     property alias project: project
@@ -40,6 +38,7 @@ Item {
 
             TextField {
                 id: search
+                visible: false
                 Layout.fillWidth: true
                 anchors.right: parent.right
                 anchors.rightMargin: 0

@@ -1,5 +1,5 @@
-import QtQuick 2.4
-import QtQuick.Controls 1.3
+import QtQuick 2.5
+import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
@@ -9,6 +9,11 @@ Item {
     Layout.minimumHeight: 100
 
     GridLayout {
+        width: 400
+        height: 100
+        Layout.minimumWidth: 400
+        Layout.minimumHeight: 100
+
         id: gridLayout1
         anchors.rightMargin: 5
         anchors.leftMargin: 5
@@ -24,6 +29,7 @@ Item {
 
         TextField {
             id: url
+            Layout.fillWidth: true
             objectName: "url"
             anchors.right: parent.right
             anchors.rightMargin: 0
@@ -39,12 +45,30 @@ Item {
 
         TextField {
             id: apikey
+            Layout.fillWidth: true
             objectName: "apikey"
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.left: parent.left
             anchors.leftMargin: 150
             placeholderText: qsTr("Key")
+        }
+
+        Label {
+            id: label3
+            text: qsTr("Worked on issue status")
+        }
+
+        ComboBox {
+            id: workedOn
+            Layout.fillWidth: true
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 150
+            objectName: "workedOn"
+            model: issueStatusModel
+            textRole: "name"
         }
 
         ToolButton {

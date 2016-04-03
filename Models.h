@@ -18,8 +18,10 @@ private:
 public:
     SimpleItem( const QString& name );
     SimpleItem( int id, const QString& name );
-    SimpleItem( qtredmine::Enumeration enumeration );
-    SimpleItem( qtredmine::Project project );
+
+    SimpleItem( const qtredmine::Enumeration& item );
+    SimpleItem( const qtredmine::IssueStatus& item );
+    SimpleItem( const qtredmine::Project& item );
 
     int id() const;
     QString name() const;

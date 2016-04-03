@@ -12,4 +12,3 @@ Item {
         anchors.fill: parent
     }
 }
-

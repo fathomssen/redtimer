@@ -1,7 +1,12 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "Models.h"
+
+#include "qtredmine/SimpleRedmineClient.h"
+
 #include <QObject>
+#include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickView>
 #include <QSettings>
@@ -13,14 +18,23 @@ class Settings : public QObject
     Q_OBJECT
 
 private:
+    /// Redmine connection object
+    qtredmine::SimpleRedmineClient* redmine_;
+
     /// Settings window object
     QQuickView* win_;
+
+    /// Issue selector window context
+    QQmlContext* ctx_;
 
     /// Settings item object
     QQuickItem* item_;
 
     /// Application settings
     QSettings settings_;
+
+    /// Cached issue statuses
+    SimpleModel issueStatusModel_;
 
     /// Redmine API key
     QString apiKey_;
@@ -29,24 +43,38 @@ private:
     QString url_;
 
     /// Last used activity
-    int activityId_;
+    int activityId_ = NULL_ID;
 
     /// Last opened issue
-    int issueId_;
+    int issueId_ = NULL_ID;
 
     /// Last window position
     QPoint position_;
 
     /// Last opened project
-    int projectId_;
+    int projectId_ = NULL_ID;
+
+    /// Issue status to switch after tracking time
+    int workedOnId_ = NULL_ID;
+
+    /**
+     * @brief Get a QML GUI item
+     *
+     * @param qmlItem Name of the QML GUI item
+     *
+     * @return QML GUI item
+     */
+    QQuickItem* qml( QString qmlItem );
 
 public:
     /**
      * @brief Constructor for a Settings object
      *
+     * @param redmine Redmine connection object
      * @param parent Parent QObject
      */
-    explicit Settings( QObject* parent = nullptr );
+    explicit Settings( qtredmine::SimpleRedmineClient* redmine,
+                       QObject* parent = nullptr );
 
     /**
      * @brief Load settings from settings file
@@ -102,6 +130,13 @@ public:
      * @return Redmine base URL
      */
     QString getUrl() const;
+
+    /**
+     * @brief Get the worked on issue status ID
+     *
+     * @return Worked on issue status ID
+     */
+    int getWorkedOnId() const;
 
     /**
      * @brief Get the settings window
@@ -160,6 +195,11 @@ public slots:
      * @brief Display the settings dialog
      */
     void display();
+
+    /**
+     * @brief Update issue statuses
+     */
+    void updateIssueStatuses();
 
 signals:
     /**

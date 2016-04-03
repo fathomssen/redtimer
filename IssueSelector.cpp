@@ -14,6 +14,7 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QObject* parent )
 
     // Issue selector window initialisation
     win_ = new QQuickView();
+    win_->setResizeMode( QQuickView::SizeRootObjectToView );
     win_->setSource( QUrl(QStringLiteral("qrc:/IssueSelector.qml")) );
     win_->setModality( Qt::ApplicationModal );
     win_->setFlags( Qt::Tool );

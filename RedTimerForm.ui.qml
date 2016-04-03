@@ -16,7 +16,7 @@ Item {
     property alias selectIssue: selectIssue
     property alias settings: settings
     property alias startStop: startStop
-    property alias status: status
+    property alias issueStatus: issueStatus
     property alias counter: counter
 
     ToolBar {
@@ -30,8 +30,7 @@ Item {
             id: settings
             objectName: "settings"
             text: "&Settings"
-            anchors.left: parent.left
-            anchors.leftMargin: 5
+            anchors.right: parent.right
             tooltip: "Open Settings"
             iconSource: "qrc:///open-iconic/svg/cog.svg"
         }
@@ -40,8 +39,7 @@ Item {
             id: reload
             objectName: "reload"
             text: "&Reload"
-            anchors.right: parent.right
-            anchors.rightMargin: 5
+            anchors.right: settings.left
             tooltip: "Reload"
             iconSource: "qrc:///open-iconic/svg/reload.svg"
         }
@@ -159,10 +157,10 @@ Item {
 
 
                     ComboBox {
-                        id: status
+                        id: issueStatus
                         Layout.fillWidth: true
-                        objectName: "status"
-                        model: statusModel
+                        objectName: "issueStatus"
+                        model: issueStatusModel
                         textRole: "name"
                     }
 

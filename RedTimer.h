@@ -58,16 +58,13 @@ private:
     QQuickItem* qmlCounter_;
 
     /// Current activity
-    int activityId_ = -1;
+    int activityId_ = NULL_ID;
 
     /// Cached activities
     SimpleModel activityModel_;
 
     /// Current issue
     qtredmine::Issue issue_;
-
-    /// Current issue status
-    int issueStatusId_ = -1;
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
@@ -129,6 +126,11 @@ private slots:
     void activitySelected( int index );
 
     /**
+     * @brief Slot to a selected issue status
+     */
+    void issueStatusSelected( int index );
+
+    /**
      * @brief Display a message
      *
      * @param text Message to display
@@ -158,9 +160,24 @@ private slots:
     void reconnect();
 
     /**
+     * @brief Refresh Redmine entities
+     */
+    void refresh();
+
+    /**
+     * @brief Refresh activities
+     */
+    void refreshActivities();
+
+    /**
      * @brief Refresh the counter
      */
     void refreshCounter();
+
+    /**
+     * @brief Refresh issue statuses
+     */
+    void refreshIssueStatuses();
 
     /**
      * @brief Start time tracking
@@ -196,19 +213,11 @@ private slots:
     void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true );
 
     /**
-     * @brief Update Redmine entities
+     * @brief Update issue status for current issue
+     *
+     * @param statusId Issue status ID
      */
-    void update();
-
-    /**
-     * @brief Update activities
-     */
-    void updateActivities();
-
-    /**
-     * @brief Update issue statuses
-     */
-    void updateIssueStatuses();
+    void updateIssueStatus( int statusId );
 
 signals:
     /**

@@ -14,8 +14,11 @@ RedTimer::RedTimer( QApplication* parent )
 {
     ENTER();
 
+    // Connect to Redmine
+    redmine_ = new SimpleRedmineClient( this );
+
     // Settings initialisation
-    settings_ = new Settings( this );
+    settings_ = new Settings( redmine_, this );
     settings_->load();
 
     // Main window initialisation
@@ -41,9 +44,6 @@ RedTimer::RedTimer( QApplication* parent )
     ctx_ = win_->rootContext();
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
     qmlCounter_ = qml( "counter" );
-
-    // Connect to Redmine
-    redmine_ = new SimpleRedmineClient( this );
 
     reconnect();
 
@@ -85,17 +85,6 @@ RedTimer::~RedTimer()
 }
 
 void
-RedTimer::activitySelected( int index )
-{
-    ENTER();
-
-    activityId_ = activityModel_.at(index).id();
-    DEBUG()(index)(activityId_);
-
-    RETURN();
-}
-
-void
 RedTimer::init()
 {
     ENTER();
@@ -120,9 +109,13 @@ RedTimer::init()
     connect( qml("startStop"), SIGNAL(clicked()),
              this, SLOT(startStop()) );
 
-    // Connect the project selected signal to the projectSelected slot
+    // Connect the activity selected signal to the activitySelected slot
     connect( qml("activity"), SIGNAL(activated(int)),
              this, SLOT(activitySelected(int)) );
+
+    // Connect the issueStatus selected signal to the issueStatusSelected slot
+    connect( qml("issueStatus"), SIGNAL(activated(int)),
+             this, SLOT(issueStatusSelected(int)) );
 
     // Connect the settings saved signal to the reconnect slot
     connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
@@ -135,7 +128,7 @@ RedTimer::init()
     connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
 
     // Initially update the GUI
-    update();
+    refresh();
 
     RETURN();
 }
@@ -183,6 +176,63 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
 }
 
 void
+RedTimer::activitySelected( int index )
+{
+    ENTER();
+
+    activityId_ = activityModel_.at(index).id();
+    DEBUG()(index)(activityId_);
+
+    RETURN();
+}
+
+void
+RedTimer::updateIssueStatus( int statusId )
+{
+    ENTER();
+
+    Issue issue;
+    issue.status.id = statusId;
+
+    redmine_->sendIssue( issue,
+                         [=](bool success, RedmineError redmineError,
+                             QNetworkReply::NetworkError networkError)
+    {
+        ENTER();
+
+        if( !success )
+        {
+            message( tr("Could not save the time entry. Please check your internet connection."),
+                     QtCriticalMsg );
+            RETURN();
+        }
+
+        message( tr("Issue status updated") );
+
+        issue_.status.id = statusId;
+        refreshIssueStatuses();
+
+        RETURN();
+    },
+    issue_.id );
+
+    RETURN();
+}
+
+void
+RedTimer::issueStatusSelected( int index )
+{
+    ENTER();
+
+    issue_.status.id = issueStatusModel_.at(index).id();
+    DEBUG()(index)(issue_.status.id);
+
+    updateIssueStatus( issue_.status.id );
+
+    RETURN();
+}
+
+void
 RedTimer::loadIssue()
 {
     ENTER();
@@ -215,6 +265,8 @@ RedTimer::loadIssue( int issueId, bool startTimer )
                 .arg(issue.subject)
                 .arg(issue.description);
         qml("issueData")->setProperty( "text", issueData );
+
+        refreshIssueStatuses();
 
         if( startTimer )
             start();
@@ -279,7 +331,7 @@ RedTimer::reconnect()
     redmine_->setUrl( settings_->getUrl() );
     redmine_->setAuthenticator( settings_->getApiKey() );
 
-    update();
+    refresh();
 
     RETURN();
 }
@@ -297,13 +349,13 @@ RedTimer::start()
     ENTER();
 
     // If no issue is selected, show issue selector
-    if( issue_.id == -1 )
+    if( issue_.id == NULL_ID )
     {
         issueSelector_->display();
         RETURN();
     }
 
-    // Afterwards, start the timer again
+    // Afterwards, start the timer
     startTimer();
 
     RETURN();
@@ -334,6 +386,10 @@ RedTimer::startTimer()
     qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
     qml("startStop")->setProperty( "text", "Stop time tracking" );
 
+    int workedOnId = settings_->getWorkedOnId();
+    if( workedOnId != NULL_ID )
+        updateIssueStatus( workedOnId );
+
     RETURN();
 }
 
@@ -343,7 +399,7 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
     ENTER();
 
     // Check that an activity has been selected
-    if( activityId_ == -1 )
+    if( activityId_ == NULL_ID )
     {
         message( tr("Please select an activity before saving the time entry."), QtCriticalMsg );
         RETURN();
@@ -358,11 +414,13 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
     // Stop the timer for now - might be started again later
     stopTimer();
 
-    redmine_->createTimeEntry( timeEntry, [=](bool success, Error reason)
+    redmine_->sendTimeEntry( timeEntry,
+                             [=](bool success, RedmineError redmineError,
+                                 QNetworkReply::NetworkError networkError)
     {
         ENTER();
 
-        if( !success && reason != Error::TIME_ENTRY_TOO_SHORT )
+        if( !success && redmineError != ERR_TIME_ENTRY_TOO_SHORT )
         {
             message( tr("Could not save the time entry. Please check your internet connection."),
                      QtCriticalMsg );
@@ -370,7 +428,7 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
             RETURN();
         }
 
-        if( reason == Error::TIME_ENTRY_TOO_SHORT )
+        if( redmineError == ERR_TIME_ENTRY_TOO_SHORT )
             message( tr("Not saving time entries shorter than one minute."), QtWarningMsg );
 
         if( !stopTimerAfterSaving )
@@ -380,7 +438,7 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
             message( tr("Saved time %1").arg(QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss")) );
 
         if( success ||
-            (resetTimerOnError && reason != Error::TIME_ENTRY_TOO_SHORT) )
+            (resetTimerOnError && redmineError != ERR_TIME_ENTRY_TOO_SHORT) )
         {
             counter_ = 0;
             qmlCounter_->setProperty( "text", "00:00:00" );
@@ -410,18 +468,18 @@ RedTimer::stopTimer()
 }
 
 void
-RedTimer::update()
+RedTimer::refresh()
 {
     ENTER();
 
-    updateActivities();
-    updateIssueStatuses();
+    refreshActivities();
+    refreshIssueStatuses();
 
     RETURN();
 }
 
 void
-RedTimer::updateActivities()
+RedTimer::refreshActivities()
 {
     ENTER();
 
@@ -454,11 +512,44 @@ RedTimer::updateActivities()
 
         RETURN();
     } );
+
+    RETURN();
 }
 
 void
-RedTimer::updateIssueStatuses()
+RedTimer::refreshIssueStatuses()
 {
     ENTER();
+
+    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses )
+    {
+        ENTER();
+
+        int currentIndex = 0;
+
+        // Sort issues ascending by ID
+        qSort( issueStatuses.begin(), issueStatuses.end(),
+               []( const IssueStatus& a, const IssueStatus& b ){ return a.id < b.id; } );
+
+        issueStatusModel_.clear();
+        issueStatusModel_.insert( SimpleItem("Choose issue status") );
+        for( const auto& issueStatus : issueStatuses )
+        {
+            if( issueStatus.id == issue_.status.id )
+                currentIndex = issueStatusModel_.rowCount();
+
+            issueStatusModel_.insert( SimpleItem(issueStatus) );
+        }
+
+        DEBUG()(issueStatusModel_)(issue_.status.id)(currentIndex);
+
+        ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+
+        if( currentIndex != 0 )
+            qml("issueStatus")->setProperty( "currentIndex", currentIndex );
+
+        RETURN();
+    } );
+
     RETURN();
 }

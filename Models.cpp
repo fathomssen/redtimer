@@ -6,7 +6,7 @@ using namespace redtimer;
 using namespace qtredmine;
 
 SimpleItem::SimpleItem( const QString& name )
-    : id_( -1 ),
+    : id_( NULL_ID ),
       name_( name )
 {}
 
@@ -15,14 +15,19 @@ SimpleItem::SimpleItem( int id, const QString& name )
       name_( name )
 {}
 
-SimpleItem::SimpleItem( Enumeration enumeration )
-    : id_( enumeration.id ),
-      name_( enumeration.name )
+SimpleItem::SimpleItem( const Enumeration& item )
+    : id_( item.id ),
+      name_( item.name )
 {}
 
-SimpleItem::SimpleItem( Project project )
-    : id_( project.id ),
-      name_( project.name )
+SimpleItem::SimpleItem( const IssueStatus& item )
+    : id_( item.id ),
+      name_( item.name )
+{}
+
+SimpleItem::SimpleItem( const Project& item )
+    : id_( item.id ),
+      name_( item.name )
 {}
 
 int
@@ -70,7 +75,7 @@ IssueModel::clear()
     if( rowCount() == 0 )
         RETURN();
 
-    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
+    beginRemoveRows( QModelIndex(), 0, rowCount()NULL_ID );
     items_.clear();
     endRemoveRows();
 
@@ -194,7 +199,7 @@ SimpleModel::clear()
     if( rowCount() == 0 )
         RETURN();
 
-    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
+    beginRemoveRows( QModelIndex(), 0, rowCount()NULL_ID );
     items_.clear();
     endRemoveRows();
 
