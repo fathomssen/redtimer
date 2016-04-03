@@ -1,0 +1,11 @@
+/**
+ * @brief Documentation for RedTimer
+ * @author Frederick Thomssen
+ * @file Mainpage.dox
+ */
+
+/**
+ * @mainpage RedTimer
+ *
+ * Redmine Time Tracker
+ */
