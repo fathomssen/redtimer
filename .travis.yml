@@ -7,9 +7,6 @@ sudo: required
 dist: trusty
 
 env:
-- QT_BASE=52
-- QT_BASE=53
-- QT_BASE=54
 - QT_BASE=55
 - QT_BASE=56
 
