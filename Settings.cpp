@@ -52,10 +52,13 @@ Settings::apply()
     }
     else
     {
-        activityId_ = NULL_ID;
-        issueId_    = NULL_ID;
-        projectId_  = NULL_ID;
-        workedOnId_ = NULL_ID;
+        activityId_   = NULL_ID;
+        issueId_      = NULL_ID;
+        projectId_    = NULL_ID;
+        workedOnId_   = NULL_ID;
+
+        while( !recentIssues_.isEmpty() )
+            recentIssues_.removeLast();
     }
 
     DEBUG("Changed settings to")(apiKey_)(url_)(workedOnId_);
@@ -111,14 +114,25 @@ Settings::load()
     workedOnId_ = settings_.value("workedOnId").toInt();
 
     // Other GUIs
-    activityId_ = settings_.value("activity").toInt();
-    issueId_    = settings_.value("issue").toInt();
-    projectId_  = settings_.value("project").toInt();
+    activityId_   = settings_.value("activity").toInt();
+    issueId_      = settings_.value("issue").toInt();
+    position_     = settings_.value("position").toPoint();
+    projectId_    = settings_.value("project").toInt();
 
-    position_   = settings_.value("position").toPoint();
+    int size = settings_.beginReadArray( "recentIssues" );
+    for( int i = 0; i < size; ++i )
+    {
+        settings_.setArrayIndex( i );
+        Issue issue;
+        issue.id      = settings_.value("id").toInt();
+        issue.subject = settings_.value("subject").toString();
+        recentIssues_.append( issue );
+    }
+    settings_.endArray();
+
 
     DEBUG("Loaded settings from file:")
-            (apiKey_)(url_)(workedOnId_)(activityId_)(issueId_)(projectId_)(position_);
+            (apiKey_)(url_)(workedOnId_)(activityId_)(issueId_)(position_)(projectId_)(recentIssues_);
 
     if( apiKey_.isEmpty() || url_.isEmpty() )
         display();
@@ -148,9 +162,17 @@ Settings::save()
     // From other GUIs
     settings_.setValue( "activity", activityId_ );
     settings_.setValue( "issue",    issueId_ );
+    settings_.setValue( "position", position_ );
     settings_.setValue( "project",  projectId_ );
 
-    settings_.setValue( "position", position_ );
+    settings_.beginWriteArray( "recentIssues" );
+    for( int i = 0; i < recentIssues_.size(); ++i )
+    {
+        settings_.setArrayIndex( i );
+        settings_.setValue( "id",      recentIssues_.at(i).id );
+        settings_.setValue( "subject", recentIssues_.at(i).subject );
+    }
+    settings_.endArray();
 
     RETURN();
 }
@@ -163,7 +185,7 @@ Settings::updateIssueStatuses()
     if( apiKey_.isEmpty() || url_.isEmpty() )
     {
         issueStatusModel_.clear();
-        issueStatusModel_.insert( SimpleItem("Currently not available") );
+        issueStatusModel_.push_back( SimpleItem("Currently not available") );
         ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
 
         RETURN();
@@ -180,13 +202,13 @@ Settings::updateIssueStatuses()
                []( const IssueStatus& a, const IssueStatus& b ){ return a.id < b.id; } );
 
         issueStatusModel_.clear();
-        issueStatusModel_.insert( SimpleItem("Choose issue status") );
+        issueStatusModel_.push_back( SimpleItem("Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
             if( issueStatus.id == workedOnId_ )
                 currentIndex = issueStatusModel_.rowCount();
 
-            issueStatusModel_.insert( SimpleItem(issueStatus) );
+            issueStatusModel_.push_back( SimpleItem(issueStatus) );
         }
 
         DEBUG()(issueStatusModel_)(workedOnId_)(currentIndex);
@@ -237,6 +259,12 @@ Settings::getProject()
     RETURN( projectId_ );
 }
 
+qtredmine::Issues Settings::getRecentIssues()
+{
+    ENTER();
+    RETURN( recentIssues_ );
+}
+
 QString
 Settings::getUrl() const
 {
@@ -254,7 +282,7 @@ Settings::getWorkedOnId() const
 void
 Settings::setActivity( int id )
 {
-    ENTER();
+    ENTER()(id);
     activityId_ = id;
     RETURN();
 }
@@ -262,7 +290,7 @@ Settings::setActivity( int id )
 void
 Settings::setIssue( int id )
 {
-    ENTER();
+    ENTER()(id);
     issueId_ = id;
     RETURN();
 }
@@ -270,7 +298,7 @@ Settings::setIssue( int id )
 void
 Settings::setPosition( QPoint position )
 {
-    ENTER();
+    ENTER()(position);
     position_ = position;
     RETURN();
 }
@@ -278,8 +306,16 @@ Settings::setPosition( QPoint position )
 void
 Settings::setProject( int id )
 {
-    ENTER();
+    ENTER()(id);
     projectId_ = id;
+    RETURN();
+}
+
+void
+Settings::setRecentIssues( qtredmine::Issues recentIssues )
+{
+    ENTER()(recentIssues);
+    recentIssues_ = recentIssues;
     RETURN();
 }
 

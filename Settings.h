@@ -57,6 +57,9 @@ private:
     /// Issue status to switch after tracking time
     int workedOnId_ = NULL_ID;
 
+    /// Recently opened issues
+    qtredmine::Issues recentIssues_;
+
     /**
      * @brief Get a QML GUI item
      *
@@ -125,6 +128,13 @@ public:
     int getProject();
 
     /**
+     * @brief Get recently opened issues
+     *
+     * @return List of recently opened issues
+     */
+    qtredmine::Issues getRecentIssues();
+
+    /**
      * @brief Get the Redmine base URL
      *
      * @return Redmine base URL
@@ -177,6 +187,13 @@ public:
      * @param id Project ID
      */
     void setProject( int id );
+
+    /**
+     * @brief Set recently opened issues
+     *
+     * @paramt recentIssues List of recently opened issues
+     */
+    void setRecentIssues( qtredmine::Issues recentIssues );
 
     /// @}
 

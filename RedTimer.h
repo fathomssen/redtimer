@@ -69,6 +69,9 @@ private:
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
 
+    /// Recently opened issues
+    IssueModel recentIssues_;
+
     /**
      * @brief Get a QML GUI item
      *
@@ -142,9 +145,16 @@ private slots:
     /**
      * @brief Load issue from Redmine
      *
+     * Uses the issue ID from the quick pick list.
+     */
+    void loadIssueFromList( int index );
+
+    /**
+     * @brief Load issue from Redmine
+     *
      * Uses the issue ID from the quick pick text field.
      */
-    void loadIssue();
+    void loadIssueFromTextField();
 
     /**
      * @brief Load issue from Redmine

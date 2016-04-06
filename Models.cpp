@@ -33,15 +33,13 @@ SimpleItem::SimpleItem( const Project& item )
 int
 SimpleItem::id() const
 {
-    ENTER();
-    RETURN( id_ );
+    return id_;
 }
 
 QString
 SimpleItem::name() const
 {
-    ENTER();
-    RETURN( name_ );
+    return name_;
 }
 
 IssueModel::IssueModel( QObject* parent )
@@ -49,12 +47,24 @@ IssueModel::IssueModel( QObject* parent )
 {}
 
 void
-IssueModel::insert( const Issue& item )
+IssueModel::push_back( const Issue& item )
 {
     ENTER()(item);
 
     beginInsertRows( QModelIndex(), rowCount(), rowCount() );
-    items_ << item;
+    items_.push_back( item );
+    endInsertRows();
+
+    RETURN();
+}
+
+void
+IssueModel::push_front( const Issue& item )
+{
+    ENTER()(item);
+
+    beginInsertRows( QModelIndex(), 0, 0 );
+    items_.push_front( item );
     endInsertRows();
 
     RETURN();
@@ -75,15 +85,34 @@ IssueModel::clear()
     if( rowCount() == 0 )
         RETURN();
 
-    beginRemoveRows( QModelIndex(), 0, rowCount()NULL_ID );
+    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
     items_.clear();
     endRemoveRows();
 
     RETURN();
 }
 
+bool
+IssueModel::removeRows( int begin, int count, const QModelIndex& parent )
+{
+    int end = begin + count - 1;
+
+    ENTER()(begin)(count)(end);
+
+    if( end >= rowCount() )
+        RETURN( false );
+
+    beginRemoveRows( parent, begin, end );
+    for( int i = begin; i <= end; ++i )
+        items_.removeAt( i );
+    endRemoveRows();
+
+    RETURN( true );
+}
+
 int
-IssueModel::rowCount( const QModelIndex& parent ) const {
+IssueModel::rowCount( const QModelIndex& parent ) const
+{
     Q_UNUSED( parent );
     return items_.count();
 }
@@ -130,6 +159,8 @@ IssueModel::data( const QModelIndex& index, int role ) const
         RETURN( item.updatedOn );
     else if( role == CustomFieldsRole )
         RETURN( QVariant::fromValue(item.customFields) );
+    else if( role == TextRole )
+        RETURN( QString("#%1: %2").arg(QString::number(item.id)).arg(item.subject) );
     else
         RETURN( QVariant() );
 }
@@ -164,6 +195,7 @@ IssueModel::roleNames() const
     roles[StartDateRole]      = "startDate";
     roles[UpdatedOnRole]      = "updatedOn";
     roles[CustomFieldsRole]   = "customFields";
+    roles[TextRole]           = "text";
 
     RETURN( roles );
 }
@@ -173,12 +205,12 @@ SimpleModel::SimpleModel( QObject* parent )
 {}
 
 void
-SimpleModel::insert( const SimpleItem& item )
+SimpleModel::push_back( const SimpleItem& item )
 {
     ENTER()(item);
 
     beginInsertRows( QModelIndex(), rowCount(), rowCount() );
-    items_ << item;
+    items_.push_back( item );
     endInsertRows();
 
     RETURN();
@@ -199,7 +231,7 @@ SimpleModel::clear()
     if( rowCount() == 0 )
         RETURN();
 
-    beginRemoveRows( QModelIndex(), 0, rowCount()NULL_ID );
+    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
     items_.clear();
     endRemoveRows();
 
@@ -226,6 +258,8 @@ SimpleModel::data( const QModelIndex& index, int role ) const
         RETURN( item.id() );
     else if( role == NameRole )
         RETURN( item.name() );
+    else if( role == TextRole )
+        RETURN( QString("#%1: %2").arg(QString::number(item.id())).arg(item.name()) );
     else
         RETURN( QVariant() );
 }
@@ -244,8 +278,9 @@ SimpleModel::roleNames() const
     ENTER();
 
     QHash<int, QByteArray> roles;
-    roles[IdRole] = "id";
+    roles[IdRole]   = "id";
     roles[NameRole] = "name";
+    roles[TextRole] = "text";
 
     RETURN( roles );
 }

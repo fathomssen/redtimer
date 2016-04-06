@@ -110,7 +110,7 @@ IssueSelector::updateIssues()
 
         issuesModel_.clear();
         for( const auto& issue : issues )
-            issuesModel_.insert( issue );
+            issuesModel_.push_back( issue );
 
         DEBUG()(issuesModel_);
 
@@ -136,13 +136,13 @@ IssueSelector::updateProjects()
                []( const Project& a, const Project& b ){ return a.name < b.name; } );
 
         projectModel_.clear();
-        projectModel_.insert( SimpleItem("Choose project") );
+        projectModel_.push_back( SimpleItem("Choose project") );
         for( const auto& project : projects )
         {
             if( project.id == projectId_ )
                 currentIndex = projectModel_.rowCount();
 
-            projectModel_.insert( SimpleItem(project) );
+            projectModel_.push_back( SimpleItem(project) );
         }
 
         DEBUG()(projectModel_)(currentIndex);

@@ -46,9 +46,9 @@ Item {
     }
 
 
-    SplitView {
-        id: splitView1
-        orientation: Qt.Vertical
+    GridLayout {
+        id: gridLayout1
+        flow: GridLayout.TopToBottom
         anchors.rightMargin: 5
         anchors.leftMargin: 5
         anchors.bottomMargin: 5
@@ -60,6 +60,7 @@ Item {
 
         Item {
             id: item1
+            Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.minimumHeight: 100
 
@@ -77,11 +78,13 @@ Item {
                         id: rowLayout1
                         Layout.fillWidth: true
 
-                        TextField {
+                        ComboBox {
                             id: quickPick
                             objectName: "quickPick"
                             Layout.fillWidth: true
-                            placeholderText: qsTr("Enter issue number")
+                            editable: true
+                            model: recentIssuesModel
+                            textRole: "text"
                         }
 
                         ToolButton {
@@ -111,8 +114,8 @@ Item {
         Item {
             id: item2
             height: 100
+            Layout.fillWidth: true
             Layout.minimumHeight: 100
-            Layout.maximumHeight: 100
 
             GroupBox {
                 id: groupBox2

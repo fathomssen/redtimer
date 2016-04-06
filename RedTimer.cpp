@@ -61,6 +61,10 @@ RedTimer::RedTimer( QApplication* parent )
     issueSelector_->setProjectId( settings_->getProject() );
     loadIssue( settings_->getIssue(), false );
 
+    for( const auto& issue : settings_->getRecentIssues() )
+        recentIssues_.push_back( issue );
+    ctx_->setContextProperty( "recentIssuesModel", &recentIssues_ );
+
     // Set transient window parent
     settings_->window()->setTransientParent( win_ );
     issueSelector_->window()->setTransientParent( win_ );
@@ -79,6 +83,8 @@ RedTimer::~RedTimer()
     settings_->setIssue( issue_.id );
     settings_->setProject( issueSelector_->getProjectId() );
     settings_->setPosition( win_->position() );
+    settings_->setRecentIssues( recentIssues_.data().toVector() );
+
     settings_->save();
 
     RETURN();
@@ -101,9 +107,13 @@ RedTimer::init()
     connect( qml("selectIssue"), SIGNAL(clicked()),
              issueSelector_, SLOT(display()) );
 
-    // Connect the text field
+    // Connect the combobox text field
     connect( qml("quickPick"), SIGNAL(accepted()),
-             this, SLOT(loadIssue()) );
+             this, SLOT(loadIssueFromTextField()) );
+
+    // Connect the combobox list
+    connect( qml("quickPick"), SIGNAL(activated(int)),
+             this, SLOT(loadIssueFromList(int)) );
 
     // Connect the start/stop button
     connect( qml("startStop"), SIGNAL(clicked()),
@@ -233,12 +243,24 @@ RedTimer::issueStatusSelected( int index )
 }
 
 void
-RedTimer::loadIssue()
+RedTimer::loadIssueFromList( int index )
+{
+    ENTER()(index);
+
+    loadIssue( recentIssues_.at(index).id );
+
+    RETURN();
+}
+
+void
+RedTimer::loadIssueFromTextField()
 {
     ENTER();
 
-    int issueId = qml("quickPick")->property("text").toInt();
-    qml("quickPick")->setProperty( "text", "" );
+    if( !qml("quickPick")->property("editText").toInt() )
+        RETURN();
+
+    int issueId = qml("quickPick")->property("editText").toInt();
 
     loadIssue( issueId );
 
@@ -259,6 +281,14 @@ RedTimer::loadIssue( int issueId, bool startTimer )
         ENTER()(issue);
 
         issue_ = issue;
+
+        for( int i = 0; i < recentIssues_.rowCount(); ++i )
+            if( recentIssues_.at(i).id == issue.id )
+                recentIssues_.removeRow( i );
+
+        recentIssues_.push_front( issue );
+        qml("quickPick")->setProperty( "currentIndex", -1 );
+        qml("quickPick")->setProperty( "editText", "" );
 
         QString issueData = QString( "Issue #%1\n\nSubject: %2\n\n%3" )
                 .arg(issue.id)
@@ -386,8 +416,9 @@ RedTimer::startTimer()
     qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
     qml("startStop")->setProperty( "text", "Stop time tracking" );
 
+    // Set the issue status ID to the worked on ID if not already done
     int workedOnId = settings_->getWorkedOnId();
-    if( workedOnId != NULL_ID )
+    if( workedOnId != NULL_ID && workedOnId != issue_.status.id )
         updateIssueStatus( workedOnId );
 
     RETURN();
@@ -489,18 +520,14 @@ RedTimer::refreshActivities()
 
         int currentIndex = 0;
 
-        // Sort issues ascending by ID
-        qSort( activities.begin(), activities.end(),
-               []( const Enumeration& a, const Enumeration& b ){ return a.id < b.id; } );
-
         activityModel_.clear();
-        activityModel_.insert( SimpleItem("Choose activity") );
+        activityModel_.push_back( SimpleItem("Choose activity") );
         for( const auto& activity : activities )
         {
             if( activity.id == activityId_ )
                 currentIndex = activityModel_.rowCount();
 
-            activityModel_.insert( SimpleItem(activity) );
+            activityModel_.push_back( SimpleItem(activity) );
         }
 
         DEBUG()(activityModel_)(activityId_)(currentIndex);
@@ -527,18 +554,14 @@ RedTimer::refreshIssueStatuses()
 
         int currentIndex = 0;
 
-        // Sort issues ascending by ID
-        qSort( issueStatuses.begin(), issueStatuses.end(),
-               []( const IssueStatus& a, const IssueStatus& b ){ return a.id < b.id; } );
-
         issueStatusModel_.clear();
-        issueStatusModel_.insert( SimpleItem("Choose issue status") );
+        issueStatusModel_.push_back( SimpleItem("Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
             if( issueStatus.id == issue_.status.id )
                 currentIndex = issueStatusModel_.rowCount();
 
-            issueStatusModel_.insert( SimpleItem(issueStatus) );
+            issueStatusModel_.push_back( SimpleItem(issueStatus) );
         }
 
         DEBUG()(issueStatusModel_)(issue_.status.id)(currentIndex);

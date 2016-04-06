@@ -51,7 +51,8 @@ public:
         EstimatedHoursRole,
         StartDateRole,
         UpdatedOnRole,
-        CustomFieldsRole
+        CustomFieldsRole,
+        TextRole
     };
 
     IssueModel( QObject* parent = nullptr );
@@ -60,9 +61,12 @@ public:
 
     QList<qtredmine::Issue> data() const;
 
-    void insert( const qtredmine::Issue& item );
+    void push_back( const qtredmine::Issue& item );
+    void push_front( const qtredmine::Issue& item );
 
     qtredmine::Issue at( const int index ) const;
+
+    bool removeRows( int row, int count, const QModelIndex& parent = QModelIndex() );
 
     int rowCount( const QModelIndex& parent = QModelIndex() ) const;
 
@@ -82,7 +86,8 @@ private:
 public:
     enum SimpleRoles {
         IdRole = Qt::UserRole + 1,
-        NameRole
+        NameRole,
+        TextRole
     };
 
     SimpleModel( QObject* parent = nullptr );
@@ -91,7 +96,7 @@ public:
 
     QList<SimpleItem> data() const;
 
-    void insert( const SimpleItem& item );
+    void push_back( const SimpleItem& item );
 
     SimpleItem at( const int index ) const;
 
