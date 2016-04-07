@@ -34,6 +34,7 @@ project files `qtredmine/qtredmine.pro` and `RedTimer.pro` and start the build.
 
 Todo
 ----
-* Filter field in issue selector
+
+* Issue creator
 * Cache for offline operation
 * Spooler for unsaved time entries

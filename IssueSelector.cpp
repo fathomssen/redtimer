@@ -66,6 +66,7 @@ IssueSelector::display()
     {
         DEBUG() << "Displaying issue selector window";
         win_->show();
+        qml("search")->setProperty( "text", "" );
         updateProjects();
     }
 

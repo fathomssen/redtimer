@@ -1,6 +1,8 @@
 TEMPLATE = app
 
-QT += qml quick widgets gui
+QMAKE_CXXFLAGS += -std=c++11
+
+QT += qml quick widgets gui svg
 
 SOURCES += main.cpp \
     RedTimer.cpp \
