@@ -197,6 +197,32 @@ RedTimer::activitySelected( int index )
 }
 
 void
+RedTimer::addRecentIssue( qtredmine::Issue issue )
+{
+    ENTER()(issue);
+
+    // If found, remove the new issue from the list
+    for( int i = 0; i < recentIssues_.rowCount(); ++i )
+        if( recentIssues_.at(i).id == issue.id )
+            recentIssues_.removeRow( i );
+
+    // Add the issue to the top of the list
+    recentIssues_.push_front( issue );
+
+    // Crop the list after ten entries (keep 0..9)
+    int numRecentIssues = settings_->getNumRecentIssues();
+    if( numRecentIssues != -1 )
+        recentIssues_.removeRowsFrom( numRecentIssues );
+
+    // Reset the quickPick text field
+    qml("quickPick")->setProperty( "currentIndex", -1 );
+    qml("quickPick")->setProperty( "editText", "" );
+
+    RETURN();
+}
+
+
+void
 RedTimer::updateIssueStatus( int statusId )
 {
     ENTER();
@@ -282,13 +308,7 @@ RedTimer::loadIssue( int issueId, bool startTimer )
 
         issue_ = issue;
 
-        for( int i = 0; i < recentIssues_.rowCount(); ++i )
-            if( recentIssues_.at(i).id == issue.id )
-                recentIssues_.removeRow( i );
-
-        recentIssues_.push_front( issue );
-        qml("quickPick")->setProperty( "currentIndex", -1 );
-        qml("quickPick")->setProperty( "editText", "" );
+        addRecentIssue( issue );
 
         QString issueData = QString( "Issue #%1\n\nSubject: %2\n\n%3" )
                 .arg(issue.id)

@@ -39,8 +39,14 @@ private:
     /// Redmine API key
     QString apiKey_;
 
+    /// Maximum number of recently opened issues
+    int numRecentIssues_;
+
     /// Redmine base URL
     QString url_;
+
+    /// Issue status to switch after tracking time
+    int workedOnId_ = NULL_ID;
 
     /// Last used activity
     int activityId_ = NULL_ID;
@@ -53,9 +59,6 @@ private:
 
     /// Last opened project
     int projectId_ = NULL_ID;
-
-    /// Issue status to switch after tracking time
-    int workedOnId_ = NULL_ID;
 
     /// Recently opened issues
     qtredmine::Issues recentIssues_;
@@ -112,6 +115,13 @@ public:
      * @return Issue ID
      */
     int getIssue();
+
+    /**
+     * @brief Get the maximum number of recently opened issues
+     *
+     * @return Maximum number of recently opened issues
+     */
+    int getNumRecentIssues();
 
     /**
      * @brief Get last window position

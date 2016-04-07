@@ -110,6 +110,21 @@ IssueModel::removeRows( int begin, int count, const QModelIndex& parent )
     RETURN( true );
 }
 
+bool
+IssueModel::removeRowsFrom( int row )
+{
+    ENTER()(row);
+
+    int end = rowCount() - 1;
+
+    if( row > end )
+        RETURN( false );
+
+    int count = end - row + 1;
+
+    RETURN( removeRows(row, count) );
+}
+
 int
 IssueModel::rowCount( const QModelIndex& parent ) const
 {
@@ -161,6 +176,8 @@ IssueModel::data( const QModelIndex& index, int role ) const
         RETURN( QVariant::fromValue(item.customFields) );
     else if( role == TextRole )
         RETURN( QString("#%1: %2").arg(QString::number(item.id)).arg(item.subject) );
+    else if( role == FindRole )
+        RETURN( QString("%1 %2").arg(item.subject).arg(item.description) );
     else
         RETURN( QVariant() );
 }
@@ -196,6 +213,7 @@ IssueModel::roleNames() const
     roles[UpdatedOnRole]      = "updatedOn";
     roles[CustomFieldsRole]   = "customFields";
     roles[TextRole]           = "text";
+    roles[FindRole]           = "find";
 
     RETURN( roles );
 }

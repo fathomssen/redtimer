@@ -42,8 +42,9 @@ Settings::apply()
 
     QString oldUrl = url_;
 
-    apiKey_ = qml("apikey")->property("text").toString();
-    url_    = qml("url")->property("text").toString();
+    apiKey_          = qml("apikey")->property("text").toString();
+    numRecentIssues_ = qml("numRecentIssues")->property("text").toInt();
+    url_             = qml("url")->property("text").toString();
 
     if( oldUrl == url_ )
     {
@@ -92,6 +93,8 @@ Settings::display()
 
     qml("url")->setProperty( "text", url_ );
     qml("apikey")->setProperty( "text", apiKey_ );
+    qml("numRecentIssues")->setProperty( "text", numRecentIssues_ );
+
     updateIssueStatuses();
 
     if( !win_->isVisible() )
@@ -113,11 +116,17 @@ Settings::load()
     url_        = settings_.value("url").toString();
     workedOnId_ = settings_.value("workedOnId").toInt();
 
+    // If numRecentIssues is not specified, set to 10
+    if( settings_.value("numRecentIssues").isNull() )
+        numRecentIssues_ = 10;
+    else
+        numRecentIssues_ = settings_.value("numRecentIssues").toInt();
+
     // Other GUIs
-    activityId_   = settings_.value("activity").toInt();
-    issueId_      = settings_.value("issue").toInt();
-    position_     = settings_.value("position").toPoint();
-    projectId_    = settings_.value("project").toInt();
+    activityId_  = settings_.value("activity").toInt();
+    issueId_     = settings_.value("issue").toInt();
+    position_    = settings_.value("position").toPoint();
+    projectId_   = settings_.value("project").toInt();
 
     int size = settings_.beginReadArray( "recentIssues" );
     for( int i = 0; i < size; ++i )
@@ -132,7 +141,8 @@ Settings::load()
 
 
     DEBUG("Loaded settings from file:")
-            (apiKey_)(url_)(workedOnId_)(activityId_)(issueId_)(position_)(projectId_)(recentIssues_);
+            (apiKey_)(numRecentIssues_)(url_)(workedOnId_)
+            (activityId_)(issueId_)(position_)(projectId_)(recentIssues_);
 
     if( apiKey_.isEmpty() || url_.isEmpty() )
         display();
@@ -155,9 +165,10 @@ Settings::save()
     ENTER();
 
     // From Settings GUI
-    settings_.setValue( "apikey",     apiKey_ );
-    settings_.setValue( "url",        url_ );
-    settings_.setValue( "workedOnId", workedOnId_ );
+    settings_.setValue( "apikey",          apiKey_ );
+    settings_.setValue( "url",             url_ );
+    settings_.setValue( "numRecentIssues", numRecentIssues_ );
+    settings_.setValue( "workedOnId",      workedOnId_ );
 
     // From other GUIs
     settings_.setValue( "activity", activityId_ );
@@ -243,6 +254,13 @@ Settings::getIssue()
 {
     ENTER();
     RETURN( issueId_ );
+}
+
+int
+Settings::getNumRecentIssues()
+{
+    ENTER();
+    RETURN( numRecentIssues_ );
 }
 
 QPoint

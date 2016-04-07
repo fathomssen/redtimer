@@ -52,21 +52,27 @@ public:
         StartDateRole,
         UpdatedOnRole,
         CustomFieldsRole,
-        TextRole
+        TextRole,
+        FindRole,
     };
 
     IssueModel( QObject* parent = nullptr );
 
+    qtredmine::Issue at( const int index ) const;
     void clear();
-
     QList<qtredmine::Issue> data() const;
-
     void push_back( const qtredmine::Issue& item );
     void push_front( const qtredmine::Issue& item );
-
-    qtredmine::Issue at( const int index ) const;
-
     bool removeRows( int row, int count, const QModelIndex& parent = QModelIndex() );
+
+    /**
+     * @brief Remove rows starting with the specified row
+     *
+     * @param row Row to start delete from
+     *
+     * @return true upon success, false otherwise
+     */
+    bool removeRowsFrom( int row );
 
     int rowCount( const QModelIndex& parent = QModelIndex() ) const;
 

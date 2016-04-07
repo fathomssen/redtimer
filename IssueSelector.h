@@ -9,6 +9,7 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickView>
+#include <QSortFilterProxyModel>
 
 namespace redtimer {
 
@@ -31,12 +32,22 @@ private:
 
     /// List of issues in the GUI
     IssueModel issuesModel_;
+    QSortFilterProxyModel issuesProxyModel_;
 
     /// Current project
     int projectId_;
 
     /// List of projects in the GUI
     SimpleModel projectModel_;
+
+    /**
+     * @brief Get a QML GUI item
+     *
+     * @param qmlItem Name of the QML GUI item
+     *
+     * @return QML GUI item
+     */
+    QQuickItem* qml( QString qmlItem );
 
 public:
     /**
@@ -90,6 +101,11 @@ public slots:
     void display();
 
 private slots:    
+    /**
+     * @brief Filter issues using the filter text field
+     */
+    void filterIssues();
+
     /**
      * @brief Slot to a selected issue
      */

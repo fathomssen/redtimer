@@ -4,15 +4,15 @@ import QtQuick.Layouts 1.2
 
 Item {
     width: 400
-    height: 100
+    height: 130
     Layout.minimumWidth: 400
-    Layout.minimumHeight: 100
+    Layout.minimumHeight: 130
 
     GridLayout {
         width: 400
-        height: 100
+        height: 130
         Layout.minimumWidth: 400
-        Layout.minimumHeight: 100
+        Layout.minimumHeight: 130
 
         id: gridLayout1
         anchors.rightMargin: 5
@@ -35,7 +35,7 @@ Item {
             anchors.rightMargin: 0
             anchors.left: parent.left
             anchors.leftMargin: 150
-            placeholderText: qsTr("URL")
+            placeholderText: qsTr("Redmine Connection URL")
         }
 
         Label {
@@ -51,7 +51,24 @@ Item {
             anchors.rightMargin: 0
             anchors.left: parent.left
             anchors.leftMargin: 150
-            placeholderText: qsTr("Key")
+            placeholderText: qsTr("Redmine API Key")
+        }
+
+
+        Label {
+            id: label4
+            text: qsTr("Maximum recent issues")
+        }
+
+        TextField {
+            id: numRecentIssues
+            Layout.fillWidth: true
+            objectName: "numRecentIssues"
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 150
+            placeholderText: qsTr("Maximum number of recently opened issues (-1: indefinitely)")
         }
 
         Label {

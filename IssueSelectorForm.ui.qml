@@ -38,7 +38,7 @@ Item {
 
             TextField {
                 id: search
-                visible: false
+                objectName: "search"
                 Layout.fillWidth: true
                 anchors.right: parent.right
                 anchors.rightMargin: 0

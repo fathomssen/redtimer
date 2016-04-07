@@ -73,6 +73,15 @@ private:
     IssueModel recentIssues_;
 
     /**
+     * @brief Add an issue to the list of recent issues
+     *
+     * This methos adds the issue to the top of the recent issues list and crops the list after ten entries.
+     *
+     * @param issue Issue to add to the list
+     */
+    void addRecentIssue( qtredmine::Issue issue );
+
+    /**
      * @brief Get a QML GUI item
      *
      * @param qmlItem Name of the QML GUI item

@@ -1,5 +1,4 @@
 #include "IssueSelector.h"
-
 #include "logging.h"
 
 using namespace qtredmine;
@@ -23,13 +22,21 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QObject* parent )
     ctx_ = win_->rootContext();
     item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
 
+    // Set the models
+    issuesProxyModel_.setSourceModel( &issuesModel_ );
+    issuesProxyModel_.setFilterCaseSensitivity( Qt::CaseInsensitive );
+    issuesProxyModel_.setFilterRole( IssueModel::IssueRoles::SubjectRole );
+    ctx_->setContextProperty( "issuesModel", &issuesProxyModel_ );
+    ctx_->setContextProperty( "projectModel", &projectModel_ );
+
     // Connect the project selected signal to the projectSelected slot
-    connect( item_->findChild<QQuickItem*>("project"), SIGNAL(activated(int)),
-             this, SLOT(projectSelected(int)) );
+    connect( qml("project"), SIGNAL(activated(int)), this, SLOT(projectSelected(int)) );
 
     // Connect the issue selected signal to the issueSelected slot
-    connect( item_->findChild<QQuickItem*>("issues"), SIGNAL(activated(int)),
-             this, SLOT(issueSelected(int)) );
+    connect( qml("issues"), SIGNAL(activated(int)), this, SLOT(issueSelected(int)) );
+
+    // Connect the search accepted signal to the filterIssues slot
+    connect( qml("search"), SIGNAL(textChanged()), this, SLOT(filterIssues()) );
 
     updateProjects();
 
@@ -66,6 +73,17 @@ IssueSelector::display()
 }
 
 void
+IssueSelector::filterIssues()
+{
+    ENTER();
+
+    QString filter = qml("search")->property("text").toString();
+    issuesProxyModel_.setFilterFixedString( filter );
+
+    RETURN();
+}
+
+void
 IssueSelector::issueSelected( int index )
 {
     ENTER();
@@ -96,9 +114,7 @@ IssueSelector::projectSelected( int index )
 void
 IssueSelector::updateIssues()
 {
-    ENTER();
-
-    DEBUG()(projectId_);
+    ENTER()(projectId_);
 
     redmine_->retrieveIssues( [=]( Issues issues )
     {
@@ -113,9 +129,6 @@ IssueSelector::updateIssues()
             issuesModel_.push_back( issue );
 
         DEBUG()(issuesModel_);
-
-        ctx_->setContextProperty( "issuesModel", &issuesModel_ );
-
     },
     QString("project_id=%1").arg(projectId_) );
 }
@@ -147,11 +160,9 @@ IssueSelector::updateProjects()
 
         DEBUG()(projectModel_)(currentIndex);
 
-        ctx_->setContextProperty( "projectModel", &projectModel_ );
-
         if( currentIndex != 0 )
         {
-            item_->findChild<QQuickItem*>("project")->setProperty( "currentIndex", currentIndex );
+            qml("project")->setProperty( "currentIndex", currentIndex );
             projectSelected( currentIndex );
         }
 
@@ -172,6 +183,13 @@ IssueSelector::setProjectId( int id )
     ENTER();
     projectId_ = id;
     RETURN();
+}
+
+QQuickItem*
+IssueSelector::qml( QString qmlItem )
+{
+    ENTER()(qmlItem);
+    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
 }
 
 QQuickView*
