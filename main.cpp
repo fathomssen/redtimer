@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
 {
     QApplication app( argc, argv );
 
-    app.setWindowIcon( QIcon(":/open-iconic/svg/clock.svg") );
+    app.setWindowIcon( QIcon(":/icons/clock_red.svg") );
 
     new RedTimer( &app );
 
