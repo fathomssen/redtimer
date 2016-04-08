@@ -15,6 +15,7 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickView>
+#include <QSystemTrayIcon>
 #include <QTimer>
 #include <QTime>
 
@@ -47,6 +48,9 @@ private:
 
     /// Main item object
     QQuickItem* item_;
+
+    /// System tray icon
+    QSystemTrayIcon* trayIcon_;
 
     /// Timer for stopping the worked on time
     QTimer* timer_;
@@ -136,6 +140,24 @@ private slots:
      * @brief Slot to a selected activity
      */
     void activitySelected( int index );
+
+    /**
+     * @brief Display and raise the main window
+     */
+    void display();
+
+    /**
+     * @brief Exit the application
+     *
+     * If the timer is running, a warning is displayed which gives the user the opportunity to abort exiting,
+     * to save the tracked time or to discard the tracked time.
+     */
+    void exit();
+
+    /**
+     * @brief Display or hide the main window
+     */
+    void toggle();
 
     /**
      * @brief Slot to a selected issue status
@@ -230,6 +252,13 @@ private slots:
      * \sa timer_
      */
     void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true );
+
+    /**
+     * @brief Handle a tray event
+     *
+     * @param reason Reason for the activation of the tray
+     */
+    void trayEvent( QSystemTrayIcon::ActivationReason reason );
 
     /**
      * @brief Update issue status for current issue

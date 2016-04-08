@@ -2,6 +2,7 @@
 #include "logging.h"
 
 #include <QMessageBox>
+#include <QMenu>
 #include <QObject>
 
 using namespace qtredmine;
@@ -11,6 +12,32 @@ using namespace std;
 RedTimer::RedTimer( QApplication* parent )
     : QObject( parent ),
       app_( parent )
+{
+    ENTER();
+    init();
+    RETURN();
+}
+
+RedTimer::~RedTimer()
+{
+    ENTER();
+
+    // Save settings
+    settings_->setActivity( activityId_ );
+    settings_->setIssue( issue_.id );
+    settings_->setProject( issueSelector_->getProjectId() );
+    settings_->setPosition( win_->position() );
+    settings_->setRecentIssues( recentIssues_.data().toVector() );
+
+    settings_->save();
+
+    trayIcon_->hide();
+
+    RETURN();
+}
+
+void
+RedTimer::init()
 {
     ENTER();
 
@@ -38,7 +65,16 @@ RedTimer::RedTimer( QApplication* parent )
     flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
     win_->setFlags( flags );
 
-    win_->show();
+    display();
+
+    trayIcon_ = new QSystemTrayIcon( win_ );
+    trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
+    trayIcon_->show();
+
+    QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(win_) );
+    trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, &RedTimer::toggle );
+    trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, &RedTimer::exit );
+    trayIcon_->setContextMenu( trayMenu );
 
     // Main window access members
     ctx_ = win_->rootContext();
@@ -68,32 +104,6 @@ RedTimer::RedTimer( QApplication* parent )
     // Set transient window parent
     settings_->window()->setTransientParent( win_ );
     issueSelector_->window()->setTransientParent( win_ );
-
-    init();
-
-    RETURN();
-}
-
-RedTimer::~RedTimer()
-{
-    ENTER();
-
-    // Save settings
-    settings_->setActivity( activityId_ );
-    settings_->setIssue( issue_.id );
-    settings_->setProject( issueSelector_->getProjectId() );
-    settings_->setPosition( win_->position() );
-    settings_->setRecentIssues( recentIssues_.data().toVector() );
-
-    settings_->save();
-
-    RETURN();
-}
-
-void
-RedTimer::init()
-{
-    ENTER();
 
     // Connect the settings button
     connect( qml("settings"), SIGNAL(clicked()),
@@ -137,16 +147,69 @@ RedTimer::init()
     // Connect the timer to the tracking counter
     connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
 
+    // Connect the tray icon to the window show slot
+    connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
+
     // Initially update the GUI
     refresh();
 
     RETURN();
 }
 
-bool RedTimer::eventFilter( QObject* obj, QEvent* event )
+bool
+RedTimer::eventFilter( QObject* obj, QEvent* event )
 {
     // Show warning on close and if timer is running
-    if( event->type() == QEvent::Close && timer_->isActive() )
+    if( event->type() == QEvent::Close )
+    {
+        win_->hide();
+        return true;
+    }
+
+    return QObject::eventFilter( obj, event );
+}
+
+void
+RedTimer::trayEvent( QSystemTrayIcon::ActivationReason reason )
+{
+    ENTER()(reason);
+
+    if( reason == QSystemTrayIcon::ActivationReason::DoubleClick )
+        toggle();
+
+    RETURN();
+}
+
+void
+RedTimer::display()
+{
+    ENTER();
+
+    win_->showNormal();
+
+    RETURN();
+}
+
+void
+RedTimer::toggle()
+{
+    ENTER();
+
+    if( win_->isVisible() )
+        win_->hide();
+    else
+        display();
+
+    RETURN();
+}
+
+void
+RedTimer::exit()
+{
+    ENTER();
+
+    // Show warning on close and if timer is running
+    if( timer_->isActive() )
     {
         DEBUG() << "Received close event while timer is running";
 
@@ -165,24 +228,25 @@ bool RedTimer::eventFilter( QObject* obj, QEvent* event )
         case QMessageBox::Cancel:
             // Ignore the event
             DEBUG() << "Ignoring the close event";
-            return true;
+            return;
 
         case QMessageBox::Save:
         {
             DEBUG() << "Saving time entry before closing the application";
             connect( this, &RedTimer::timeEntrySaved, [=](){ app_->quit(); } );
             stop();
-            return true;
+            return;
         }
 
         default:
             DEBUG() << "Passing the close event to QObject";
-            // The call to QObject::eventFilter below will eventually close the window
             break;
         }
     }
 
-    return QObject::eventFilter( obj, event );
+    app_->quit();
+
+    RETURN();
 }
 
 void
@@ -475,7 +539,6 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
         {
             message( tr("Could not save the time entry. Please check your internet connection."),
                      QtCriticalMsg );
-            startTimer();
             RETURN();
         }
 

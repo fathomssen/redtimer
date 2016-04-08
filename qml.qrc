@@ -15,5 +15,6 @@
         <file>MessageBoxForm.ui.qml</file>
         <file>open-iconic/svg/reload.svg</file>
         <file>icons/clock_red.svg</file>
+        <file>open-iconic/svg/x.svg</file>
     </qresource>
 </RCC>
