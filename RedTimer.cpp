@@ -31,7 +31,8 @@ RedTimer::~RedTimer()
 
     settings_->save();
 
-    trayIcon_->hide();
+    if( trayIcon_ )
+        trayIcon_->hide();
 
     RETURN();
 }
@@ -65,16 +66,9 @@ RedTimer::init()
     flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
     win_->setFlags( flags );
 
+    initTrayIcon();
+
     display();
-
-    trayIcon_ = new QSystemTrayIcon( win_ );
-    trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
-    trayIcon_->show();
-
-    QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(win_) );
-    trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, &RedTimer::toggle );
-    trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, &RedTimer::exit );
-    trayIcon_->setContextMenu( trayMenu );
 
     // Main window access members
     ctx_ = win_->rootContext();
@@ -147,11 +141,31 @@ RedTimer::init()
     // Connect the timer to the tracking counter
     connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
 
-    // Connect the tray icon to the window show slot
-    connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
-
     // Initially update the GUI
     refresh();
+
+    RETURN();
+}
+
+void
+RedTimer::initTrayIcon()
+{
+    ENTER();
+
+    if( QSystemTrayIcon::isSystemTrayAvailable() )
+    {
+        trayIcon_ = new QSystemTrayIcon( win_ );
+        trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
+        trayIcon_->show();
+
+        QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(win_) );
+        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, &RedTimer::toggle );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, &RedTimer::exit );
+        trayIcon_->setContextMenu( trayMenu );
+
+        // Connect the tray icon to the window show slot
+        connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
+    }
 
     RETURN();
 }
@@ -162,7 +176,11 @@ RedTimer::eventFilter( QObject* obj, QEvent* event )
     // Show warning on close and if timer is running
     if( event->type() == QEvent::Close )
     {
-        win_->hide();
+        if( trayIcon_ )
+            win_->hide();
+        else
+            exit();
+
         return true;
     }
 
@@ -239,7 +257,7 @@ RedTimer::exit()
         }
 
         default:
-            DEBUG() << "Passing the close event to QObject";
+            DEBUG() << "Closing the application";
             break;
         }
     }

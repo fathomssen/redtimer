@@ -125,6 +125,11 @@ public:
      */
     void init();
 
+    /**
+     * @brief Initialise the tray icon
+     */
+    void initTrayIcon();
+
 protected:
     /**
      * @brief Filter Qt events
