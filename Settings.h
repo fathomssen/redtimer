@@ -13,6 +13,9 @@
 
 namespace redtimer {
 
+/**
+ * @brief A settings window and IO access for RedTimer
+ */
 class Settings : public QObject
 {
     Q_OBJECT
@@ -201,7 +204,7 @@ public:
     /**
      * @brief Set recently opened issues
      *
-     * @paramt recentIssues List of recently opened issues
+     * @param recentIssues List of recently opened issues
      */
     void setRecentIssues( qtredmine::Issues recentIssues );
 

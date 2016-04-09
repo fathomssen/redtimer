@@ -46,6 +46,28 @@ IssueModel::IssueModel( QObject* parent )
     : QAbstractListModel( parent )
 {}
 
+Issue
+IssueModel::at( const int index ) const
+{
+    ENTER()(index);
+    RETURN( items_.at(index) );
+}
+
+void
+IssueModel::clear()
+{
+    ENTER();
+
+    if( rowCount() == 0 )
+        RETURN();
+
+    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
+    items_.clear();
+    endRemoveRows();
+
+    RETURN();
+}
+
 void
 IssueModel::push_back( const Issue& item )
 {
@@ -66,28 +88,6 @@ IssueModel::push_front( const Issue& item )
     beginInsertRows( QModelIndex(), 0, 0 );
     items_.push_front( item );
     endInsertRows();
-
-    RETURN();
-}
-
-Issue
-IssueModel::at( const int index ) const
-{
-    ENTER()(index);
-    RETURN( items_.at(index) );
-}
-
-void
-IssueModel::clear()
-{
-    ENTER();
-
-    if( rowCount() == 0 )
-        RETURN();
-
-    beginRemoveRows( QModelIndex(), 0, rowCount()-1 );
-    items_.clear();
-    endRemoveRows();
 
     RETURN();
 }

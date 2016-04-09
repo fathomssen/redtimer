@@ -13,6 +13,9 @@
 
 namespace redtimer {
 
+/**
+ * @brief An issue selector for RedTimer
+ */
 class IssueSelector : public QObject
 {
     Q_OBJECT

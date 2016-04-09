@@ -23,6 +23,9 @@
 
 namespace redtimer {
 
+/**
+ * @brief RedTimer, a Redmine Time Tracker
+ */
 class RedTimer : public QObject
 {
     Q_OBJECT
