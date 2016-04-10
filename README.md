@@ -6,6 +6,15 @@ Redmine Time Tracker
 RedTimer is an easy-to-use platform-independent time tracker which allows the user to track time while working
 on an issue.
 
+Usage
+-----
+
+Usually, you can start the RedTimer executable from your file manager. After closing, RedTimer will create a
+settings file called `RedTimer.ini` in your current working directory.
+
+If you experience problems with the system tray icon, e.g. on Linux, you can deactivate the system tray icon
+by calling `RedTimer --no-tray-icon`.
+
 Installation instructions
 -------------------------
 

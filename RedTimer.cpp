@@ -9,9 +9,10 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-RedTimer::RedTimer( QApplication* parent )
+RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     : QObject( parent ),
-      app_( parent )
+      app_( parent ),
+      showTrayIcon_( trayIcon )
 {
     ENTER();
     init();
@@ -152,7 +153,7 @@ RedTimer::initTrayIcon()
 {
     ENTER();
 
-    if( QSystemTrayIcon::isSystemTrayAvailable() )
+    if( showTrayIcon_ && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( win_ );
         trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
