@@ -1,7 +1,6 @@
 #ifndef REDTIMER_H
 #define REDTIMER_H
 
-#include "IssueSelector.h"
 #include "Models.h"
 #include "Settings.h"
 
@@ -32,25 +31,22 @@ class RedTimer : public QObject
 
 private:
     /// Redmine connection object
-    qtredmine::SimpleRedmineClient* redmine_;
+    qtredmine::SimpleRedmineClient* redmine_ = nullptr;
 
     /// Redmine connection dialog object
-    Settings* settings_;
-
-    /// Redmine issue selector dialog object
-    IssueSelector* issueSelector_;
+    Settings* settings_ = nullptr;
 
     /// Main application
-    QApplication* app_;
+    QApplication* app_ = nullptr;
 
     /// Main window object
-    QQuickView* win_;
+    QQuickView* win_ = nullptr;
 
     /// Main window context
-    QQmlContext* ctx_;
+    QQmlContext* ctx_ = nullptr;
 
     /// Main item object
-    QQuickItem* item_;
+    QQuickItem* item_ = nullptr;
 
     /// Show the system tray icon
     bool showTrayIcon_;
@@ -59,13 +55,13 @@ private:
     QSystemTrayIcon* trayIcon_ = nullptr;
 
     /// Timer for stopping the worked on time
-    QTimer* timer_;
+    QTimer* timer_ = nullptr;
 
     /// Currently tracked time in seconds
     int counter_ = 0;
 
     /// Counter QML element for quick access
-    QQuickItem* qmlCounter_;
+    QQuickItem* qmlCounter_ = nullptr;
 
     /// Current activity
     int activityId_ = NULL_ID;
@@ -167,9 +163,9 @@ private slots:
     void exit();
 
     /**
-     * @brief Display or hide the main window
+     * @brief Open the issue creator and load issue
      */
-    void toggle();
+    void createIssue();
 
     /**
      * @brief Slot to a selected issue status
@@ -204,8 +200,9 @@ private slots:
      *
      * @param issueId Issue ID
      * @param startTimer Automatically start the timer after loading the issue
+     * @param saveNewIssue When saving tracked time, save time for the newly loaded issue
      */
-    void loadIssue( int issueId, bool startTimer = true );
+    void loadIssue( int issueId, bool startTimer = true, bool saveNewIssue = false );
 
     /**
      * @brief Reconnect to Redmine
@@ -215,12 +212,12 @@ private slots:
     /**
      * @brief Refresh Redmine entities
      */
-    void refresh();
+    void refreshGui();
 
     /**
      * @brief Refresh activities
      */
-    void refreshActivities();
+    void loadActivities();
 
     /**
      * @brief Refresh the counter
@@ -230,7 +227,12 @@ private slots:
     /**
      * @brief Refresh issue statuses
      */
-    void refreshIssueStatuses();
+    void loadIssueStatuses();
+
+    /**
+     * @brief Open the issue selector and load issue
+     */
+    void selectIssue();
 
     /**
      * @brief Start time tracking
@@ -264,6 +266,11 @@ private slots:
      * \sa timer_
      */
     void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true );
+
+    /**
+     * @brief Display or hide the main window
+     */
+    void toggle();
 
     /**
      * @brief Handle a tray event

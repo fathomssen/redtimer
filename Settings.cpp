@@ -20,7 +20,8 @@ Settings::Settings( SimpleRedmineClient* redmine, QObject* parent )
     win_->setResizeMode( QQuickView::SizeRootObjectToView );
     win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
     win_->setModality( Qt::ApplicationModal );
-    win_->setFlags( Qt::Tool );
+    win_->setFlags( Qt::Dialog );
+    win_->setTitle( "Settings" );
 
     // Settings window access members
     ctx_ = win_->rootContext();
@@ -196,7 +197,7 @@ Settings::updateIssueStatuses()
     if( apiKey_.isEmpty() || url_.isEmpty() )
     {
         issueStatusModel_.clear();
-        issueStatusModel_.push_back( SimpleItem("Currently not available") );
+        issueStatusModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
         ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
 
         RETURN();
@@ -213,7 +214,7 @@ Settings::updateIssueStatuses()
                []( const IssueStatus& a, const IssueStatus& b ){ return a.id < b.id; } );
 
         issueStatusModel_.clear();
-        issueStatusModel_.push_back( SimpleItem("Choose issue status") );
+        issueStatusModel_.push_back( SimpleItem(NULL_ID, "Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
             if( issueStatus.id == workedOnId_ )

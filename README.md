@@ -41,9 +41,13 @@ This requires for you to have Qt 5.6+ and GCC 4.8.4+ installed and in your path.
 Alternatively, you can use a QtCreator distribution from https://www.qt.io. In QtCreator, you can open the
 project files `qtredmine/qtredmine.pro` and `RedTimer.pro` and start the build.
 
+Notes on how to build a statically linked version of Qt 5 with MinGW including OpenSSL support (for HTTPS) can
+be found on
+https://www.thomssen-it.de/blog/how-to-compile-qt-5-statically-with-mingw-including-openssl-on-windows.
+
 Todo
 ----
 
-* Issue creator
+* Only display allowed Redmine resources
 * Cache for offline operation
 * Spooler for unsaved time entries

@@ -5,29 +5,31 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QObject* parent )
-    : QObject( parent ),
+IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QQuickView* parent )
+    : Window( "qrc:/IssueSelector.qml", parent ),
       redmine_( redmine )
 {
     ENTER();
 
     // Issue selector window initialisation
-    win_ = new QQuickView();
-    win_->setResizeMode( QQuickView::SizeRootObjectToView );
-    win_->setSource( QUrl(QStringLiteral("qrc:/IssueSelector.qml")) );
-    win_->setModality( Qt::ApplicationModal );
-    win_->setFlags( Qt::Tool );
-
-    // Issue selector window access members
-    ctx_ = win_->rootContext();
-    item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
+    setResizeMode( QQuickView::SizeRootObjectToView );
+    setModality( Qt::ApplicationModal );
+    setFlags( Qt::Dialog );
+    setTitle( "Issue Selector" );
 
     // Set the models
     issuesProxyModel_.setSourceModel( &issuesModel_ );
+    issuesProxyModel_.setSortRole( IssueModel::IssueRoles::IdRole );
+    issuesProxyModel_.setDynamicSortFilter( true );
     issuesProxyModel_.setFilterCaseSensitivity( Qt::CaseInsensitive );
     issuesProxyModel_.setFilterRole( IssueModel::IssueRoles::SubjectRole );
     ctx_->setContextProperty( "issuesModel", &issuesProxyModel_ );
-    ctx_->setContextProperty( "projectModel", &projectModel_ );
+
+    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel();
+    projectProxyModel->setSourceModel( &projectModel_ );
+    projectProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
+    projectProxyModel->setDynamicSortFilter( true );
+    ctx_->setContextProperty( "projectModel", projectProxyModel );
 
     // Connect the project selected signal to the projectSelected slot
     connect( qml("project"), SIGNAL(activated(int)), this, SLOT(projectSelected(int)) );
@@ -38,22 +40,6 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QObject* parent )
     // Connect the search accepted signal to the filterIssues slot
     connect( qml("search"), SIGNAL(textChanged()), this, SLOT(filterIssues()) );
 
-    updateProjects();
-
-    RETURN();
-}
-
-void
-IssueSelector::close()
-{
-    ENTER();
-
-    if( win_->isVisible() )
-    {
-        DEBUG() << "Closing issue selector window";
-        win_->close();
-    }
-
     RETURN();
 }
 
@@ -62,12 +48,12 @@ IssueSelector::display()
 {
     ENTER();
 
-    if( !win_->isVisible() )
+    if( !isVisible() )
     {
         DEBUG() << "Displaying issue selector window";
-        win_->show();
+        show();
         qml("search")->setProperty( "text", "" );
-        updateProjects();
+        loadProjects();
     }
 
     RETURN();
@@ -107,50 +93,51 @@ IssueSelector::projectSelected( int index )
     projectId_ = projectModel_.at(index).id();
     DEBUG()(index)(projectId_);
 
-    updateIssues();
+    loadIssues();
 
     RETURN();
 }
 
 void
-IssueSelector::updateIssues()
+IssueSelector::loadIssues()
 {
     ENTER()(projectId_);
 
-    redmine_->retrieveIssues( [=]( Issues issues )
+    redmine_->retrieveIssues( [&]( Issues issues )
     {
         ENTER();
 
-        // Sort issues descending by ID
-        qSort( issues.begin(), issues.end(),
-               []( const Issue& a, const Issue& b ){ return a.id > b.id; } );
-
         issuesModel_.clear();
+
         for( const auto& issue : issues )
             issuesModel_.push_back( issue );
 
         DEBUG()(issuesModel_);
     },
-    QString("project_id=%1").arg(projectId_) );
+    RedmineOptions( QString("project_id=%1").arg(projectId_), true ) );
+
+    RETURN();
 }
 
 void
-IssueSelector::updateProjects()
+IssueSelector::loadProjects()
 {
     ENTER();
 
-    redmine_->retrieveProjects( [&]( Projects projects )
+    // Clear and set first item at once and not wait for callback
+    projectModel_.clear();
+    projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
+
+    redmine_->retrieveProjects( [=]( Projects projects )
     {
         ENTER();
 
         int currentIndex = 0;
 
-        // Sort issues ascending by name
-        qSort( projects.begin(), projects.end(),
-               []( const Project& a, const Project& b ){ return a.name < b.name; } );
-
+        // Reset in case this has changed since calling loadProjects()
         projectModel_.clear();
-        projectModel_.push_back( SimpleItem("Choose project") );
+        projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
+
         for( const auto& project : projects )
         {
             if( project.id == projectId_ )
@@ -161,11 +148,8 @@ IssueSelector::updateProjects()
 
         DEBUG()(projectModel_)(currentIndex);
 
-        if( currentIndex != 0 )
-        {
-            qml("project")->setProperty( "currentIndex", currentIndex );
-            projectSelected( currentIndex );
-        }
+        qml("project")->setProperty( "currentIndex", -1 );
+        qml("project")->setProperty( "currentIndex", currentIndex );
 
         RETURN();
     } );
@@ -183,19 +167,6 @@ IssueSelector::setProjectId( int id )
 {
     ENTER();
     projectId_ = id;
+    loadIssues();
     RETURN();
-}
-
-QQuickItem*
-IssueSelector::qml( QString qmlItem )
-{
-    ENTER()(qmlItem);
-    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
-}
-
-QQuickView*
-IssueSelector::window() const
-{
-    ENTER();
-    RETURN( win_ );
 }

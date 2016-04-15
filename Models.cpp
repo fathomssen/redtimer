@@ -5,29 +5,9 @@
 using namespace redtimer;
 using namespace qtredmine;
 
-SimpleItem::SimpleItem( const QString& name )
-    : id_( NULL_ID ),
-      name_( name )
-{}
-
 SimpleItem::SimpleItem( int id, const QString& name )
     : id_( id ),
       name_( name )
-{}
-
-SimpleItem::SimpleItem( const Enumeration& item )
-    : id_( item.id ),
-      name_( item.name )
-{}
-
-SimpleItem::SimpleItem( const IssueStatus& item )
-    : id_( item.id ),
-      name_( item.name )
-{}
-
-SimpleItem::SimpleItem( const Project& item )
-    : id_( item.id ),
-      name_( item.name )
 {}
 
 int

@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 {
     QApplication app( argc, argv );
     QApplication::setApplicationName( "RedTimer" );
-    QApplication::setApplicationVersion( "0.0.4" );
+    QApplication::setApplicationVersion( "0.0.5" );
 
     // Command line options
     QCommandLineParser parser;

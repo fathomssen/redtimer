@@ -23,15 +23,6 @@ private:
 
 public:
     /**
-     * @brief Constructor for a simple item by name
-     *
-     * This constructor will set the ID to \c NULL_ID
-     *
-     * @param name Name to be set
-     */
-    SimpleItem( const QString& name );
-
-    /**
      * @brief Constructor for a simple item by ID and name
      *
      * @param id ID to be set
@@ -40,25 +31,14 @@ public:
     SimpleItem( int id, const QString& name );
 
     /**
-     * @brief Constructor for a simple item by an enumeration
+     * @brief Constructor for any class containing members \c id and \c name
      *
-     * @param item Enumeration data to be used for the simple item
+     * @param item Class containing members \c id and \c name
      */
-    SimpleItem( const qtredmine::Enumeration& item );
-
-    /**
-     * @brief Constructor for a simple item by an issue status
-     *
-     * @param item Issue status data to be used for the simple item
-     */
-    SimpleItem( const qtredmine::IssueStatus& item );
-
-    /**
-     * @brief Constructor for a simple item by a project
-     *
-     * @param item Project data to be used for the simple item
-     */
-    SimpleItem( const qtredmine::Project& item );
+    template<class T>
+    SimpleItem( const T& item )
+        : SimpleItem( item.id, item.name )
+    {}
 
     /// @name
     /// @{

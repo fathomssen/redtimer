@@ -2,13 +2,9 @@
 #define ISSUESELECTOR_H
 
 #include "Models.h"
-
+#include "Window.h"
 #include "qtredmine/SimpleRedmineClient.h"
 
-#include <QObject>
-#include <QQmlContext>
-#include <QQuickItem>
-#include <QQuickView>
 #include <QSortFilterProxyModel>
 
 namespace redtimer {
@@ -16,22 +12,13 @@ namespace redtimer {
 /**
  * @brief An issue selector for RedTimer
  */
-class IssueSelector : public QObject
+class IssueSelector : public Window
 {
     Q_OBJECT
 
 private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
-
-    /// Issue selector window object
-    QQuickView* win_;
-
-    /// Issue selector window context
-    QQmlContext* ctx_;
-
-    /// Issue selector item object
-    QQuickItem* item_;
 
     /// List of issues in the GUI
     IssueModel issuesModel_;
@@ -43,23 +30,14 @@ private:
     /// List of projects in the GUI
     SimpleModel projectModel_;
 
-    /**
-     * @brief Get a QML GUI item
-     *
-     * @param qmlItem Name of the QML GUI item
-     *
-     * @return QML GUI item
-     */
-    QQuickItem* qml( QString qmlItem );
-
 public:
     /**
-     * @brief Constructor for a IssueSelector object
+     * @brief Constructor for an IssueSelector object
      *
      * @param redmine Redmine connection object
      * @param parent Parent QObject
      */
-    explicit IssueSelector( qtredmine::SimpleRedmineClient* redmine, QObject* parent = nullptr );
+    explicit IssueSelector( qtredmine::SimpleRedmineClient* redmine, QQuickView* parent = nullptr );
 
     /// @name Getters
     /// @{
@@ -94,11 +72,6 @@ public:
 
 public slots:
     /**
-     * @brief Close the issue selector dialog
-     */
-    void close();
-
-    /**
      * @brief Display the issue selector dialog
      */
     void display();
@@ -122,12 +95,12 @@ private slots:
     /**
      * @brief Update issues and refresh issues list
      */
-    void updateIssues();
+    void loadIssues();
 
     /**
      * @brief Update projects and refresh project list
      */
-    void updateProjects();
+    void loadProjects();
 
 signals:
     /**

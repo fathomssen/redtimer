@@ -21,27 +21,47 @@ Item {
 
     ToolBar {
         id: toolBar
+        height: 32
         objectName: "toolBar"
         anchors.right: parent.right
         anchors.left: parent.left
         anchors.top: parent.top
 
         ToolButton {
-            id: settings
-            objectName: "settings"
-            text: "&Settings"
-            anchors.right: parent.right
-            tooltip: "Open Settings"
-            iconSource: "qrc:///open-iconic/svg/cog.svg"
+            id: createIssue
+            width: 24
+            height: 24
+            objectName: "createIssue"
+            text: "Create &new issue"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.leftMargin: 0
+            anchors.left: parent.left
+            tooltip: "Create new issue"
+            iconSource: "qrc:///open-iconic/svg/plus.svg"
         }
 
         ToolButton {
             id: reload
+            width: 24
+            height: 24
             objectName: "reload"
             text: "&Reload"
+            anchors.verticalCenter: parent.verticalCenter
             anchors.right: settings.left
             tooltip: "Reload"
             iconSource: "qrc:///open-iconic/svg/reload.svg"
+        }
+
+        ToolButton {
+            id: settings
+            width: 24
+            height: 24
+            objectName: "settings"
+            text: "&Settings"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            tooltip: "Open Settings"
+            iconSource: "qrc:///open-iconic/svg/cog.svg"
         }
     }
 
@@ -90,7 +110,8 @@ Item {
                         ToolButton {
                             id: selectIssue
                             objectName: "selectIssue"
-                            width: 23
+                            width: 24
+                            height: 24
                             iconSource: "qrc:///open-iconic/svg/list.svg"
                             tooltip: "Select issue from list"
                         }
@@ -133,8 +154,8 @@ Item {
                         ToolButton {
                             id: startStop
                             objectName: "startStop"
-                            width: 40
-                            height: 40
+                            width: 24
+                            height: 24
                             isDefault: true
                             iconSource: "qrc:///open-iconic/svg/media-play.svg"
                             tooltip: "Start time tracking"

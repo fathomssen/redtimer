@@ -9,12 +9,14 @@
         <file>open-iconic/svg/media-play.svg</file>
         <file>open-iconic/svg/list.svg</file>
         <file>open-iconic/svg/cog.svg</file>
-        <file>open-iconic/svg/power-standby.svg</file>
         <file>open-iconic/svg/media-stop.svg</file>
         <file>MessageBox.qml</file>
         <file>MessageBoxForm.ui.qml</file>
         <file>open-iconic/svg/reload.svg</file>
         <file>icons/clock_red.svg</file>
         <file>open-iconic/svg/x.svg</file>
+        <file>open-iconic/svg/plus.svg</file>
+        <file>IssueCreator.qml</file>
+        <file>IssueCreatorForm.ui.qml</file>
     </qresource>
 </RCC>

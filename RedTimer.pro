@@ -1,43 +1,50 @@
 TEMPLATE = app
 
+QT += gui qml quick svg widgets
 QMAKE_CXXFLAGS += -std=c++11
 
-QT += qml quick widgets gui svg
+RC_ICONS = icons/clock_red.ico
+ICON = icons/clock_red.icns
 
-SOURCES += main.cpp \
-    RedTimer.cpp \
-    Settings.cpp \
-    Models.cpp \
-    IssueSelector.cpp
-
-RESOURCES += qml.qrc
-
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
-
-# No debug statements in release
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
-
-# Default rules for deployment.
-include(deployment.pri)
+VERSION = 0.0.5
+QMAKE_TARGET_COMPANY = "Thomssen IT"
+QMAKE_TARGET_PRODUCT = "RedTimer"
+QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
+QMAKE_TARGET_COPYRIGHT = "LGPL 3"
 
 HEADERS += \
     RedTimer.h \
     Settings.h \
     logging.h \
     Models.h \
-    IssueSelector.h
+    IssueSelector.h \
+    IssueCreator.h \
+    Window.h
 
-CONFIG += c++11
+SOURCES += main.cpp \
+    RedTimer.cpp \
+    Settings.cpp \
+    Models.cpp \
+    IssueSelector.cpp \
+    IssueCreator.cpp \
+    Window.cpp
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/qtredmine/release/ -lqtredmine
+DISTFILES += \
+    .travis.yml \
+    README.md \
+
+RESOURCES += qml.qrc
+
+# No debug statements in release
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
+
+win32:CONFIG(release, debug|release): LIBS += -static -L$$PWD/qtredmine/release/ -lqtredmine
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qtredmine/debug/ -lqtredmine
 else:unix: LIBS += -L$$PWD/qtredmine/ -lqtredmine
 
 INCLUDEPATH += $$PWD/qtredmine
 DEPENDPATH += $$PWD/qtredmine
 
-DISTFILES += \
-    .travis.yml \
-    README.md \
+# Default rules for deployment.
+include(deployment.pri)
