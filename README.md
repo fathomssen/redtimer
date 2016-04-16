@@ -44,10 +44,3 @@ project files `qtredmine/qtredmine.pro` and `RedTimer.pro` and start the build.
 Notes on how to build a statically linked version of Qt 5 with MinGW including OpenSSL support (for HTTPS) can
 be found on
 https://www.thomssen-it.de/blog/how-to-compile-qt-5-statically-with-mingw-including-openssl-on-windows.
-
-Todo
-----
-
-* Only display allowed Redmine resources
-* Cache for offline operation
-* Spooler for unsaved time entries
