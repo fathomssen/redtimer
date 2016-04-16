@@ -423,6 +423,7 @@ RedTimer::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
                 .arg(issue.description);
         qml("issueData")->setProperty( "text", issueData );
 
+        loadLatestActivity();
         loadIssueStatuses();
 
         if( startTimer )
@@ -463,6 +464,33 @@ RedTimer::loadIssueStatuses()
 
         RETURN();
     } );
+
+    RETURN();
+}
+
+void
+RedTimer::loadLatestActivity()
+{
+    ENTER();
+
+    if( issue_.id == NULL_ID )
+    {
+        loadActivities();
+        RETURN();
+    }
+
+    redmine_->retrieveTimeEntries( [&]( TimeEntries timeEntries )
+    {
+        ENTER();
+
+        if( timeEntries.size() == 1 )
+            activityId_ = timeEntries[0].activity.id;
+
+        loadActivities();
+
+        RETURN();
+    },
+    QString("issue_id=%1&limit=1").arg(issue_.id) );
 
     RETURN();
 }
@@ -532,7 +560,7 @@ RedTimer::refreshGui()
 {
     ENTER();
 
-    loadActivities();
+    loadLatestActivity();
     loadIssueStatuses();
 
     QString title = "RedTimer";
@@ -724,12 +752,12 @@ RedTimer::updateIssueStatus( int statusId )
 
         if( !success )
         {
-            message( tr("Could not save the time entry. Please check your internet connection."),
+            message( tr("Could not update the issue. Please check your internet connection."),
                      QtCriticalMsg );
             RETURN();
         }
 
-        message( tr("Issue status updated") );
+        message( tr("Issue updated") );
 
         issue_.status.id = statusId;
         loadIssueStatuses();

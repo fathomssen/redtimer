@@ -220,6 +220,11 @@ private slots:
     void loadActivities();
 
     /**
+     * @brief Load the latest activity on the issue and refresh activities
+     */
+    void loadLatestActivity();
+
+    /**
      * @brief Refresh the counter
      */
     void refreshCounter();
