@@ -111,7 +111,8 @@ IssueCreator::loadProjects()
         qml("project")->setProperty( "currentIndex", 0 );
 
         RETURN();
-    } );
+    },
+    QString("limit=100") );
 
     RETURN();
 }
