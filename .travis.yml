@@ -17,7 +17,7 @@ before_install:
 
 install:
 - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55quickcontrols qt55svg; source /opt/qt55/bin/qt55-env.sh; fi
-- if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56quickcontrols2 qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
+- if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56quickcontrols qt56quickcontrols2 qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
 
 script:
   - cd qtredmine

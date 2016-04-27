@@ -32,6 +32,7 @@ SOURCES += main.cpp \
 DISTFILES += \
     .travis.yml \
     README.md \
+    README.Ubuntu.md
 
 RESOURCES += qml.qrc
 
