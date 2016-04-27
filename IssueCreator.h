@@ -21,6 +21,9 @@ private:
     /// Emit the cancelled signal upon closing
     bool cancelOnClose_ = true;
 
+    /// User ID which was used to login into Redmine
+    int currentUserId_ = NULL_ID;
+
     /// Current project
     int projectId_ = NULL_ID;
 
@@ -34,6 +37,11 @@ private:
     SimpleModel trackerModel_;
 
 private:
+    /**
+     * @brief Load the current user
+     */
+    void loadCurrentUser();
+
     /**
      * @brief Load and refresh projects in the GUI
      */

@@ -36,6 +36,8 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, QQuickView* parent )
 
     loadTrackers();
 
+    loadCurrentUser();
+
     // Connect the project selected signal to the projectSelected slot
     connect( qml("project"), SIGNAL(activated(int)), this, SLOT(projectSelected(int)) );
 
@@ -89,6 +91,21 @@ IssueCreator::display()
         DEBUG() << "Displaying issue creator window";
         show();
     }
+
+    RETURN();
+}
+
+void
+IssueCreator::loadCurrentUser()
+{
+    ENTER();
+
+    redmine_->retrieveCurrentUser( [&]( User user )
+    {
+        ENTER();
+        currentUserId_ = user.id;
+        RETURN();
+    } );
 
     RETURN();
 }
@@ -179,6 +196,7 @@ IssueCreator::save()
     Issue issue;
     issue.project.id = projectId_;
     issue.tracker.id = trackerId_;
+    issue.assignedTo.id = currentUserId_;
 
     if( !qml("parentIssue")->property("text").toString().isEmpty() )
         issue.parentId = qml("parentIssue")->property("text").toInt();
