@@ -155,8 +155,8 @@ RedTimer::initTrayIcon()
         trayIcon_->show();
 
         QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(win_) );
-        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, &RedTimer::toggle );
-        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, &RedTimer::exit );
+        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, SLOT(exit()) );
         trayIcon_->setContextMenu( trayMenu );
 
         // Connect the tray icon to the window show slot
