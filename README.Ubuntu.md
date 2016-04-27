@@ -37,7 +37,7 @@ sudo apt-get install qt56base qt56quickcontrols qt56quickcontrols2 qt56svg
 source /opt/qt56/bin/qt56-env.sh
 ```
 
-Then, you can follow the build instructions from the README.md file.
+Then, you can follow the build instructions from the [main README](README.md).
 
 ### Ubuntu 16.04 ###
 

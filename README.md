@@ -18,6 +18,8 @@ by calling `RedTimer --no-tray-icon`.
 Installation instructions
 -------------------------
 
+For Ubuntu instructions, please have a look at the [Ubuntu README](README.Ubuntu.md).
+
 The simplest way is to pick a binary from GitHub (https://github.com/fathomssen/redtimer/releases).
 
 The following instructions can be used to build the application from source.
