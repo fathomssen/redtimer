@@ -20,6 +20,57 @@ class Settings : public QObject
 {
     Q_OBJECT
 
+public:
+    /// Settings data structure
+    struct Data
+    {
+        /// @name GUI settings
+        /// @{
+
+        /// Redmine API key
+        QString apiKey;
+
+        /// Ignore SSL errors
+        bool ignoreSslErrors = false;
+
+        /// Maximum number of recently opened issues
+        int numRecentIssues = 10;
+
+        /// Redmine base URL
+        QString url;
+
+        /// Use system tray icon
+        bool useSystemTrayIcon = true;
+
+        /// Issue status to switch after tracking time
+        int workedOnId = NULL_ID;
+
+        /// @}
+
+        /// @name Internal settings
+        /// @{
+
+        /// Last used activity
+        int activityId = NULL_ID;
+
+        /// Last opened issue
+        int issueId = NULL_ID;
+
+        /// Last window position
+        QPoint position;
+
+        /// Last opened project
+        int projectId = NULL_ID;
+
+        /// Recently opened issues
+        qtredmine::Issues recentIssues;
+
+        /// @}
+    };
+
+    /// Settings data
+    Data data;
+
 private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
@@ -38,33 +89,6 @@ private:
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
-
-    /// Redmine API key
-    QString apiKey_;
-
-    /// Maximum number of recently opened issues
-    int numRecentIssues_;
-
-    /// Redmine base URL
-    QString url_;
-
-    /// Issue status to switch after tracking time
-    int workedOnId_ = NULL_ID;
-
-    /// Last used activity
-    int activityId_ = NULL_ID;
-
-    /// Last opened issue
-    int issueId_ = NULL_ID;
-
-    /// Last window position
-    QPoint position_;
-
-    /// Last opened project
-    int projectId_ = NULL_ID;
-
-    /// Recently opened issues
-    qtredmine::Issues recentIssues_;
 
     /**
      * @brief Get a QML GUI item
@@ -95,120 +119,12 @@ public:
      */
     void save();
 
-    /// @name Getters
-    /// @{
-
-    /**
-     * @brief Get last used activity
-     *
-     * @return Activity ID
-     */
-    int getActivity();
-
-    /**
-     * @brief Get the Redmine API key
-     *
-     * @return Redmine API key
-     */
-    QString getApiKey() const;
-
-    /**
-     * @brief Get last used issue
-     *
-     * @return Issue ID
-     */
-    int getIssue();
-
-    /**
-     * @brief Get the maximum number of recently opened issues
-     *
-     * @return Maximum number of recently opened issues
-     */
-    int getNumRecentIssues();
-
-    /**
-     * @brief Get last window position
-     *
-     * @return Window position
-     */
-    QPoint getPosition();
-
-    /**
-     * @brief Get last used project
-     *
-     * @return Project ID
-     */
-    int getProject();
-
-    /**
-     * @brief Get recently opened issues
-     *
-     * @return List of recently opened issues
-     */
-    qtredmine::Issues getRecentIssues();
-
-    /**
-     * @brief Get the Redmine base URL
-     *
-     * @return Redmine base URL
-     */
-    QString getUrl() const;
-
-    /**
-     * @brief Get the worked on issue status ID
-     *
-     * @return Worked on issue status ID
-     */
-    int getWorkedOnId() const;
-
     /**
      * @brief Get the settings window
      *
      * @return Settings window
      */
     QQuickView* window() const;
-
-    /// @}
-
-    /// @name Setters
-    /// @{
-
-    /**
-     * @brief Set last used activity
-     *
-     * @param id Activity ID
-     */
-    void setActivity( int id );
-
-    /**
-     * @brief Set last used issue
-     *
-     * @param id Issue ID
-     */
-    void setIssue( int id );
-
-    /**
-     * @brief Set last window position
-     *
-     * @param position Window position
-     */
-    void setPosition( QPoint position );
-
-    /**
-     * @brief Set last used project
-     *
-     * @param id Project ID
-     */
-    void setProject( int id );
-
-    /**
-     * @brief Set recently opened issues
-     *
-     * @param recentIssues List of recently opened issues
-     */
-    void setRecentIssues( qtredmine::Issues recentIssues );
-
-    /// @}
 
 public slots:
     /**

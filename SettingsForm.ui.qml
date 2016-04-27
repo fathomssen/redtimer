@@ -4,16 +4,11 @@ import QtQuick.Layouts 1.2
 
 Item {
     width: 400
-    height: 130
+    height: 160
     Layout.minimumWidth: 400
-    Layout.minimumHeight: 130
+    Layout.minimumHeight: 160
 
     GridLayout {
-        width: 400
-        height: 130
-        Layout.minimumWidth: 400
-        Layout.minimumHeight: 130
-
         id: gridLayout1
         anchors.rightMargin: 5
         anchors.leftMargin: 5
@@ -88,6 +83,18 @@ Item {
             textRole: "name"
         }
 
+        CheckBox {
+            id: useSystemTrayIcon
+            objectName: "useSystemTrayIcon"
+            text: qsTr("Use system tray icon")
+        }
+
+        CheckBox {
+            id: ignoreSslErrors
+            objectName: "ignoreSslErrors"
+            text: qsTr("Ignore SSL errors")
+        }
+
         ToolButton {
             id: apply
             objectName: "apply"
@@ -96,12 +103,16 @@ Item {
             isDefault: true
         }
 
+
+
         ToolButton {
             id: cancel
             objectName: "cancel"
             text: qsTr("&Cancel")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
+
+
     }
 }
 

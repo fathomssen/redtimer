@@ -41,29 +41,32 @@ Settings::apply()
 {
     ENTER();
 
-    QString oldUrl = url_;
+    QString oldUrl = data.url;
 
-    apiKey_          = qml("apikey")->property("text").toString();
-    numRecentIssues_ = qml("numRecentIssues")->property("text").toInt();
-    url_             = qml("url")->property("text").toString();
+    data.apiKey            = qml("apikey")->property("text").toString();
+    data.ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
+    data.numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
+    data.url               = qml("url")->property("text").toString();
+    data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
 
-    if( oldUrl == url_ )
+    if( oldUrl == data.url )
     {
         int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
-        workedOnId_ = issueStatusModel_.at(workedOnIndex).id();
+        if( workedOnIndex )
+            data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
     }
     else
     {
-        activityId_   = NULL_ID;
-        issueId_      = NULL_ID;
-        projectId_    = NULL_ID;
-        workedOnId_   = NULL_ID;
+        data.activityId      = NULL_ID;
+        data.issueId         = NULL_ID;
+        data.projectId       = NULL_ID;
+        data.workedOnId      = NULL_ID;
 
-        while( !recentIssues_.isEmpty() )
-            recentIssues_.removeLast();
+        while( !data.recentIssues.isEmpty() )
+            data.recentIssues.removeLast();
     }
 
-    DEBUG("Changed settings to")(apiKey_)(url_)(workedOnId_);
+    DEBUG("Changed settings to")(data.apiKey)(data.url)(data.workedOnId);
 
     DEBUG() << "Emitting applied() signal";
     applied();
@@ -92,9 +95,11 @@ Settings::display()
 {
     ENTER();
 
-    qml("url")->setProperty( "text", url_ );
-    qml("apikey")->setProperty( "text", apiKey_ );
-    qml("numRecentIssues")->setProperty( "text", numRecentIssues_ );
+    qml("apikey")->setProperty( "text", data.apiKey );
+    qml("ignoreSslErrors")->setProperty( "checked", data.ignoreSslErrors );
+    qml("numRecentIssues")->setProperty( "text", data.numRecentIssues );
+    qml("url")->setProperty( "text", data.url );
+    qml("useSystemTrayIcon")->setProperty( "checked", data.useSystemTrayIcon );
 
     updateIssueStatuses();
 
@@ -113,21 +118,25 @@ Settings::load()
     ENTER();
 
     // Settings GUI
-    apiKey_     = settings_.value("apikey").toString();
-    url_        = settings_.value("url").toString();
-    workedOnId_ = settings_.value("workedOnId").toInt();
+    if( !settings_.value("apikey").isNull() )
+        data.apiKey = settings_.value("apikey").toString();
+    if( !settings_.value("ignoreSslErrors").isNull() )
+        data.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
+    if( !settings_.value("url").isNull() )
+        data.url = settings_.value("url").toString();
+    if( !settings_.value("useSystemTrayIcon").isNull() )
+        data.useSystemTrayIcon = settings_.value("useSystemTrayIcon").toBool();
+    if( !settings_.value("workedOnId").isNull() )
+        data.workedOnId = settings_.value("workedOnId").toInt();
 
-    // If numRecentIssues is not specified, set to 10
-    if( settings_.value("numRecentIssues").isNull() )
-        numRecentIssues_ = 10;
-    else
-        numRecentIssues_ = settings_.value("numRecentIssues").toInt();
+    if( !settings_.value("numRecentIssues").isNull() )
+        data.numRecentIssues = settings_.value("numRecentIssues").toInt();
 
     // Other GUIs
-    activityId_  = settings_.value("activity").toInt();
-    issueId_     = settings_.value("issue").toInt();
-    position_    = settings_.value("position").toPoint();
-    projectId_   = settings_.value("project").toInt();
+    data.activityId  = settings_.value("activity").toInt();
+    data.issueId     = settings_.value("issue").toInt();
+    data.position    = settings_.value("position").toPoint();
+    data.projectId   = settings_.value("project").toInt();
 
     int size = settings_.beginReadArray( "recentIssues" );
     for( int i = 0; i < size; ++i )
@@ -136,16 +145,17 @@ Settings::load()
         Issue issue;
         issue.id      = settings_.value("id").toInt();
         issue.subject = settings_.value("subject").toString();
-        recentIssues_.append( issue );
+        data.recentIssues.append( issue );
     }
     settings_.endArray();
 
 
     DEBUG("Loaded settings from file:")
-            (apiKey_)(numRecentIssues_)(url_)(workedOnId_)
-            (activityId_)(issueId_)(position_)(projectId_)(recentIssues_);
+            (data.apiKey)(data.ignoreSslErrors)(data.numRecentIssues)(data.url)
+            (data.useSystemTrayIcon)(data.workedOnId)
+            (data.activityId)(data.issueId)(data.position)(data.projectId)(data.recentIssues);
 
-    if( apiKey_.isEmpty() || url_.isEmpty() )
+    if( data.apiKey.isEmpty() || data.url.isEmpty() )
         display();
 
     applied();
@@ -166,23 +176,25 @@ Settings::save()
     ENTER();
 
     // From Settings GUI
-    settings_.setValue( "apikey",          apiKey_ );
-    settings_.setValue( "url",             url_ );
-    settings_.setValue( "numRecentIssues", numRecentIssues_ );
-    settings_.setValue( "workedOnId",      workedOnId_ );
+    settings_.setValue( "apikey",            data.apiKey );
+    settings_.setValue( "ignoreSslErrors",   data.ignoreSslErrors );
+    settings_.setValue( "numRecentIssues",   data.numRecentIssues );
+    settings_.setValue( "url",               data.url );
+    settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
+    settings_.setValue( "workedOnId",        data.workedOnId );
 
     // From other GUIs
-    settings_.setValue( "activity", activityId_ );
-    settings_.setValue( "issue",    issueId_ );
-    settings_.setValue( "position", position_ );
-    settings_.setValue( "project",  projectId_ );
+    settings_.setValue( "activity", data.activityId );
+    settings_.setValue( "issue",    data.issueId );
+    settings_.setValue( "position", data.position );
+    settings_.setValue( "project",  data.projectId );
 
     settings_.beginWriteArray( "recentIssues" );
-    for( int i = 0; i < recentIssues_.size(); ++i )
+    for( int i = 0; i < data.recentIssues.size(); ++i )
     {
         settings_.setArrayIndex( i );
-        settings_.setValue( "id",      recentIssues_.at(i).id );
-        settings_.setValue( "subject", recentIssues_.at(i).subject );
+        settings_.setValue( "id",      data.recentIssues.at(i).id );
+        settings_.setValue( "subject", data.recentIssues.at(i).subject );
     }
     settings_.endArray();
 
@@ -194,7 +206,7 @@ Settings::updateIssueStatuses()
 {
     ENTER();
 
-    if( apiKey_.isEmpty() || url_.isEmpty() )
+    if( data.apiKey.isEmpty() || data.url.isEmpty() )
     {
         issueStatusModel_.clear();
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
@@ -217,13 +229,13 @@ Settings::updateIssueStatuses()
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
-            if( issueStatus.id == workedOnId_ )
+            if( issueStatus.id == data.workedOnId )
                 currentIndex = issueStatusModel_.rowCount();
 
             issueStatusModel_.push_back( SimpleItem(issueStatus) );
         }
 
-        DEBUG()(issueStatusModel_)(workedOnId_)(currentIndex);
+        DEBUG()(issueStatusModel_)(data.workedOnId)(currentIndex);
 
         ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
 
@@ -233,108 +245,6 @@ Settings::updateIssueStatuses()
         RETURN();
     } );
 
-    RETURN();
-}
-
-int
-Settings::getActivity()
-{
-    ENTER();
-    RETURN( activityId_ );
-}
-
-QString
-Settings::getApiKey() const
-{
-    ENTER();
-    RETURN( apiKey_ );
-}
-
-int
-Settings::getIssue()
-{
-    ENTER();
-    RETURN( issueId_ );
-}
-
-int
-Settings::getNumRecentIssues()
-{
-    ENTER();
-    RETURN( numRecentIssues_ );
-}
-
-QPoint
-Settings::getPosition()
-{
-    ENTER();
-    RETURN( position_ );
-}
-
-int
-Settings::getProject()
-{
-    ENTER();
-    RETURN( projectId_ );
-}
-
-qtredmine::Issues Settings::getRecentIssues()
-{
-    ENTER();
-    RETURN( recentIssues_ );
-}
-
-QString
-Settings::getUrl() const
-{
-    ENTER();
-    RETURN( url_ );
-}
-
-int
-Settings::getWorkedOnId() const
-{
-    ENTER();
-    RETURN( workedOnId_ );
-}
-
-void
-Settings::setActivity( int id )
-{
-    ENTER()(id);
-    activityId_ = id;
-    RETURN();
-}
-
-void
-Settings::setIssue( int id )
-{
-    ENTER()(id);
-    issueId_ = id;
-    RETURN();
-}
-
-void
-Settings::setPosition( QPoint position )
-{
-    ENTER()(position);
-    position_ = position;
-    RETURN();
-}
-
-void
-Settings::setProject( int id )
-{
-    ENTER()(id);
-    projectId_ = id;
-    RETURN();
-}
-
-void
-Settings::setRecentIssues( qtredmine::Issues recentIssues )
-{
-    ENTER()(recentIssues);
-    recentIssues_ = recentIssues;
     RETURN();
 }
 

@@ -14,7 +14,7 @@ using namespace std;
 RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     : QObject( parent ),
       app_( parent ),
-      showTrayIcon_( trayIcon )
+      useSystemTrayIcon_( trayIcon )
 {
     ENTER();
     init();
@@ -26,15 +26,15 @@ RedTimer::~RedTimer()
     ENTER();
 
     // Save settings
-    settings_->setActivity( activityId_ );
-    settings_->setPosition( win_->position() );
-    settings_->setRecentIssues( recentIssues_.data().toVector() );
+
+    settings_->data.position = win_->position();
+    settings_->data.recentIssues = recentIssues_.data().toVector();
 
     // If currently there is no issue selected, use the first one from the recently opened issues list
     if( issue_.id == NULL_ID && recentIssues_.rowCount() )
-        settings_->setIssue( recentIssues_.at(0).id );
+        settings_->data.issueId = recentIssues_.at(0).id;
     else
-        settings_->setIssue( issue_.id );
+        settings_->data.issueId = issue_.id;
 
     settings_->save();
 
@@ -64,7 +64,7 @@ RedTimer::init()
     win_->setModality( Qt::ApplicationModal );
     win_->setTitle( "RedTimer" );
 
-    QPoint position = settings_->getPosition();
+    QPoint position = settings_->data.position;
     if( !position.isNull() )
         win_->setPosition( position );
 
@@ -73,8 +73,6 @@ RedTimer::init()
     flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
     flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
     win_->setFlags( flags );
-
-    initTrayIcon();
 
     display();
 
@@ -91,10 +89,10 @@ RedTimer::init()
     timer_->setInterval( 1000 );
 
     // Apply loaded settings
-    activityId_ = settings_->getActivity();
-    loadIssue( settings_->getIssue(), false );
+    activityId_ = settings_->data.activityId;
+    loadIssue( settings_->data.issueId, false );
 
-    for( const auto& issue : settings_->getRecentIssues() )
+    for( const auto& issue : settings_->data.recentIssues )
         recentIssues_.push_back( issue );
     ctx_->setContextProperty( "recentIssuesModel", &recentIssues_ );
 
@@ -148,7 +146,9 @@ RedTimer::initTrayIcon()
 {
     ENTER();
 
-    if( showTrayIcon_ && QSystemTrayIcon::isSystemTrayAvailable() )
+    // Create tray icon if desired and not yet available
+    if( !trayIcon_ && useSystemTrayIcon_ && settings_->data.useSystemTrayIcon
+            && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( win_ );
         trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
@@ -161,6 +161,14 @@ RedTimer::initTrayIcon()
 
         // Connect the tray icon to the window show slot
         connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
+    }
+
+    // Hide tray icon if desired and currently shown
+    if( trayIcon_ && (!useSystemTrayIcon_ || !settings_->data.useSystemTrayIcon) )
+    {
+        trayIcon_->hide();
+        delete trayIcon_;
+        trayIcon_ = nullptr;
     }
 
     RETURN();
@@ -219,7 +227,7 @@ RedTimer::addRecentIssue( qtredmine::Issue issue )
     recentIssues_.push_front( issue );
 
     // Crop the list after ten entries (keep 0..9)
-    int numRecentIssues = settings_->getNumRecentIssues();
+    int numRecentIssues = settings_->data.numRecentIssues;
     if( numRecentIssues != -1 )
         recentIssues_.removeRowsFrom( numRecentIssues );
 
@@ -544,8 +552,8 @@ RedTimer::reconnect()
 {
     ENTER();
 
-    redmine_->setUrl( settings_->getUrl() );
-    redmine_->setAuthenticator( settings_->getApiKey() );
+    redmine_->setUrl( settings_->data.url );
+    redmine_->setAuthenticator( settings_->data.apiKey );
 
     refreshGui();
 
@@ -559,6 +567,11 @@ void
 RedTimer::refreshGui()
 {
     ENTER();
+
+    if( settings_->data.ignoreSslErrors )
+        redmine_->setCheckSsl( false );
+
+    initTrayIcon();
 
     loadLatestActivity();
     loadIssueStatuses();
@@ -589,13 +602,13 @@ RedTimer::selectIssue()
     // Issue selector initialisation
     IssueSelector* issueSelector = new IssueSelector( redmine_ );
     issueSelector->setTransientParent( win_ );
-    issueSelector->setProjectId( settings_->getProject() );
+    issueSelector->setProjectId( settings_->data.projectId );
     issueSelector->display();
 
     // Connect the issue selected signal to the setIssue slot
     connect( issueSelector, &IssueSelector::selected, [=](int issueId)
     {
-        settings_->setProject( issueSelector->getProjectId() );
+        settings_->data.projectId = issueSelector->getProjectId();
         issueSelector->close();
         loadIssue( issueId );
     } );
@@ -645,7 +658,7 @@ RedTimer::startTimer()
     qml("startStop")->setProperty( "text", "Stop time tracking" );
 
     // Set the issue status ID to the worked on ID if not already done
-    int workedOnId = settings_->getWorkedOnId();
+    int workedOnId = settings_->data.workedOnId;
     if( workedOnId != NULL_ID && workedOnId != issue_.status.id )
         updateIssueStatus( workedOnId );
 

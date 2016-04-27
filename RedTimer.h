@@ -49,7 +49,7 @@ private:
     QQuickItem* item_ = nullptr;
 
     /// Show the system tray icon
-    bool showTrayIcon_;
+    bool useSystemTrayIcon_;
 
     /// System tray icon
     QSystemTrayIcon* trayIcon_ = nullptr;
