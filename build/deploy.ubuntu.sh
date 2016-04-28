@@ -92,4 +92,8 @@ if [ $deploy_qt ]; then
   cp -a $qtpluginsdir/xcbglintegrations/libqxcb-glx-integration.so $distdir/xcbglintegrations
 fi
 
-tar jvcf $dir.tar.bz2 -C $distdir/.. $dir
+distfile=$dir.tar.bz2
+
+tar jcf $distfile -C $distdir/.. $dir
+
+echo $distfile
