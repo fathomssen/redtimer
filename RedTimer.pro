@@ -6,7 +6,7 @@ QMAKE_CXXFLAGS += -std=c++11
 RC_ICONS = icons/clock_red.ico
 ICON = icons/clock_red.icns
 
-VERSION = 0.0.7
+VERSION = 0.0.9
 QMAKE_TARGET_COMPANY = "Thomssen IT"
 QMAKE_TARGET_PRODUCT = "RedTimer"
 QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
