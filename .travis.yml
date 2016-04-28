@@ -32,14 +32,14 @@ install:
 script:
   - cd qtredmine
   - qmake -r
-  - make
+  - make -j8
   - cd ..
   - qmake -r
-  - make
+  - make -j8
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
-    && DEPLOYFILE = $(build/deploy.ubuntu.sh -qt)
+    && DEPLOYFILE=$(build/deploy.ubuntu.sh -qt)
 
 deploy:
   provider: releases
