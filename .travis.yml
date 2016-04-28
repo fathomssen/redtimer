@@ -45,5 +45,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: "$QT_BASE" == "55"
+    condition: $QT_BASE = 55
     tags: true
