@@ -1,23 +1,29 @@
+dist: trusty
+sudo: required
+
 language: cpp
 
 compiler:
   - gcc
 
-sudo: required
-dist: trusty
-
 env:
-- QT_BASE=55
-- QT_BASE=56
+  - QT_BASE=55
+  - QT_BASE=56
 
 before_install:
-- if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
-- if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt56-trusty -y; fi
-- sudo apt-get update -qq
+  - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
+  - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt56-trusty -y; fi
+  - sudo apt-get update -qq
 
 install:
-- if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55quickcontrols qt55svg; source /opt/qt55/bin/qt55-env.sh; fi
-- if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56quickcontrols qt56quickcontrols2 qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
+  - if [ "$QT_BASE" = "55" ]; then
+      sudo apt-get install -qq qt55base qt55quickcontrols qt55svg
+      source /opt/qt55/bin/qt55-env.sh
+    fi
+  - if [ "$QT_BASE" = "56" ]; then
+      sudo apt-get install -qq qt56base qt56quickcontrols qt56quickcontrols2 qt56svg
+      source /opt/qt56/bin/qt56-env.sh
+    fi
 
 script:
   - cd qtredmine
@@ -26,3 +32,18 @@ script:
   - cd ..
   - qmake -r
   - make
+
+before_deploy:
+  - test $TRAVIS_TEST_RESULT = 0
+    && DEPLOYFILE = $(build/deploy.ubuntu.sh -qt)
+
+deploy:
+  provider: releases
+  api_key:
+    secure: F3wBYR8oHwrLEJWwH6eQbTjhrNFCdklUQhjfq4wzixZO3bm5PTR/K3wvxaINmhsSoEdYHnSwzyVC3kWzcKWQX/3msCV4VyLvo1SULoz3RA2f4iY63Kbo0KzKiT+2rmOuGNHDDXCvIVKIhD81H5hR5YYhTPF7aBGfxvpb1Z2l9zfASP7fd6oZhdxolNfT3OS03AIB1on6pLgtv/aaizh5vAlVn32OwyFiJ5iOo+owFvYgImj082YTN025tVUh9KMjWD5naLgQ5ltflcWnIndjOwnasHQesmSKmCU5TBB7gAjpaRt0zKNdgDZ2RS8UFmaV5BIzF6TgP3I/IsVET5Fqqjil8PUSJZrGm/fbL+8yp9tpQ5chQcTV/ssYoQPZ0I2asZjuV6ypgSCIVuCdzcUewZgkLJglfKKTf1WqxKsjleaTZu9HpCyZ+XYp5L2Y+twsFZGgzYZoa43+/GtinNabNG75rIq0mc3cnNM/BQRvyUeAf9JUGeauQhTjJloiSKs3wl3VVYtvCiggWmKEjPYDNqgDLMaw10WMLt55f+i1VwzcBtRyZOkBC0/YVKLrM21JGOgbgEBtTam5G9+0Ysb6bwymTTD02N6tXjLFS9om2UyN1LzGzW+Sy0PW4L8RhoafwZEVTMDwxZh6Noo8JTZAN/XmOPM7cGfavVZchn2CWZc=
+  file: $DEPLOYFILE
+  skip_cleanup: true
+  on:
+    repo: fathomssen/redtimer
+    condition: "$QT_BASE" == "55"
+    tags: true
