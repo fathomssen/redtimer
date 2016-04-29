@@ -74,13 +74,14 @@ before_deploy:
     && $DOCKER bash -c "ls -lha /build"
     && ls -lha .
     && export DEPLOYFILE=$(cat .deployfile)
-    && echo $DEPLOYFILE; echo "$DEPLOYFILE"; echo "<$DEPLOYFILE>"; echo "<${DEPLOYFILE%\n}>"
+    && echo ${DEPLOYFILE}
 
 deploy:
   provider: releases
   api_key:
     secure: F3wBYR8oHwrLEJWwH6eQbTjhrNFCdklUQhjfq4wzixZO3bm5PTR/K3wvxaINmhsSoEdYHnSwzyVC3kWzcKWQX/3msCV4VyLvo1SULoz3RA2f4iY63Kbo0KzKiT+2rmOuGNHDDXCvIVKIhD81H5hR5YYhTPF7aBGfxvpb1Z2l9zfASP7fd6oZhdxolNfT3OS03AIB1on6pLgtv/aaizh5vAlVn32OwyFiJ5iOo+owFvYgImj082YTN025tVUh9KMjWD5naLgQ5ltflcWnIndjOwnasHQesmSKmCU5TBB7gAjpaRt0zKNdgDZ2RS8UFmaV5BIzF6TgP3I/IsVET5Fqqjil8PUSJZrGm/fbL+8yp9tpQ5chQcTV/ssYoQPZ0I2asZjuV6ypgSCIVuCdzcUewZgkLJglfKKTf1WqxKsjleaTZu9HpCyZ+XYp5L2Y+twsFZGgzYZoa43+/GtinNabNG75rIq0mc3cnNM/BQRvyUeAf9JUGeauQhTjJloiSKs3wl3VVYtvCiggWmKEjPYDNqgDLMaw10WMLt55f+i1VwzcBtRyZOkBC0/YVKLrM21JGOgbgEBtTam5G9+0Ysb6bwymTTD02N6tXjLFS9om2UyN1LzGzW+Sy0PW4L8RhoafwZEVTMDwxZh6Noo8JTZAN/XmOPM7cGfavVZchn2CWZc=
-  file: $DEPLOYFILE
+  file_glob: true
+  file: ${DEPLOYFILE}
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
