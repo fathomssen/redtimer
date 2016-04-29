@@ -64,13 +64,13 @@ script:
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
-    && test "${deployscript}"
-    && $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
-    && export DEPLOYFILE=$(cat .deployfile)
-    && echo ${DEPLOYFILE}
-    && echo "${DEPLOYFILE}"
-    && echo "X${DEPLOYFILE}Y"
-    && echo "X${DEPLOYFILE%\n}Y"
+  - test "${deployscript}"
+  - $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
+  - export DEPLOYFILE=$(cat .deployfile | tr -d '\r' | tr -d '\n')
+  - echo ${DEPLOYFILE}
+  - echo "${DEPLOYFILE}"
+  - echo "X${DEPLOYFILE}Y"
+  - echo "X${DEPLOYFILE%\n}Y"
 
 deploy:
   provider: releases
