@@ -13,7 +13,7 @@ env:
     run_opts: ""
     qtver: 55
     qtenv: /opt/qt55/bin/qt55-env.sh
-    qtpkg: "'qt55base qt55quickcontrols qt55svg'"
+    qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev'"
     qtppa: ppa:beineri/opt-qt551-trusty
     deploy: false
   - dist: ubuntu
@@ -22,7 +22,7 @@ env:
     run_opts: ""
     qtver: 56
     qtenv: /opt/qt56/bin/qt56-env.sh
-    qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg'"
+    qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev'"
     qtppa: ppa:beineri/opt-qt56-trusty
     deploy: true
     deployscript: "'build/deploy.ubuntu.sh -qt'"
@@ -34,6 +34,7 @@ env:
     #run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
     run_opts: ""
     qtpkg: qtbase5-dev
+    qmakeopt: -qt5
     deploy: true
     deployscript: build/deploy.ubuntu.sh
 
@@ -64,10 +65,10 @@ script:
   - export SCRIPT="$SCRIPT
       cd /build;
       cd qtredmine;
-      qmake -r;
+      qmake ${qmakeopt} -r;
       make -j8;
       cd ..;
-      qmake -r;
+      qmake ${qmakeopt} -r;
       make -j8;"
   - $DOCKER bash -c "$SCRIPT"
 
