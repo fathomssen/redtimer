@@ -59,18 +59,15 @@ script:
       make -j8;
       cd ..;
       qmake ${qmakeopt} -r;
-      make -j8;"
+      make -j8;
+      chown -R 1001:1001 ."
   - $DOCKER bash -c "$SCRIPT"
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
   - test "${deployscript}"
-  - $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
-  - export DEPLOYFILE=$(cat .deployfile | tr -d '\r' | tr -d '\n')
-  - echo ${DEPLOYFILE}
-  - echo "${DEPLOYFILE}"
-  - echo "X${DEPLOYFILE}Y"
-  - echo "X${DEPLOYFILE%\n}Y"
+  - $DOCKER bash -c "cd /build; ${deployscript}; chown -R 1001:1001 ." > .deployfile
+  - export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n')
 
 deploy:
   provider: releases
