@@ -13,7 +13,7 @@ env:
     run_opts: ""
     qtver: 55
     qtenv: /opt/qt55/bin/qt55-env.sh
-    qtpkg: qt55base qt55quickcontrols qt55svg
+    qtpkg: qt55base\ qt55quickcontrols\ qt55svg
     qtppa: ppa:beineri/opt-qt551-trusty
     deploy: false
   - dist: ubuntu
