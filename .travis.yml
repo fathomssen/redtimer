@@ -68,12 +68,13 @@ script:
       cd ..;
       qmake -r;
       make -j8;"
-  - $DOCKER $SCRIPT
+  - $DOCKER bash -c "$SCRIPT"
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
     && test ${deploy} = true
-    && $DOCKER DEPLOYFILE=$(${deployscript})
+    && $DOCKER bash -c "${deployscript}" > .deployfile
+    && export DEPLOYFILE=$(cat .deployfile)
 
 deploy:
   provider: releases
