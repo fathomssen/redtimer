@@ -15,7 +15,6 @@ env:
     qtenv: /opt/qt55/bin/qt55-env.sh
     qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
     qtppa: ppa:beineri/opt-qt551-trusty
-    deploy: false
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
@@ -24,18 +23,14 @@ env:
     qtenv: /opt/qt56/bin/qt56-env.sh
     qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
     qtppa: ppa:beineri/opt-qt56-trusty
-    deploy: true
     deployscript: "'build/deploy.ubuntu.sh -qt'"
   ### Ubuntu 16.04
   - dist: ubuntu
     distver: 16.04
-    #init: /usr/lib/systemd/systemd
     init: /sbin/init
-    #run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
     run_opts: ""
     qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
     qmakeopt: "-qt5"
-    deploy: true
     deployscript: build/deploy.ubuntu.sh
 
 services:
@@ -74,7 +69,7 @@ script:
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
-    && test ${deploy} = true
+    && test "${deployscript}"
     && $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
     && export DEPLOYFILE=$(cat .deployfile)
 
@@ -86,5 +81,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: ${deploy} = true
+    condition: -n "${deployscript}"
     tags: true
