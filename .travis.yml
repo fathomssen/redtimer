@@ -71,6 +71,8 @@ before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
     && test "${deployscript}"
     && $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
+    && $DOCKER bash -c "ls -lha /build"
+    && ls -lha .
     && export DEPLOYFILE=$(cat .deployfile)
     && echo $DEPLOYFILE
 
