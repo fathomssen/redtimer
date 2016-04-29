@@ -39,23 +39,23 @@ services:
 
 before_install:
   - docker pull ${dist}:${distver}
-  - CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${run_opts} ${dist}:${distver} ${init})
-  - DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
+  - export CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${run_opts} ${dist}:${distver} ${init})
+  - export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   - if [ "${dist}" = "ubuntu" ]; then
       if [ -n "${qtppa}" ]; then
-        $DOCKER "apt-get install -y software-properties-common"
-        $DOCKER "add-apt-repository -y ${qtppa}";
+        $DOCKER apt-get install -y software-properties-common;
+        $DOCKER add-apt-repository -y ${qtppa};
       fi;
-      $DOCKER "apt-get update";
+      $DOCKER apt-get update;
       if [ -n "${qtpkg}" ]; then
-        $DOCKER "apt-get install -y ${qtpkg}";
+        $DOCKER apt-get install -y ${qtpkg};
       fi;
-      $DOCKER "apt-get install -y build-essential";
+      $DOCKER apt-get install -y build-essential;
     fi
 
 install:
   - if [ -n "${qtenv}" ]; then
-      $DOCKER "source ${qtenv}";
+      $DOCKER source ${qtenv};
     fi
 
 script:
@@ -66,11 +66,12 @@ script:
             cd ..;
             qmake -r;
             make -j8;"
-  - $DOCKER "$SCRIPT"
+  - $DOCKER $SCRIPT
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
-    && $DOCKER "DEPLOYFILE=$(${deployscript})"
+    && test ${deploy} = true
+    && $DOCKER DEPLOYFILE=$(${deployscript})
 
 deploy:
   provider: releases
@@ -80,5 +81,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: $deploy = true
+    condition: ${deploy} = true
     tags: true
