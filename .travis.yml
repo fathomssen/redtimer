@@ -74,7 +74,7 @@ before_deploy:
     && $DOCKER bash -c "ls -lha /build"
     && ls -lha .
     && export DEPLOYFILE=$(cat .deployfile)
-    && echo "<${DEPLOYFILE}>"; echo "<${DEPLOYFILE%\n}>"
+    && echo $DEPLOYFILE; echo "$DEPLOYFILE"; echo "<$DEPLOYFILE>"; echo "<${DEPLOYFILE%\n}>"
 
 deploy:
   provider: releases
