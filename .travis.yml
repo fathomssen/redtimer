@@ -12,36 +12,29 @@ env:
     init: /sbin/init
     run_opts: ""
     qtver: 55
-    qtenv: "/opt/qt55/bin/qt55-env.sh"
-    qtpkg: "qt55base
-            qt55quickcontrols
-            qt55svg"
-    qtppa: "ppa:beineri/opt-qt551-trusty"
+    qtenv: /opt/qt55/bin/qt55-env.sh
+    qtpkg: qt55base qt55quickcontrols qt55svg
+    qtppa: ppa:beineri/opt-qt551-trusty
     deploy: false
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
     run_opts: ""
     qtver: 56
-    qtenv: "/opt/qt56/bin/qt56-env.sh"
-    qtpkg: "qt56base
-            qt56quickcontrols
-            qt56quickcontrols2
-            qt56svg"
-    qtppa: "ppa:beineri/opt-qt56-trusty"
+    qtenv: /opt/qt56/bin/qt56-env.sh
+    qtpkg: qt56base qt56quickcontrols qt56quickcontrols2 qt56svg
+    qtppa: ppa:beineri/opt-qt56-trusty
     deploy: true
-    deployscript: "build/deploy.ubuntu.sh
-                   -qt"
+    deployscript: build/deploy.ubuntu.sh -qt
   ### Ubuntu 16.04
   - dist: ubuntu
     distver: 16.04
     #init: /usr/lib/systemd/systemd
     init: /sbin/init
-    #run_opts: "--privileged
-                --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    #run_opts: --privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro
     run_opts: ""
     deploy: true
-    deployscript: "build/deploy.ubuntu.sh"
+    deployscript: build/deploy.ubuntu.sh
 
 services:
   - docker
