@@ -1,11 +1,11 @@
 sudo: required
+dist: trusty
 
 env:
   ### Ubuntu 14.04
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
-    run_opts: ""
     qtver: 55
     qtenv: /opt/qt55/bin/qt55-env.sh
     qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
@@ -13,7 +13,6 @@ env:
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
-    run_opts: ""
     qtver: 56
     qtenv: /opt/qt56/bin/qt56-env.sh
     qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
@@ -23,7 +22,6 @@ env:
   - dist: ubuntu
     distver: 16.04
     init: /sbin/init
-    run_opts: ""
     qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
     qmakeopt: "-qt5"
     deployscript: build/deploy.ubuntu.sh
@@ -33,7 +31,7 @@ services:
 
 before_install:
   - docker pull ${dist}:${distver}
-  - export CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${run_opts} ${dist}:${distver} ${init})
+  - export CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   - if [ "${dist}" = "ubuntu" ]; then
       if [ -n "${qtppa}" ]; then
@@ -56,10 +54,10 @@ script:
       cd /build;
       cd qtredmine;
       qmake ${qmakeopt} -r;
-      make -j8;
+      make -j2;
       cd ..;
       qmake ${qmakeopt} -r;
-      make -j8;
+      make -j2;
       chown -R 1001:1001 ."
   - $DOCKER bash -c "$SCRIPT"
 
