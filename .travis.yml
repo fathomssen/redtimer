@@ -43,6 +43,7 @@ before_install:
   - export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   - if [ "${dist}" = "ubuntu" ]; then
       if [ -n "${qtppa}" ]; then
+        $DOCKER apt-get update;
         $DOCKER apt-get install -y software-properties-common;
         $DOCKER add-apt-repository -y ${qtppa};
       fi;
