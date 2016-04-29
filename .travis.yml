@@ -29,8 +29,10 @@ env:
   ### Ubuntu 16.04
   - dist: ubuntu
     distver: 16.04
-    init: /usr/lib/systemd/systemd
-    run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    #init: /usr/lib/systemd/systemd
+    init: /sbin/init
+    #run_opts: "--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro"
+    run_opts: ""
     deploy: true
     deployscript: "build/deploy.ubuntu.sh"
 
@@ -54,19 +56,18 @@ before_install:
       $DOCKER apt-get install -y build-essential;
     fi
 
-install:
-  - if [ -n "${qtenv}" ]; then
-      $DOCKER source ${qtenv};
-    fi
-
 script:
-  - SCRIPT="cd /build;
-            cd qtredmine;
-            qmake -r;
-            make -j8;
-            cd ..;
-            qmake -r;
-            make -j8;"
+  - if [ -n "${qtenv}" ]; then
+      export SCRIPT="source ${qtenv}";
+    fi
+  - export SCRIPT="$SCRIPT;
+      cd /build;
+      cd qtredmine;
+      qmake -r;
+      make -j8;
+      cd ..;
+      qmake -r;
+      make -j8;"
   - $DOCKER $SCRIPT
 
 before_deploy:
