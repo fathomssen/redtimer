@@ -50,7 +50,7 @@ before_install:
       if [ -n "${qtpkg}" ]; then
         $DOCKER apt-get install -y ${qtpkg};
       fi;
-      $DOCKER apt-get install -y build-essential;
+      $DOCKER apt-get install -y build-essential lsb-release;
     fi
 
 script:
@@ -72,6 +72,7 @@ before_deploy:
     && test "${deployscript}"
     && $DOCKER bash -c "cd /build; ${deployscript}" > .deployfile
     && export DEPLOYFILE=$(cat .deployfile)
+    && echo $DEPLOYFILE
 
 deploy:
   provider: releases
