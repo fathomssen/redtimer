@@ -33,7 +33,7 @@ env:
     init: /sbin/init
     #run_opts: "'--privileged --volume=/sys/fs/cgroup:/sys/fs/cgroup:ro'"
     run_opts: ""
-    qtpkg: "'qtbase5-dev qtdeclarative5-dev'"
+    qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
     qmakeopt: "-qt5"
     deploy: true
     deployscript: build/deploy.ubuntu.sh
