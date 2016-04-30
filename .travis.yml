@@ -6,6 +6,8 @@ compiler:
 
 env:
   global:
+    - arch: x86_64
+    - arch: i386
   matrix:
     ###
     ### Ubuntu 14.04
@@ -58,7 +60,10 @@ before_install:
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER apt-get update;
       $DOCKER apt-get install -y pbuilder debootstrap devscripts;
-      $DOCKER pbuilder create --debootstrapopts --variant=buildd;
+      if [ "${arch}" = "i386" ]; then
+        export ARCH="--debootstrapopts --arch --debootstrapopts i386";
+      fi;
+      $DOCKER pbuilder create --debootstrapopts --variant=buildd $ARCH;
     fi
 
 install:
@@ -100,10 +105,10 @@ script:
   - echo "cd /build" >> build.sh
   - echo "cd qtredmine" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
-  - echo "make -j2" >> build.sh
+  - echo "make" >> build.sh
   - echo "cd .." >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
-  - echo "make -j2" >> build.sh
+  - echo "make" >> build.sh
   - echo "chown -R $USER_ID:$GROUP_ID ." >> build.sh
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER pbuilder --execute --bindmounts "/build" /build/build.sh;
