@@ -4,6 +4,9 @@ dist: trusty
 env:
   global:
   matrix:
+    ###
+    ### Ubuntu 14.04
+    ###
     ### Ubuntu 14.04 x86_64, Qt 5.5 - DO NOT DEPLOY
     - dist: ubuntu
       distver: 14.04
@@ -21,6 +24,29 @@ env:
       qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
       qtppa: ppa:beineri/opt-qt56-trusty
       deployscript: "'build/deploy.ubuntu.sh -qt'"
+    ###
+    ### Ubuntu 15.10
+    ###
+    ### Ubuntu 15.10 x86_64, Qt 5.5 - DO NOT DEPLOY
+    - dist: ubuntu
+      distver: 15.10
+      init: /sbin/init
+      qtver: 55
+      qtenv: /opt/qt55/bin/qt55-env.sh
+      qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
+      qtppa: ppa:beineri/opt-qt551-trusty
+    ### Ubuntu 15.10 x86_64, Qt 5.6 - DEPLOY
+    - dist: ubuntu
+      distver: 15.10
+      init: /sbin/init
+      qtver: 56
+      qtenv: /opt/qt56/bin/qt56-env.sh
+      qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
+      qtppa: ppa:beineri/opt-qt56-trusty
+      deployscript: "'build/deploy.ubuntu.sh -qt'"
+    ###
+    ### Ubuntu 16.04
+    ###
     ### Ubuntu 16.04 x86_64, Qt 5.5 - DEPLOY
     - dist: ubuntu
       distver: 16.04
@@ -40,23 +66,23 @@ before_install:
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER apt-get update;
       $DOCKER apt-get install -y pbuilder debootstrap devscripts;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty universe" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates main restricted" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates universe" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://security.ubuntu.com/ubuntu trusty-security main restricted" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://security.ubuntu.com/ubuntu trusty-security universe" >> othermirror;
-      echo "|" >> othermirror;
-      echo "deb http://security.ubuntu.com/ubuntu trusty-security multiverse" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty universe" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty-updates main restricted" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty-updates universe" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://security.ubuntu.com/ubuntu trusty-security main restricted" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://security.ubuntu.com/ubuntu trusty-security universe" >> othermirror;
+      echo -n "|" >> othermirror;
+      echo -n "deb http://security.ubuntu.com/ubuntu trusty-security multiverse" >> othermirror;
       $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror="$(cat othermirror)";
     fi
 
@@ -65,7 +91,6 @@ install:
   - if [ "${dist}" = "ubuntu" ]; then
       touch prepare;
       chmod 755 prepare;
-      echo "#!/bin/bash" >> prepare;
       if [ -n "${qtppa}" ]; then
         echo "apt-get update" >> prepare;
         echo "apt-get install -y software-properties-common" >> prepare;
