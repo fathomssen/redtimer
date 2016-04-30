@@ -77,40 +77,40 @@ install:
   # sources.list will be in Docker:/build and chroot:/root
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER cp /etc/apt/sources.list .;
-      touch prepare;
-      chmod 755 prepare;
-      echo "cp /build/sources.list /etc/apt" >> prepare;
-      echo "apt-get update" >> prepare;
+      touch prepare.sh;
+      chmod 755 prepare.sh;
+      echo "cp /build/sources.list /etc/apt" >> prepare.sh;
+      echo "apt-get update" >> prepare.sh;
       if [ -n "${qtppa}" ]; then
-        echo "apt-get install -y software-properties-common" >> prepare;
-        echo "add-apt-repository -y ${qtppa}" >> prepare;
+        echo "apt-get install -y software-properties-common" >> prepare.sh;
+        echo "add-apt-repository -y ${qtppa}" >> prepare.sh;
       fi;
-      echo "apt-get update" >> prepare;
-      echo "apt-get dist-upgrade" >> prepare;
+      echo "apt-get update" >> prepare.sh;
+      echo "apt-get dist-upgrade" >> prepare.sh;
       if [ -n "${qtpkg}" ]; then
-        echo "apt-get install -y ${qtpkg}" >> prepare;
+        echo "apt-get install -y ${qtpkg}" >> prepare.sh;
       fi;
-      $DOCKER pbuilder --bindmounts="/build" --execute --save-after-exec /build/prepare;
+      $DOCKER pbuilder --bindmounts "/build" --execute --save-after-exec /build/prepare.sh;
     fi
 
 script:
   - export USER_ID=$(id -u)
   - export GROUP_ID=$(id -g)
+  - touch build.sh
+  - chmod 755 build.sh
   - if [ -n "${qtenv}" ]; then
-      export SCRIPT="source ${qtenv};";
+      echo "source ${qtenv}" >> build.sh;
     fi
-  - export SCRIPT="$SCRIPT
-      cd /build;
-      cd qtredmine;
-      qmake ${qmakeopt} -r;
-      make -j2;
-      cd ..;
-      qmake ${qmakeopt} -r;
-      make -j2;
-      chown -R $USER_ID:$GROUP_ID ."
+  - echo "cd /build" >> build.sh
+  - echo "cd qtredmine" >> build.sh
+  - echo "qmake ${qmakeopt} -r" >> build.sh
+  - echo "make -j2" >> build.sh
+  - echo "cd .." >> build.sh
+  - echo "qmake ${qmakeopt} -r" >> build.sh
+  - echo "make -j2" >> build.sh
+  - echo "chown -R $USER_ID:$GROUP_ID ."" >> build.sh
   - if [ "${dist}" = "ubuntu" ]; then
-      echo "add-apt-repository -y $SCRIPT" > build;
-      $DOCKER pbuilder --bindmounts="/build" --execute --save-after-exec build;
+      $DOCKER pbuilder --bindmounts "/build" --execute --save-after-exec build.sh;
     fi
 
 before_deploy:
