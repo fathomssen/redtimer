@@ -14,7 +14,6 @@ env:
     - dist: ubuntu
       distver: "14.04"
       init: /sbin/init
-      qtver: 55
       qtenv: /opt/qt55/bin/qt55-env.sh
       qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
       qtppa: ppa:beineri/opt-qt551-trusty
@@ -22,7 +21,6 @@ env:
     - dist: ubuntu
       distver: "14.04"
       init: /sbin/init
-      qtver: 56
       qtenv: /opt/qt56/bin/qt56-env.sh
       qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
       qtppa: ppa:beineri/opt-qt56-trusty
@@ -34,7 +32,8 @@ env:
     - dist: ubuntu
       distver: "15.10"
       init: /sbin/init
-      qtpkg: "'qtbase-opensource-src qtdeclarative-opensource-src qtquick1-opensource-src qtquickcontrols-opensource-src qtsvg-opensource-src'"
+      qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
+      qmakeopt: "-qt5"
       qtppa: ppa:canonical-qt5-edgers/backup-qt551
       deployscript: "'build/deploy.ubuntu.sh -qt'"
     ###
