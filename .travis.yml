@@ -92,10 +92,11 @@ script:
   - chmod 755 build.sh
   - echo "#!/bin/bash" >> build.sh;
   - echo >> build.sh;
-  - echo "set -ex" >> build.sh;
+  - echo "set -x" >> build.sh;
   - if [ -n "${qtenv}" ]; then
       echo "source ${qtenv}" >> build.sh;
     fi
+  - echo "set -ex" >> build.sh;
   - echo "cd /build" >> build.sh
   - echo "cd qtredmine" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
