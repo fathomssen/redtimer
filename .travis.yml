@@ -70,7 +70,7 @@ install:
       chmod 755 prepare.sh;
       echo "#!/bin/bash" >> prepare.sh;
       echo >> prepare.sh;
-      echo "set -e" >> prepare.sh;
+      echo "set -ex" >> prepare.sh;
       echo "cp /build/sources.list /etc/apt" >> prepare.sh;
       echo "apt-get update" >> prepare.sh;
       if [ -n "${qtppa}" ]; then
@@ -92,7 +92,7 @@ script:
   - chmod 755 build.sh
   - echo "#!/bin/bash" >> build.sh;
   - echo >> build.sh;
-  - echo "set -e" >> build.sh;
+  - echo "set -ex" >> build.sh;
   - if [ -n "${qtenv}" ]; then
       echo "source ${qtenv}" >> build.sh;
     fi
