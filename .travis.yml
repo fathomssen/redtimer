@@ -34,21 +34,48 @@ services:
 
 before_install:
   - docker pull ${dist}:${distver}
-  - export CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
+  - export CONTAINER=$(docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
+  ### Prepare build chroot
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER apt-get update;
       $DOCKER apt-get install -y pbuilder debootstrap devscripts;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty main restricted" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty universe" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates main restricted" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates universe" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://archive.ubuntu.com/ubuntu/ trusty-updates multiverse" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://security.ubuntu.com/ubuntu trusty-security main restricted" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://security.ubuntu.com/ubuntu trusty-security universe" >> othermirror;
+      echo "|" >> othermirror;
+      echo "deb http://security.ubuntu.com/ubuntu trusty-security multiverse" >> othermirror;
+      $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror="$(cat othermirror)";
+    fi
+
+install:
+  ### Install dependencies in build chroot
+  - if [ "${dist}" = "ubuntu" ]; then
+      touch prepare;
+      chmod 755 prepare;
+      echo "#!/bin/bash" >> prepare;
       if [ -n "${qtppa}" ]; then
-        $DOCKER apt-get update;
-        $DOCKER apt-get install -y software-properties-common;
-        $DOCKER add-apt-repository -y ${qtppa};
+        echo "apt-get update" >> prepare;
+        echo "apt-get install -y software-properties-common" >> prepare;
+        echo "add-apt-repository -y ${qtppa}" >> prepare;
       fi;
-      $DOCKER apt-get update;
+      echo "apt-get update" >> prepare;
       if [ -n "${qtpkg}" ]; then
-        $DOCKER apt-get install -y ${qtpkg};
+        echo "apt-get install -y ${qtpkg}" >> prepare;
       fi;
-      $DOCKER apt-get install -y build-essential lsb-release;
+      $DOCKER pbuilder --execute --save-after-exec prepare
     fi
 
 script:
@@ -66,7 +93,10 @@ script:
       qmake ${qmakeopt} -r;
       make -j2;
       chown -R $USER_ID:$GROUP_ID ."
-  - $DOCKER bash -c "$SCRIPT"
+  - if [ "${dist}" = "ubuntu" ]; then
+      echo "$SCRIPT" > build;
+      $DOCKER pbuilder --bindmounts="/build" --execute --save-after-exec build;
+    fi
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
