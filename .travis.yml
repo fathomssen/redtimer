@@ -83,7 +83,7 @@ before_install:
       echo -n "deb http://security.ubuntu.com/ubuntu trusty-security universe" >> othermirror;
       echo -n "|" >> othermirror;
       echo -n "deb http://security.ubuntu.com/ubuntu trusty-security multiverse" >> othermirror;
-      $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror='$(cat othermirror)';
+      $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror="\"$(cat othermirror)\"";
     fi
 
 install:
