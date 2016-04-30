@@ -13,7 +13,6 @@ env:
     ### Ubuntu 14.04 x86_64, Qt 5.5 - DO NOT DEPLOY
     - dist: ubuntu
       distver: "14.04"
-      distname: "trusty"
       init: /sbin/init
       qtver: 55
       qtenv: /opt/qt55/bin/qt55-env.sh
@@ -22,7 +21,6 @@ env:
     ### Ubuntu 14.04 x86_64, Qt 5.6 - DEPLOY
     - dist: ubuntu
       distver: "14.04"
-      distname: "trusty"
       init: /sbin/init
       qtver: 56
       qtenv: /opt/qt56/bin/qt56-env.sh
@@ -35,7 +33,6 @@ env:
     ### Ubuntu 15.10 x86_64, Qt 5.5 - DO NOT DEPLOY
     - dist: ubuntu
       distver: "15.10"
-      distname: "wily"
       init: /sbin/init
       qtver: 55
       qtenv: /opt/qt55/bin/qt55-env.sh
@@ -44,7 +41,6 @@ env:
     ### Ubuntu 15.10 x86_64, Qt 5.6 - DEPLOY
     - dist: ubuntu
       distver: "15.10"
-      distname: "wily"
       init: /sbin/init
       qtver: 56
       qtenv: /opt/qt56/bin/qt56-env.sh
@@ -57,7 +53,6 @@ env:
     ### Ubuntu 16.04 x86_64, Qt 5.5 - DEPLOY
     - dist: ubuntu
       distver: "16.04"
-      distname: "xenial"
       init: /sbin/init
       qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
       qmakeopt: "-qt5"
@@ -81,7 +76,7 @@ install:
   ### Install dependencies in build chroot
   # sources.list will be in Docker:/build and chroot:/root
   - if [ "${dist}" = "ubuntu" ]; then
-      cp /etc/apt/sources.list .
+      cp /etc/apt/sources.list .;
       touch prepare;
       chmod 755 prepare;
       echo "mkdir /build" >> prepare;
@@ -96,7 +91,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare;
       fi;
-      $DOCKER pbuilder --execute --save-after-exec prepare
+      $DOCKER pbuilder --execute --save-after-exec prepare;
     fi
 
 script:
