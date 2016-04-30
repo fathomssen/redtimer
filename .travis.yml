@@ -90,7 +90,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare.sh;
       fi;
-      $DOCKER pbuilder --bindmounts "/build" --execute --save-after-exec /build/prepare.sh;
+      $DOCKER pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh;
     fi
 
 script:
@@ -110,7 +110,7 @@ script:
   - echo "make -j2" >> build.sh
   - echo "chown -R $USER_ID:$GROUP_ID ."" >> build.sh
   - if [ "${dist}" = "ubuntu" ]; then
-      $DOCKER pbuilder --bindmounts "/build" --execute --save-after-exec build.sh;
+      $DOCKER pbuilder --execute --bindmounts "/build" --save-after-exec build.sh;
     fi
 
 before_deploy:
