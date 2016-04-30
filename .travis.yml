@@ -118,6 +118,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare.sh;
       fi;
+      echo "apt-get install -y lsb-release" >> prepare.sh;
       $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh;
     fi
 
