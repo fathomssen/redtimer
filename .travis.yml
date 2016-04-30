@@ -37,6 +37,8 @@ before_install:
   - export CONTAINER=$(docker run --detach --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   - if [ "${dist}" = "ubuntu" ]; then
+      $DOCKER apt-get update;
+      $DOCKER apt-get install -y pbuilder debootstrap devscripts;
       if [ -n "${qtppa}" ]; then
         $DOCKER apt-get update;
         $DOCKER apt-get install -y software-properties-common;
@@ -50,8 +52,8 @@ before_install:
     fi
 
 script:
-- export USER_ID=$(id -u)
-- export GROUP_ID=$(id -g)
+  - export USER_ID=$(id -u)
+  - export GROUP_ID=$(id -g)
   - if [ -n "${qtenv}" ]; then
       export SCRIPT="source ${qtenv};";
     fi
