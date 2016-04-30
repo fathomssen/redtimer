@@ -92,8 +92,9 @@ before_install:
       $DOCKER apt-get install -y pbuilder debootstrap devscripts;
       if [ "${arch}" = "i386" ]; then
         export ARCH="--debootstrapopts --arch --debootstrapopts i386";
+        export LINUX32="linux32"
       fi;
-      $DOCKER pbuilder create --debootstrapopts --variant=buildd $ARCH;
+      $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH;
     fi
 
 install:
@@ -117,7 +118,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare.sh;
       fi;
-      $DOCKER pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh;
+      $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh;
     fi
 
 script:
@@ -141,7 +142,7 @@ script:
   - echo "make" >> build.sh
   - echo "chown -R $USER_ID:$GROUP_ID ." >> build.sh
   - if [ "${dist}" = "ubuntu" ]; then
-      $DOCKER pbuilder --execute --bindmounts "/build" /build/build.sh;
+      $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh;
     fi
 
 before_deploy:
@@ -149,10 +150,12 @@ before_deploy:
   - test "${deployscript}"
   ### The following commands have to define a $DEPLOYFILE
   - if [ "${dist}" = "ubuntu" ]; then
+      echo "#!/bin/bash" >> deploy.sh;
+      echo "set -ex" >> deploy.sh;
       echo "cd /build" >> deploy.sh;
       echo "${deployscript} > .deployfile" >> deploy.sh;
       echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh;
-      $DOCKER pbuilder --execute --bindmounts "/build" /build/deploy.sh;
+      $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh;
       export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n');
     fi
 
