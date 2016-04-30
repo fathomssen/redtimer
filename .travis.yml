@@ -76,11 +76,10 @@ install:
   ### Install dependencies in build chroot
   # sources.list will be in Docker:/build and chroot:/root
   - if [ "${dist}" = "ubuntu" ]; then
-      cp /etc/apt/sources.list .;
+      $DOCKER cp /etc/apt/sources.list .;
       touch prepare;
       chmod 755 prepare;
-      echo "mkdir /build" >> prepare;
-      echo "cp sources.list /etc/apt" >> prepare;
+      echo "cp /build/sources.list /etc/apt" >> prepare;
       echo "apt-get update" >> prepare;
       if [ -n "${qtppa}" ]; then
         echo "apt-get install -y software-properties-common" >> prepare;
@@ -91,7 +90,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare;
       fi;
-      $DOCKER pbuilder --execute --save-after-exec /build/prepare;
+      $DOCKER pbuilder --bindmounts="/build" --execute --save-after-exec /build/prepare;
     fi
 
 script:
