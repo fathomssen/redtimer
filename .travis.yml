@@ -9,7 +9,7 @@ env:
     ###
     ### Ubuntu 14.04 x86_64, Qt 5.5 - DO NOT DEPLOY
     - dist: ubuntu
-      distver: 14.04
+      distver: "14.04"
       init: /sbin/init
       qtver: 55
       qtenv: /opt/qt55/bin/qt55-env.sh
@@ -17,7 +17,7 @@ env:
       qtppa: ppa:beineri/opt-qt551-trusty
     ### Ubuntu 14.04 x86_64, Qt 5.6 - DEPLOY
     - dist: ubuntu
-      distver: 14.04
+      distver: "14.04"
       init: /sbin/init
       qtver: 56
       qtenv: /opt/qt56/bin/qt56-env.sh
@@ -29,7 +29,7 @@ env:
     ###
     ### Ubuntu 15.10 x86_64, Qt 5.5 - DO NOT DEPLOY
     - dist: ubuntu
-      distver: 15.10
+      distver: "15.10"
       init: /sbin/init
       qtver: 55
       qtenv: /opt/qt55/bin/qt55-env.sh
@@ -37,7 +37,7 @@ env:
       qtppa: ppa:beineri/opt-qt551-trusty
     ### Ubuntu 15.10 x86_64, Qt 5.6 - DEPLOY
     - dist: ubuntu
-      distver: 15.10
+      distver: "15.10"
       init: /sbin/init
       qtver: 56
       qtenv: /opt/qt56/bin/qt56-env.sh
@@ -49,7 +49,7 @@ env:
     ###
     ### Ubuntu 16.04 x86_64, Qt 5.5 - DEPLOY
     - dist: ubuntu
-      distver: 16.04
+      distver: "16.04"
       init: /sbin/init
       qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
       qmakeopt: "-qt5"
@@ -83,7 +83,7 @@ before_install:
       echo -n "deb http://security.ubuntu.com/ubuntu trusty-security universe" >> othermirror;
       echo -n "|" >> othermirror;
       echo -n "deb http://security.ubuntu.com/ubuntu trusty-security multiverse" >> othermirror;
-      $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror="$(cat othermirror)";
+      $DOCKER pbuilder create --debootstrapopts --variant=buildd --othermirror='$(cat othermirror)';
     fi
 
 install:
