@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 function usage()
 {
   echo "Usage: $0 [-qt|--deploy-qt] [-h|--help]"
