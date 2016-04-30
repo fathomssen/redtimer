@@ -2,7 +2,7 @@ sudo: required
 dist: trusty
 
 env:
-  ### Ubuntu 14.04
+  ### Ubuntu 14.04 x86_64, Qt 5.5 - DO NOT DEPLOY
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
@@ -10,6 +10,7 @@ env:
     qtenv: /opt/qt55/bin/qt55-env.sh
     qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
     qtppa: ppa:beineri/opt-qt551-trusty
+  ### Ubuntu 14.04 x86_64, Qt 5.6 - DEPLOY
   - dist: ubuntu
     distver: 14.04
     init: /sbin/init
@@ -18,7 +19,7 @@ env:
     qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
     qtppa: ppa:beineri/opt-qt56-trusty
     deployscript: "'build/deploy.ubuntu.sh -qt'"
-  ### Ubuntu 16.04
+  ### Ubuntu 16.04 x86_64, Qt 5.5 - DEPLOY
   - dist: ubuntu
     distver: 16.04
     init: /sbin/init
@@ -57,14 +58,13 @@ script:
       make -j2;
       cd ..;
       qmake ${qmakeopt} -r;
-      make -j2;
-      chown -R 1001:1001 ."
-  - $DOCKER bash -c "$SCRIPT"
+      make -j2"
+  - $DOCKER sudo -u 1001 bash -c "$SCRIPT"
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
   - test "${deployscript}"
-  - $DOCKER bash -c "cd /build; ${deployscript}; chown -R 1001:1001 ." > .deployfile
+  - $DOCKER bash -c "cd /build; sudo -u 1001 ${deployscript}" > .deployfile
   - export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n')
 
 deploy:
