@@ -94,7 +94,7 @@ script:
   - echo >> build.sh;
   - echo "set -ex" >> build.sh;
   - if [ -n "${qtenv}" ]; then
-      echo "${qtenv}" >> build.sh;
+      echo "source ${qtenv}" >> build.sh;
     fi
   - echo "cd /build" >> build.sh
   - echo "cd qtredmine" >> build.sh
