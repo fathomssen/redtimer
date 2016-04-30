@@ -92,7 +92,7 @@ before_install:
       $DOCKER apt-get install -y pbuilder debootstrap devscripts;
       if [ "${arch}" = "i386" ]; then
         export ARCH="--debootstrapopts --arch --debootstrapopts i386";
-        export LINUX32="linux32"
+        export LINUX32="linux32";
       fi;
       $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH;
     fi
