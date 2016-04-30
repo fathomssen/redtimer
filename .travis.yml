@@ -91,7 +91,7 @@ install:
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare;
       fi;
-      $DOCKER pbuilder --execute --save-after-exec prepare;
+      $DOCKER pbuilder --execute --save-after-exec /build/prepare;
     fi
 
 script:
