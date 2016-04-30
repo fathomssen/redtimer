@@ -105,6 +105,7 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make -j2" >> build.sh
   - echo "chown -R $USER_ID:$GROUP_ID ." >> build.sh
+  - cat build.sh
   - if [ "${dist}" = "ubuntu" ]; then
       $DOCKER pbuilder --execute --bindmounts "/build" --save-after-exec /build/build.sh;
     fi
