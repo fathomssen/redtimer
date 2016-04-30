@@ -1,5 +1,8 @@
 sudo: required
 dist: trusty
+language: cpp
+compiler:
+  - gcc
 
 env:
   global:
@@ -76,27 +79,27 @@ before_install:
 
 install:
   ### Install dependencies in build chroot
-  - if [ "${dist}'" = "ubuntu'" ]; then
+  - if [ "${dist}" = "ubuntu" ]; then
       touch prepare;
       chmod 755 prepare;
-      echo "add-apt-repository -y apt-get update'" >> prepare;
-      echo "add-apt-repository -y apt-get install -y software-properties-common'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname} main restricted'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname} universe'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname} multiverse'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates main restricted'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates universe'" >> prepare;
-      echo "add-apt-repository -y 'deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates multiverse'" >> prepare;
-      echo "add-apt-repository -y 'deb http://security.ubuntu.com/ubuntu ${distname}-security main restricted'" >> prepare;
-      echo "add-apt-repository -y 'deb http://security.ubuntu.com/ubuntu ${distname}-security universe'" >> prepare;
-      echo "add-apt-repository -y 'deb http://security.ubuntu.com/ubuntu ${distname}-security multiverse'" >> prepare;
-      if [ -n "${qtppa}'" ]; then
-        echo "add-apt-repository -y add-apt-repository -y ${qtppa}'" >> prepare;
+      echo "apt-get update" >> prepare;
+      echo "apt-get install -y software-properties-common" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname} main restricted\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname} universe\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname} multiverse\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates main restricted\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates universe\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://archive.ubuntu.com/ubuntu/ ${distname}-updates multiverse\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://security.ubuntu.com/ubuntu ${distname}-security main restricted\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://security.ubuntu.com/ubuntu ${distname}-security universe\"" >> prepare;
+      echo "add-apt-repository -y \"deb http://security.ubuntu.com/ubuntu ${distname}-security multiverse\"" >> prepare;
+      if [ -n "${qtppa}" ]; then
+        echo "add-apt-repository -y ${qtppa}" >> prepare;
       fi;
-      echo "add-apt-repository -y apt-get update'" >> prepare;
-      echo "add-apt-repository -y apt-get dist-upgrade'" >> prepare;
-      if [ -n "${qtpkg}'" ]; then
-        echo "add-apt-repository -y apt-get install -y ${qtpkg}'" >> prepare;
+      echo "apt-get update" >> prepare;
+      echo "apt-get dist-upgrade" >> prepare;
+      if [ -n "${qtpkg}" ]; then
+        echo "apt-get install -y ${qtpkg}" >> prepare;
       fi;
       $DOCKER pbuilder --execute --save-after-exec prepare
     fi
