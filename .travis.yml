@@ -76,7 +76,7 @@ install:
   ### Install dependencies in build chroot
   # sources.list will be in Docker:/build and chroot:/root
   - if [ "${dist}" = "ubuntu" ]; then
-      $DOCKER cp /etc/apt/sources.list .;
+      $DOCKER cp /etc/apt/sources.list /build;
       touch prepare.sh;
       chmod 755 prepare.sh;
       echo "cp /build/sources.list /etc/apt" >> prepare.sh;
