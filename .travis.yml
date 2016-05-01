@@ -47,7 +47,7 @@ env:
   - dist: ubuntu
     distver: "15.10"
     init: /sbin/init
-    qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
+    qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
     qmakeopt: "-qt5"
     qtppa: ppa:canonical-qt5-edgers/backup-qt551
     deployscript: "'build/deploy.ubuntu.sh -qt'"
@@ -56,7 +56,7 @@ env:
     distver: "15.10"
     arch: i386
     init: /sbin/init
-    qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
+    qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
     qmakeopt: "-qt5"
     qtppa: ppa:canonical-qt5-edgers/backup-qt551
     deployscript: "'build/deploy.ubuntu.sh -qt'"

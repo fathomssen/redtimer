@@ -45,9 +45,9 @@ distver=$(lsb_release -r -s)
 
 machine=$(uname -m)
 
-dir="redtimer-v${ver}-${dist}${distver}-$machine"
+redtimer="redtimer-v${ver}-${dist}${distver}-$machine"
 
-distdir=$src/build/dist/$dir
+distdir=$execdir/$redtimer
 
 mkdir -p $distdir
 
@@ -58,22 +58,78 @@ cp -a $src/redtimer.sh $distdir
 cp -a $src/qtredmine/libqtredmine.so* $distdir
 
 if [ $deploy_qt ]; then
-  # Get Qt library directory from RedTimer executable
+  # Get Qt libraries from RedTimer executable  
   # This required the build environment to be still intact
-  qtlibdir=$(dirname $(LD_LIBRARY_PATH=. ldd RedTimer | grep libQt5Core | sed 's/.*=> *//' | sed 's/ *(.*//'))
-  qtdir=$qtlibdir/..
-  qtqmldir=$qtdir/qml
-  qtpluginsdir=$qtdir/plugins
+  
+  qtlibsarr=()
 
-  cp -a $qtlibdir/libQt5Core.so* $distdir
-  cp -a $qtlibdir/libQt5DBus.so* $distdir
-  cp -a $qtlibdir/libQt5Gui.so* $distdir
-  cp -a $qtlibdir/libQt5Network.so* $distdir
-  cp -a $qtlibdir/libQt5Qml.so* $distdir
-  cp -a $qtlibdir/libQt5Quick.so* $distdir
-  cp -a $qtlibdir/libQt5Svg.so* $distdir
-  cp -a $qtlibdir/libQt5Widgets.so* $distdir
-  cp -a $qtlibdir/libQt5XcbQpa.so* $distdir
+  function findQtLibraries()
+  {
+    for lib in $@; do
+      for qtlibdir in $qtlibdirs; do
+	file=$qtlibdir/$lib
+	if [ -e $file ]; then
+	  qtlibsarr+=(${file})
+	fi
+      done
+    done
+  }
+
+  # Look in typical locations for QML and Qt plugins relative to the library dir
+  reldirs="qt5 . ../qt5 .."
+
+  function findQtQmlDir()
+  {
+    for qtlibdir in $qtlibdirs; do
+      for reldir in $reldirs; do
+	dir=$qtlibdir/$reldir/qml
+        if [ -d $dir ]; then
+          qtqmldir=$dir
+	  break
+        fi
+      done
+    done
+
+    if [ -z "$qtqmldir" ]; then
+      exit 1
+    fi
+  }
+  
+  function findQtPluginsDir()
+  {
+    for qtlibdir in $qtlibdirs; do
+      for reldir in $reldirs; do
+	dir=$qtlibdir/$reldir/plugins
+        if [ -d $dir ]; then
+          qtpluginsdir=$dir
+	  break
+        fi
+      done
+    done
+
+    if [ -z "$qtpluginsdir" ]; then
+      exit 1
+    fi
+  }
+  
+  # Get all Qt libraries required by RedTimer
+  qtlibs=$(ldd -v RedTimer | grep libQt | grep "=>" | sed 's/.*=> *//' | sed 's/\.so.*/.so/' | sort -u)
+  for lib in $qtlibs; do
+    echo $lib
+    qtlibsarr+=($lib)
+  done
+  
+  # Get all Qt libraries' directories
+  qtlibdirs=$(dirname $(echo "$qtlibs") | sort -u)
+  
+  findQtLibraries libQt5DBus.so libQt5Svg.so libQt5XcbQpa.so
+  
+  for lib in ${qtlibsarr[@]}; do
+    cp -a ${lib}* $distdir
+  done
+
+  findQtQmlDir
+  findQtPluginsDir
 
   cp -a $qtqmldir/QtQuick $distdir
   cp -a $qtqmldir/QtQuick.2 $distdir
@@ -94,8 +150,9 @@ if [ $deploy_qt ]; then
   cp -a $qtpluginsdir/xcbglintegrations/libqxcb-glx-integration.so $distdir/xcbglintegrations
 fi
 
-distfile=$dir.tar.bz2
+distfile=$redtimer.tar.bz2
 
-tar jcf $distfile -C $distdir/.. $dir
+tar jcf $distfile -C $distdir/.. $redtimer
 
 echo $distfile
+
