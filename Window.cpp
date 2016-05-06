@@ -66,7 +66,7 @@ Window::message( QString text, QTimer* timer, QtMsgType type)
     item->findChild<QQuickItem*>("message")->setProperty( "text", text );
 
     if( timer )
-        connect( timer, QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
+        connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
 
     RETURN( item );
 }
