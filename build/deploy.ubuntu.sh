@@ -45,7 +45,7 @@ distver=$(lsb_release -r -s)
 
 machine=$(uname -m)
 
-redtimer="redtimer-v${ver}-${dist}${distver}-$machine"
+redtimer="redtimer-v${ver}-${dist}-${distver}-$machine"
 
 distdir=$execdir/$redtimer
 

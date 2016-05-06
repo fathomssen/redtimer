@@ -30,6 +30,9 @@ public:
         /// Redmine API key
         QString apiKey;
 
+        /// Manually check the network connection
+        bool checkConnection = false;
+
         /// Ignore SSL errors
         bool ignoreSslErrors = false;
 

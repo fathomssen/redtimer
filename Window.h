@@ -61,9 +61,18 @@ public slots:
      *
      * @param text Message to display
      * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
+     * @param timer Timer to use to hide the message
+     */
+    QQuickItem* message( QString text, QTimer* timer, QtMsgType type = QtInfoMsg );
+
+    /**
+     * @brief Display a message
+     *
+     * @param text Message to display
+     * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
      * @param timeout Duration in milliseconds that the message will be displayed
      */
-    void message( QString text, QtMsgType type = QtInfoMsg, int timeout = 5000 );
+    QQuickItem* message( QString text, QtMsgType type = QtInfoMsg, int timeout = 5000 );
 
 signals:
     /**

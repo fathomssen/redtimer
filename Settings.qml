@@ -2,7 +2,7 @@ import QtQuick 2.5
 
 Item {
     width: 400
-    height: 160
+    height: 200
 
     SettingsForm {
         anchors.rightMargin: 0

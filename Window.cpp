@@ -34,10 +34,10 @@ Window::event( QEvent* e )
 }
 
 
-void
-Window::message( QString text, QtMsgType type, int timeout )
+QQuickItem*
+Window::message( QString text, QTimer* timer, QtMsgType type)
 {
-    ENTER()(text)(type)(timeout);
+    ENTER()(text)(timer)(type);
 
     QString colour;
 
@@ -55,7 +55,7 @@ Window::message( QString text, QtMsgType type, int timeout )
     case QtDebugMsg:
     case QtFatalMsg:
         DEBUG() << "Error: Unsupported message type";
-        RETURN();
+        RETURN( nullptr );
     }
 
     QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), this );
@@ -65,10 +65,28 @@ Window::message( QString text, QtMsgType type, int timeout )
     item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
     item->findChild<QQuickItem*>("message")->setProperty( "text", text );
 
-    QTimer* errorTimer = new QTimer( this );
-    errorTimer->singleShot( timeout, this, [=](){ if(item) item->deleteLater(); } );
+    if( timer )
+        connect( timer, QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
 
-    RETURN();
+    RETURN( item );
+}
+
+QQuickItem*
+Window::message( QString text, QtMsgType type, int timeout )
+{
+    ENTER()(text)(type)(timeout);
+
+    QTimer* timer = nullptr;
+
+    if( type != QtCriticalMsg && timeout > 0 )
+    {
+        timer = new QTimer();
+        timer->setSingleShot( true );
+        timer->setInterval( timeout );
+        timer->start();
+    }
+
+    RETURN( message(text, timer, type) );
 }
 
 QQuickItem*

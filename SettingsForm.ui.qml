@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.2
 
 Item {
     width: 400
-    height: 160
+    height: 200
     Layout.minimumWidth: 400
     Layout.minimumHeight: 160
 
@@ -95,6 +95,13 @@ Item {
             text: qsTr("Ignore SSL errors")
         }
 
+        CheckBox {
+            id: checkConnection
+            objectName: "checkConnection"
+            text: qsTr("Check network connection every 5s")
+            Layout.columnSpan: 2
+        }
+
         ToolButton {
             id: apply
             objectName: "apply"
@@ -111,6 +118,8 @@ Item {
             text: qsTr("&Cancel")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
+
+
 
 
     }

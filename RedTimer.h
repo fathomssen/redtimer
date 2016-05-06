@@ -3,6 +3,7 @@
 
 #include "Models.h"
 #include "Settings.h"
+#include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
 
@@ -25,7 +26,7 @@ namespace redtimer {
 /**
  * @brief RedTimer, a Redmine Time Tracker
  */
-class RedTimer : public QObject
+class RedTimer : public Window
 {
     Q_OBJECT
 
@@ -39,15 +40,6 @@ private:
     /// Main application
     QApplication* app_ = nullptr;
 
-    /// Main window object
-    QQuickView* win_ = nullptr;
-
-    /// Main window context
-    QQmlContext* ctx_ = nullptr;
-
-    /// Main item object
-    QQuickItem* item_ = nullptr;
-
     /// Show the system tray icon
     bool useSystemTrayIcon_;
 
@@ -56,6 +48,12 @@ private:
 
     /// Timer for stopping the worked on time
     QTimer* timer_ = nullptr;
+
+    /// Timer for manually checking the connection
+    QTimer* checkConnectionTimer_ = nullptr;
+
+    /// Connection error message
+    QQuickItem* connectionError_ = nullptr;
 
     /// Currently tracked time in seconds
     int counter_ = 0;
@@ -88,15 +86,6 @@ private:
     void addRecentIssue( qtredmine::Issue issue );
 
     /**
-     * @brief Get a QML GUI item
-     *
-     * @param qmlItem Name of the QML GUI item
-     *
-     * @return QML GUI item
-     */
-    QQuickItem* qml( QString qmlItem );
-
-    /**
      * @brief Start the timer
      */
     void startTimer();
@@ -114,16 +103,6 @@ public:
      * @param trayIcon Show tray icon
      */
     explicit RedTimer( QApplication* parent = nullptr, bool trayIcon = true );
-
-    /**
-     * @brief Destructor
-     */
-    ~RedTimer();
-
-    /**
-     * @brief Initialise the GUI
-     */
-    void init();
 
     /**
      * @brief Initialise the tray icon
@@ -150,6 +129,13 @@ private slots:
     void activitySelected( int index );
 
     /**
+     * @brief Proactively check the network connection, ignoring virtual interfaces
+     *
+     * @return \c Accessible if connection currently works, \c NotAccessible otherwise
+     */
+    void checkNetworkConnection();
+
+    /**
      * @brief Display and raise the main window
      */
     void display();
@@ -173,15 +159,6 @@ private slots:
     void issueStatusSelected( int index );
 
     /**
-     * @brief Display a message
-     *
-     * @param text Message to display
-     * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
-     * @param timeout Duration in milliseconds that the message will be displayed
-     */
-    void message( QString text, QtMsgType type = QtInfoMsg, int timeout = 5000 );
-
-    /**
      * @brief Load issue from Redmine
      *
      * Uses the issue ID from the quick pick list.
@@ -203,6 +180,13 @@ private slots:
      * @param saveNewIssue When saving tracked time, save time for the newly loaded issue
      */
     void loadIssue( int issueId, bool startTimer = true, bool saveNewIssue = false );
+
+    /**
+     * @brief Notify about the current connection status
+     *
+     * @param connected Current connection status
+     */
+    void notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected );
 
     /**
      * @brief Reconnect to Redmine

@@ -5,6 +5,7 @@
 
 #include <QMessageBox>
 #include <QMenu>
+#include <QNetworkInterface>
 #include <QObject>
 
 using namespace qtredmine;
@@ -12,40 +13,9 @@ using namespace redtimer;
 using namespace std;
 
 RedTimer::RedTimer( QApplication* parent, bool trayIcon )
-    : QObject( parent ),
+    : Window( "qrc:/RedTimer.qml" ),
       app_( parent ),
       useSystemTrayIcon_( trayIcon )
-{
-    ENTER();
-    init();
-    RETURN();
-}
-
-RedTimer::~RedTimer()
-{
-    ENTER();
-
-    // Save settings
-
-    settings_->data.position = win_->position();
-    settings_->data.recentIssues = recentIssues_.data().toVector();
-
-    // If currently there is no issue selected, use the first one from the recently opened issues list
-    if( issue_.id == NULL_ID && recentIssues_.rowCount() )
-        settings_->data.issueId = recentIssues_.at(0).id;
-    else
-        settings_->data.issueId = issue_.id;
-
-    settings_->save();
-
-    if( trayIcon_ )
-        trayIcon_->hide();
-
-    RETURN();
-}
-
-void
-RedTimer::init()
 {
     ENTER();
 
@@ -57,30 +27,38 @@ RedTimer::init()
     settings_->load();
 
     // Main window initialisation
-    win_ = new QQuickView();
-    win_->installEventFilter( this );
-    win_->setResizeMode( QQuickView::SizeRootObjectToView );
-    win_->setSource( QUrl(QStringLiteral("qrc:/RedTimer.qml")) );
-    win_->setModality( Qt::ApplicationModal );
-    win_->setTitle( "RedTimer" );
+    installEventFilter( this );
+    setResizeMode( QQuickView::SizeRootObjectToView );
+    setModality( Qt::ApplicationModal );
+    setTitle( "RedTimer" );
 
     QPoint position = settings_->data.position;
     if( !position.isNull() )
-        win_->setPosition( position );
+        setPosition( position );
 
     // Additional window manager properties
     Qt::WindowFlags flags = Qt::Window;
     flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
     flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
-    win_->setFlags( flags );
+    setFlags( flags );
 
     display();
 
+    // Notify upon connection status change
+    connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &RedTimer::notifyConnectionStatus );
+
     // Main window access members
-    ctx_ = win_->rootContext();
-    item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
+    ctx_ = rootContext();
+    item_ = qobject_cast<QQuickItem*>( rootObject() );
     qmlCounter_ = qml( "counter" );
 
+    // Additional connection check in case that VirtualBox or similar is installed
+    checkConnectionTimer_ = new QTimer( this );
+    connect( checkConnectionTimer_, &QTimer::timeout, this, &RedTimer::checkNetworkConnection );
+    checkConnectionTimer_->setTimerType( Qt::VeryCoarseTimer );
+    checkConnectionTimer_->setInterval( 5000 );
+
+    // Initially connect and update the GUI
     reconnect();
 
     // Timer initialisation
@@ -100,7 +78,7 @@ RedTimer::init()
     ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
 
     // Set transient window parent
-    settings_->window()->setTransientParent( win_ );
+    settings_->window()->setTransientParent( this );
 
     // Connect the create issue button
     connect( qml("createIssue"), SIGNAL(clicked()), this, SLOT(createIssue()) );
@@ -135,69 +113,8 @@ RedTimer::init()
     // Connect the timer to the tracking counter
     connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
 
-    // Initially update the GUI
-    refreshGui();
-
-    RETURN();
-}
-
-void
-RedTimer::initTrayIcon()
-{
-    ENTER();
-
-    // Create tray icon if desired and not yet available
-    if( !trayIcon_ && useSystemTrayIcon_ && settings_->data.useSystemTrayIcon
-            && QSystemTrayIcon::isSystemTrayAvailable() )
-    {
-        trayIcon_ = new QSystemTrayIcon( win_ );
-        trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
-        trayIcon_->show();
-
-        QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(win_) );
-        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
-        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, SLOT(exit()) );
-        trayIcon_->setContextMenu( trayMenu );
-
-        // Connect the tray icon to the window show slot
-        connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
-    }
-
-    // Hide tray icon if desired and currently shown
-    if( trayIcon_ && (!useSystemTrayIcon_ || !settings_->data.useSystemTrayIcon) )
-    {
-        trayIcon_->hide();
-        delete trayIcon_;
-        trayIcon_ = nullptr;
-    }
-
-    RETURN();
-}
-
-bool
-RedTimer::eventFilter( QObject* obj, QEvent* event )
-{
-    // Control closing behaviour depending on tray icon usage
-    if( event->type() == QEvent::Close )
-    {
-        if( trayIcon_ )
-            win_->hide();
-        else
-            exit();
-
-        return true;
-    }
-
-    return QObject::eventFilter( obj, event );
-}
-
-void
-RedTimer::trayEvent( QSystemTrayIcon::ActivationReason reason )
-{
-    ENTER()(reason);
-
-    if( reason == QSystemTrayIcon::ActivationReason::Trigger )
-        toggle();
+    // Initially check the internet connection
+    redmine_->checkConnectionStatus();
 
     RETURN();
 }
@@ -239,6 +156,54 @@ RedTimer::addRecentIssue( qtredmine::Issue issue )
 }
 
 void
+RedTimer::checkNetworkConnection()
+{
+    ENTER();
+
+    QNetworkAccessManager::NetworkAccessibility accessible = QNetworkAccessManager::NotAccessible;
+
+    for( const auto& ifc : QNetworkInterface::allInterfaces() )
+    {
+        // Check whether interface is up, running and no loopback
+        if(    !ifc.isValid()
+            || !ifc.flags().testFlag(QNetworkInterface::IsUp)
+            || !ifc.flags().testFlag(QNetworkInterface::IsRunning)
+            || ifc.flags().testFlag(QNetworkInterface::IsLoopBack) )
+            continue;
+
+        // Ignore virtual interfaces
+        if(    ifc.humanReadableName().startsWith("VirtualBox")
+            || ifc.humanReadableName().startsWith("vbox")
+            || ifc.humanReadableName().startsWith("VMware") )
+            continue;
+
+        for( const auto& addr : ifc.addressEntries() )
+        {
+            const auto ip = addr.ip();
+
+            // Not a valid IPv4 or IPv6 address
+            if( ip.isNull() || ip.isLoopback() || ip == QHostAddress::Any )
+                continue;
+
+            DEBUG()(ip.toString());
+
+            accessible = QNetworkAccessManager::Accessible;
+            break;
+        }
+
+        if( accessible == QNetworkAccessManager::Accessible )
+        {
+            DEBUG()(ifc.humanReadableName());
+            break;
+        }
+    }
+
+    redmine_->checkConnectionStatus( accessible );
+
+    RETURN();
+}
+
+void
 RedTimer::createIssue()
 {
     ENTER();
@@ -252,7 +217,7 @@ RedTimer::createIssue()
 
     // Display the issue creator with the current issue as parent
     IssueCreator* issueCreator = new IssueCreator( redmine_ );
-    issueCreator->setTransientParent( win_ );
+    issueCreator->setTransientParent( this );
     issueCreator->setParentIssueId( issue_.id );
     issueCreator->display();
 
@@ -280,10 +245,27 @@ RedTimer::display()
 {
     ENTER();
 
-    win_->showNormal();
-    win_->requestActivate();
+    showNormal();
+    requestActivate();
 
     RETURN();
+}
+
+bool
+RedTimer::eventFilter( QObject* obj, QEvent* event )
+{
+    // Control closing behaviour depending on tray icon usage
+    if( event->type() == QEvent::Close )
+    {
+        if( trayIcon_ )
+            hide();
+        else
+            exit();
+
+        return true;
+    }
+
+    return QObject::eventFilter( obj, event );
 }
 
 void
@@ -298,7 +280,7 @@ RedTimer::exit()
 
         QMessageBox msgBox( QMessageBox::Warning, QString("RedTimer"),
                             tr("The timer is currently running"),
-                            QMessageBox::NoButton, qobject_cast<QWidget*>(win_) );
+                            QMessageBox::NoButton, qobject_cast<QWidget*>(this) );
         msgBox.setInformativeText( tr("Do you want to save the logged time?") );
         msgBox.setWindowModality( Qt::ApplicationModal );
         msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
@@ -327,7 +309,56 @@ RedTimer::exit()
         }
     }
 
+    // Save settings
+
+    settings_->data.position = position();
+    settings_->data.recentIssues = recentIssues_.data().toVector();
+
+    // If currently there is no issue selected, use the first one from the recently opened issues list
+    if( issue_.id == NULL_ID && recentIssues_.rowCount() )
+        settings_->data.issueId = recentIssues_.at(0).id;
+    else
+        settings_->data.issueId = issue_.id;
+
+    settings_->save();
+
+    if( trayIcon_ )
+        trayIcon_->hide();
+
     app_->quit();
+
+    RETURN();
+}
+
+void
+RedTimer::initTrayIcon()
+{
+    ENTER();
+
+    // Create tray icon if desired and not yet available
+    if( !trayIcon_ && useSystemTrayIcon_ && settings_->data.useSystemTrayIcon
+            && QSystemTrayIcon::isSystemTrayAvailable() )
+    {
+        trayIcon_ = new QSystemTrayIcon( this );
+        trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
+        trayIcon_->show();
+
+        QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(this) );
+        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, SLOT(exit()) );
+        trayIcon_->setContextMenu( trayMenu );
+
+        // Connect the tray icon to the window show slot
+        connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
+    }
+
+    // Hide tray icon if desired and currently shown
+    if( trayIcon_ && (!useSystemTrayIcon_ || !settings_->data.useSystemTrayIcon) )
+    {
+        trayIcon_->hide();
+        delete trayIcon_;
+        trayIcon_ = nullptr;
+    }
 
     RETURN();
 }
@@ -504,47 +535,22 @@ RedTimer::loadLatestActivity()
 }
 
 void
-RedTimer::message( QString text, QtMsgType type, int timeout )
+RedTimer::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected )
 {
-    ENTER()(text)(type)(timeout);
+    ENTER();
 
-    QString colour;
-
-    switch( type )
+    if( connectionError_ )
     {
-    case QtInfoMsg:
-        colour = "#006400";
-        break;
-    case QtWarningMsg:
-        colour = "#FF8C00";
-        break;
-    case QtCriticalMsg:
-        colour = "#8B0000";
-        break;
-    case QtDebugMsg:
-    case QtFatalMsg:
-        DEBUG() << "Error: Unsupported message type";
-        RETURN();
+        connectionError_->deleteLater();
+        connectionError_ = nullptr;
     }
 
-    QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), win_ );
-    QQuickItem* item = view->rootObject();
-    item->setParentItem( qml("redTimer") );
-
-    item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
-    item->findChild<QQuickItem*>("message")->setProperty( "text", text );
-
-    QTimer* errorTimer = new QTimer( this );
-    errorTimer->singleShot( timeout, this, [=](){ if(item) item->deleteLater(); } );
+    if( connected == QNetworkAccessManager::Accessible )
+        message( tr("Connection to Redmine established") );
+    else if( connected == QNetworkAccessManager::NotAccessible )
+        connectionError_ = message( tr("Connection to Redmine currently not available"), QtCriticalMsg );
 
     RETURN();
-}
-
-QQuickItem*
-RedTimer::qml( QString qmlItem )
-{
-    ENTER()(qmlItem);
-    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
 }
 
 void
@@ -571,6 +577,11 @@ RedTimer::refreshGui()
     if( settings_->data.ignoreSslErrors )
         redmine_->setCheckSsl( false );
 
+    if( settings_->data.checkConnection )
+        checkConnectionTimer_->start();
+    else
+        checkConnectionTimer_->stop();
+
     initTrayIcon();
 
     loadLatestActivity();
@@ -582,7 +593,7 @@ RedTimer::refreshGui()
     if( !url.isEmpty() )
         title.append(" - ").append( url );
 
-    win_->setTitle( title );
+    setTitle( title );
     if( trayIcon_ )
         trayIcon_->setToolTip( title );
 
@@ -601,7 +612,7 @@ RedTimer::selectIssue()
 {
     // Issue selector initialisation
     IssueSelector* issueSelector = new IssueSelector( redmine_ );
-    issueSelector->setTransientParent( win_ );
+    issueSelector->setTransientParent( this );
     issueSelector->setProjectId( settings_->data.projectId );
     issueSelector->display();
 
@@ -692,8 +703,11 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
 
         if( !success && errorCode != ERR_TIME_ENTRY_TOO_SHORT )
         {
-            message( tr("Could not save the time entry. Please check your internet connection."),
-                     QtCriticalMsg );
+            QString errorMsg = tr("Could not save the time entry.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
             RETURN();
         }
 
@@ -740,10 +754,21 @@ RedTimer::toggle()
 {
     ENTER();
 
-    if( win_->isVisible() )
-        win_->hide();
+    if( isVisible() )
+        hide();
     else
         display();
+
+    RETURN();
+}
+
+void
+RedTimer::trayEvent( QSystemTrayIcon::ActivationReason reason )
+{
+    ENTER()(reason);
+
+    if( reason == QSystemTrayIcon::ActivationReason::Trigger )
+        toggle();
 
     RETURN();
 }
@@ -765,8 +790,11 @@ RedTimer::updateIssueStatus( int statusId )
 
         if( !success )
         {
-            message( tr("Could not update the issue. Please check your internet connection."),
-                     QtCriticalMsg );
+            QString errorMsg = tr("Could not update the issue.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
             RETURN();
         }
 

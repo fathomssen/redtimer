@@ -44,6 +44,7 @@ Settings::apply()
     QString oldUrl = data.url;
 
     data.apiKey            = qml("apikey")->property("text").toString();
+    data.checkConnection   = qml("checkConnection")->property("checked").toBool();
     data.ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
     data.numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
     data.url               = qml("url")->property("text").toString();
@@ -66,7 +67,8 @@ Settings::apply()
             data.recentIssues.removeLast();
     }
 
-    DEBUG("Changed settings to")(data.apiKey)(data.url)(data.workedOnId);
+    DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
+                                (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
 
     DEBUG() << "Emitting applied() signal";
     applied();
@@ -96,6 +98,7 @@ Settings::display()
     ENTER();
 
     qml("apikey")->setProperty( "text", data.apiKey );
+    qml("checkConnection")->setProperty( "checked", data.checkConnection );
     qml("ignoreSslErrors")->setProperty( "checked", data.ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", data.numRecentIssues );
     qml("url")->setProperty( "text", data.url );
@@ -120,6 +123,8 @@ Settings::load()
     // Settings GUI
     if( !settings_.value("apikey").isNull() )
         data.apiKey = settings_.value("apikey").toString();
+    if( !settings_.value("checkConnection").isNull() )
+        data.checkConnection = settings_.value("checkConnection").toBool();
     if( !settings_.value("ignoreSslErrors").isNull() )
         data.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
     if( !settings_.value("url").isNull() )
@@ -151,7 +156,7 @@ Settings::load()
 
 
     DEBUG("Loaded settings from file:")
-            (data.apiKey)(data.ignoreSslErrors)(data.numRecentIssues)(data.url)
+            (data.apiKey)(data.checkConnection)(data.ignoreSslErrors)(data.numRecentIssues)(data.url)
             (data.useSystemTrayIcon)(data.workedOnId)
             (data.activityId)(data.issueId)(data.position)(data.projectId)(data.recentIssues);
 
@@ -177,6 +182,7 @@ Settings::save()
 
     // From Settings GUI
     settings_.setValue( "apikey",            data.apiKey );
+    settings_.setValue( "checkConnection",   data.checkConnection );
     settings_.setValue( "ignoreSslErrors",   data.ignoreSslErrors );
     settings_.setValue( "numRecentIssues",   data.numRecentIssues );
     settings_.setValue( "url",               data.url );
