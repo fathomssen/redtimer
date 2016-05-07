@@ -127,48 +127,56 @@ services:
 
 before_install:
   ### Create aliases for checking variables
-  - shopt -s expand_aliases
-  - alias isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
-  - alias isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - alias isUbuntu=$( [[ isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
-  - alias is386=$( [[ "${arch}" == "i386" ]] && echo true || echo false )
-  - alias hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
-  - alias hasQtPpa=$( [[ isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
-  - alias hasQtPkg=$( [[ -n "${qtpkg}" ]] && echo true || echo false )
+  - function run()
+    {
+      if [ $1 = "false" ]; then
+        return 0
+      fi
+      shift
+      $@
+    }
+  - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
+  - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
+  - export isUbuntu=$( [[ isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
+  - export isUbuntu386=$( [[ isUbuntu && "${arch}" == "i386" ]] && echo true || echo false )
+  - export hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
+  - export hasQtPpa=$( [[ isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
+  - export hasQtPkg=$( [[ isUbuntu && -n "${qtpkg}" ]] && echo true || echo false )
   ### Linux
-  - isLinux && docker pull ${dist}:${distver} || true
-  - isLinux && export CONTAINER=$(docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init}) || true
-  - isLinux && export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm" || true
+  - run $isLinux docker pull ${dist}:${distver}
+  - run $isLinux export CONTAINER=$(docker run $--detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
+  - run $isLinux export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   ### Ubuntu
-  - isUbuntu && $DOCKER apt-get update || true
-  - isUbuntu && $DOCKER apt-get install -y pbuilder debootstrap devscripts || true
-  - isUbuntu && is386 && export ARCH="--debootstrapopts --arch --debootstrapopts i386" || true
-  - isUbuntu && is386 && export LINUX32="linux32" || true
-  - isUbuntu && $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH || true
+  - run $isUbuntu $DOCKER apt-get update
+  - run $isUbuntu $DOCKER apt-get install -y pbuilder debootstrap devscripts
+  - run $isUbuntu386 export ARCH="--debootstrapopts --arch --debootstrapopts i386"
+  - run $isUbuntu386 export LINUX32="linux32"
+  - run $isUbuntu $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH
   ### OS X
-  - isOsX && brew update || true
+  - run $isOsX brew update
+  - run $isOsX brew linkapps qt5
 
 install:
   ### Install dependencies in build chroot
   # sources.list will be in Docker:/build and chroot:/root
-  - isUbuntu && $DOCKER cp /etc/apt/sources.list /build || true
-  - isUbuntu && touch prepare.sh || true
-  - isUbuntu && chmod 755 prepare.sh || true
-  - isUbuntu && echo "#!/bin/bash" >> prepare.sh || true
-  - isUbuntu && echo >> prepare.sh || true
-  - isUbuntu && echo "set -ex" >> prepare.sh || true
-  - isUbuntu && echo "cp /build/sources.list /etc/apt" >> prepare.sh || true
-  - isUbuntu && echo "apt-get update" >> prepare.sh || true
-  - hasQtPpa && echo "apt-get install -y software-properties-common" >> prepare.sh || true
-  - hasQtPpa && echo "add-apt-repository -y ${qtppa}" >> prepare.sh || true
-  - isUbuntu && echo "apt-get update" >> prepare.sh || true
-  - isUbuntu && echo "apt-get dist-upgrade -y" >> prepare.sh || true
-  - isUbuntu && hasQtPkg && echo "apt-get install -y ${qtpkg}" >> prepare.sh || true
-  - isUbuntu && echo "apt-get install -y lsb-release" >> prepare.sh || true
-  - isUbuntu && $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh || true
+  - run $isUbuntu $DOCKER cp /etc/apt/sources.list /build
+  - run $isUbuntu touch prepare.sh
+  - run $isUbuntu chmod 755 prepare.sh
+  - run $isUbuntu echo "#!/bin/bash" >> prepare.sh
+  - run $isUbuntu echo >> prepare.sh
+  - run $isUbuntu echo "set -ex" >> prepare.sh
+  - run $isUbuntu echo "cp /build/sources.list /etc/apt" >> prepare.sh
+  - run $isUbuntu echo "apt-get update" >> prepare.sh
+  - run $hasQtPpa echo "apt-get install -y software-properties-common" >> prepare.sh
+  - run $hasQtPpa echo "add-apt-repository -y ${qtppa}" >> prepare.sh
+  - run $isUbuntu echo "apt-get update" >> prepare.sh
+  - run $isUbuntu echo "apt-get dist-upgrade -y" >> prepare.sh
+  - run $hasQtPkg echo "apt-get install -y ${qtpkg}" >> prepare.sh
+  - run $isUbuntu echo "apt-get install -y lsb-release" >> prepare.sh
+  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh
   ### OS X
   ### Install Qt5
-  - isOsX && brew install qt5 || true
+  - run $isOsX brew install qt5
 
 script:
   - export USER_ID=$(id -u)
@@ -178,9 +186,9 @@ script:
   - echo "#!/bin/bash" >> build.sh
   - echo >> build.sh
   - echo "set -x" >> build.sh
-  - hasQtEnv && echo "source ${qtenv}" >> build.sh || true
+  - run $hasQtEnv echo "source ${qtenv}" >> build.sh
   - echo "set -ex" >> build.sh
-  - isUbuntu && echo "cd /build" >> build.sh || true
+  - run $isUbuntu echo "cd /build" >> build.sh
   - echo "cd qtredmine" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
@@ -188,20 +196,20 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R $USER_ID:$GROUP_ID ." >> build.sh
-  - isUbuntu && $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh || true
-  - isOsX && ./build.sh || true
+  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh
+  - run $isOsX ./build.sh
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
   - test "${deployscript}"
   ### The following commands have to define a $DEPLOYFILE
-  - isUbuntu && echo "#!/bin/bash" >> deploy.sh || true
-  - isUbuntu && echo "set -ex" >> deploy.sh || true
-  - isUbuntu && echo "cd /build" >> deploy.sh || true
-  - isUbuntu && echo "${deployscript} > .deployfile" >> deploy.sh || true
-  - isUbuntu && echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh || true
-  - isUbuntu && $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh || true
-  - isUbuntu && export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n') || true
+  - run $isUbuntu echo "#!/bin/bash" >> deploy.sh
+  - run $isUbuntu echo "set -ex" >> deploy.sh
+  - run $isUbuntu echo "cd /build" >> deploy.sh
+  - run $isUbuntu echo "${deployscript} > .deployfile" >> deploy.sh
+  - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
+  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
+  - run $isUbuntu export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n')
 
 deploy:
   provider: releases
