@@ -127,13 +127,12 @@ services:
 
 before_install:
   ### Create aliases for checking variables
-  - function run()
-    {
+  - function run() {
       if [ $1 = "false" ]; then
-        return 0
-      fi
-      shift
-      $@
+        return 0;
+      fi;
+      shift;
+      $@;
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
