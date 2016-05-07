@@ -128,11 +128,11 @@ services:
 before_install:
   ### Create aliases for checking variables
   - function run() {
-      if [ $1 = "false" ]; then
+      if [ "$1" = "false" ]; then
         return 0;
       fi;
       shift;
-      $@;
+      "$@";
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
@@ -143,7 +143,7 @@ before_install:
   - export hasQtPkg=$( [[ isUbuntu && -n "${qtpkg}" ]] && echo true || echo false )
   ### Linux
   - run $isLinux docker pull ${dist}:${distver}
-  - run $isLinux export CONTAINER=$(docker run $--detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
+  - run $isLinux export CONTAINER=$(docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - run $isLinux export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   ### Ubuntu
   - run $isUbuntu $DOCKER apt-get update
