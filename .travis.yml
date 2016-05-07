@@ -101,7 +101,7 @@ services:
   - docker
 
 before_install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ];
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       docker pull ${xdist}:${xdistver};
       export CONTAINER=$(docker run --detach --privileged --volume="${PWD}":/build:rw ${xdist}:${xdistver} ${init});
       export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm";
