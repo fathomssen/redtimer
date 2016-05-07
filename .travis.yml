@@ -133,7 +133,7 @@ install:
         echo "add-apt-repository -y ${qtppa}" >> prepare.sh;
       fi;
       echo "apt-get update" >> prepare.sh;
-      echo "apt-get xdist-upgrade -y" >> prepare.sh;
+      echo "apt-get dist-upgrade -y" >> prepare.sh;
       if [ -n "${qtpkg}" ]; then
         echo "apt-get install -y ${qtpkg}" >> prepare.sh;
       fi;
