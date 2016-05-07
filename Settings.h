@@ -2,6 +2,7 @@
 #define SETTINGS_H
 
 #include "Models.h"
+#include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
 
@@ -16,7 +17,7 @@ namespace redtimer {
 /**
  * @brief A settings window and IO access for RedTimer
  */
-class Settings : public QObject
+class Settings : public Window
 {
     Q_OBJECT
 
@@ -78,29 +79,11 @@ private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
 
-    /// Settings window object
-    QQuickView* win_;
-
-    /// Issue selector window context
-    QQmlContext* ctx_;
-
-    /// Settings item object
-    QQuickItem* item_;
-
     /// Application settings
     QSettings settings_;
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
-
-    /**
-     * @brief Get a QML GUI item
-     *
-     * @param qmlItem Name of the QML GUI item
-     *
-     * @return QML GUI item
-     */
-    QQuickItem* qml( QString qmlItem );
 
 public:
     /**
@@ -109,8 +92,7 @@ public:
      * @param redmine Redmine connection object
      * @param parent Parent QObject
      */
-    explicit Settings( qtredmine::SimpleRedmineClient* redmine,
-                       QObject* parent = nullptr );
+    explicit Settings( qtredmine::SimpleRedmineClient* redmine, QQuickView* parent = nullptr );
 
     /**
      * @brief Load settings from settings file
@@ -121,13 +103,6 @@ public:
      * @brief Save settings to settings file
      */
     void save();
-
-    /**
-     * @brief Get the settings window
-     *
-     * @return Settings window
-     */
-    QQuickView* window() const;
 
 public slots:
     /**

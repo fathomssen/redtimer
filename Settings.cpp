@@ -8,24 +8,18 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-Settings::Settings( SimpleRedmineClient* redmine, QObject* parent )
-    : QObject( parent ),
+Settings::Settings( SimpleRedmineClient* redmine, QQuickView* parent )
+    : Window( "qrc:/Settings.qml", parent ),
       redmine_( redmine ),
       settings_( "RedTimer.ini", QSettings::IniFormat, this )
 {
     ENTER();
 
     // Settings window initialisation
-    win_ = new QQuickView();
-    win_->setResizeMode( QQuickView::SizeRootObjectToView );
-    win_->setSource( QUrl(QStringLiteral("qrc:/Settings.qml")) );
-    win_->setModality( Qt::ApplicationModal );
-    win_->setFlags( Qt::Dialog );
-    win_->setTitle( "Settings" );
-
-    // Settings window access members
-    ctx_ = win_->rootContext();
-    item_ = qobject_cast<QQuickItem*>( win_->rootObject() );
+    setResizeMode( QQuickView::SizeRootObjectToView );
+    setModality( Qt::ApplicationModal );
+    setFlags( Qt::Dialog );
+    setTitle( "Settings" );
 
     // Connect the cancel button
     connect( qml("cancel"), SIGNAL(clicked()), this, SLOT(close()) );
@@ -83,10 +77,10 @@ Settings::close()
 {
     ENTER();
 
-    if( win_->isVisible() )
+    if( isVisible() )
     {
         DEBUG() << "Closing settings window";
-        win_->close();
+        Window::close();
     }
 
     RETURN();
@@ -106,10 +100,10 @@ Settings::display()
 
     updateIssueStatuses();
 
-    if( !win_->isVisible() )
+    if( !isVisible() )
     {
         DEBUG() << "Displaying settings window";
-        win_->show();
+        show();
     }
 
     RETURN();
@@ -168,13 +162,6 @@ Settings::load()
     RETURN();
 }
 
-QQuickItem*
-Settings::qml( QString qmlItem )
-{
-    ENTER()(qmlItem);
-    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
-}
-
 void
 Settings::save()
 {
@@ -221,9 +208,20 @@ Settings::updateIssueStatuses()
         RETURN();
     }
 
-    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses )
+    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
+                                          QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load issue statuses.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         int currentIndex = 0;
 
@@ -252,11 +250,4 @@ Settings::updateIssueStatuses()
     } );
 
     RETURN();
-}
-
-QQuickView*
-Settings::window() const
-{
-    ENTER();
-    RETURN( win_ );
 }

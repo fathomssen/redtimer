@@ -51,10 +51,10 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, QQuickView* parent )
     connect( qml("create"), SIGNAL(clicked()), this, SLOT(save()) );
 
     // Connect the cancel button clicked signal to the close slot
-    connect( qml("cancel"), SIGNAL(clicked()), this, SLOT(closeWin()) );
+    connect( qml("cancel"), SIGNAL(clicked()), this, SLOT(close()) );
 
     // Connect the closed signal to the close slot
-    connect( this, &Window::closed, [=](){ closeWin(); } );
+    connect( this, &Window::closed, [=](){ close(); } );
 
     RETURN();
 }
@@ -66,16 +66,18 @@ IssueCreator::~IssueCreator()
 }
 
 void
-IssueCreator::closeWin()
+IssueCreator::close()
 {
     ENTER();
 
     if( isVisible() )
     {
         DEBUG() << "Closing issue creator window";
+
         if( cancelOnClose_ )
             cancelled();
-        close();
+
+        Window::close();
     }
 
     RETURN();
@@ -100,9 +102,20 @@ IssueCreator::loadCurrentUser()
 {
     ENTER();
 
-    redmine_->retrieveCurrentUser( [&]( User user )
+    redmine_->retrieveCurrentUser( [&]( User user, RedmineError redmineError, QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load issue statuses.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
+
         currentUserId_ = user.id;
         RETURN();
     } );
@@ -115,9 +128,19 @@ IssueCreator::loadProjects()
 {
     ENTER();
 
-    redmine_->retrieveProjects( [&]( Projects projects )
+    redmine_->retrieveProjects( [&]( Projects projects, RedmineError redmineError, QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load projects.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         projectModel_.clear();
         projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
@@ -139,9 +162,19 @@ IssueCreator::loadTrackers()
 {
     ENTER();
 
-    redmine_->retrieveTrackers( [&]( Trackers trackers )
+    redmine_->retrieveTrackers( [&]( Trackers trackers, RedmineError redmineError, QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load trackers.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         trackerModel_.clear();
         trackerModel_.push_back( SimpleItem(NULL_ID, "Choose tracker") );
@@ -226,7 +259,7 @@ IssueCreator::save()
         message( tr("New issue created with ID %1").arg(id) );
 
         created( id );
-        closeWin();
+        close();
 
         RETURN();
     } );

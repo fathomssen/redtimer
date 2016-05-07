@@ -104,9 +104,19 @@ IssueSelector::loadIssues()
 {
     ENTER()(projectId_);
 
-    redmine_->retrieveIssues( [&]( Issues issues )
+    redmine_->retrieveIssues( [&]( Issues issues, RedmineError redmineError, QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load issues.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         issuesModel_.clear();
 
@@ -129,9 +139,19 @@ IssueSelector::loadProjects()
     projectModel_.clear();
     projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
 
-    redmine_->retrieveProjects( [=]( Projects projects )
+    redmine_->retrieveProjects( [=]( Projects projects, RedmineError redmineError, QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load projects.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         int currentIndex = 0;
 

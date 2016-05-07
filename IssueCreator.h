@@ -82,7 +82,7 @@ public slots:
     /**
      * @brief Close the issue selector dialog
      */
-    void closeWin();
+    void close();
 
     /**
      * @brief Display the issue selector dialog

@@ -49,13 +49,6 @@ public:
      */
     int getProjectId() const;
 
-    /**
-     * @brief Get the issue selector window
-     *
-     * @return Issue selector window
-     */
-    QQuickView* window() const;
-
     /// @}
 
     /// @name Setters

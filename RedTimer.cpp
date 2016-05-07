@@ -23,7 +23,7 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     redmine_ = new SimpleRedmineClient( this );
 
     // Settings initialisation
-    settings_ = new Settings( redmine_, this );
+    settings_ = new Settings( redmine_ );
     settings_->load();
 
     // Main window initialisation
@@ -78,7 +78,7 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
 
     // Set transient window parent
-    settings_->window()->setTransientParent( this );
+    settings_->setTransientParent( this );
 
     // Connect the create issue button
     connect( qml("createIssue"), SIGNAL(clicked()), this, SLOT(createIssue()) );
@@ -381,9 +381,20 @@ RedTimer::loadActivities()
 {
     ENTER();
 
-    redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities )
+    redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities, RedmineError redmineError,
+                                                QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load activities.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         int currentIndex = 0;
 
@@ -448,9 +459,19 @@ RedTimer::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
     if( timer_->isActive() )
         stop( true, false );
 
-    redmine_->retrieveIssue( [=]( Issue issue )
+    redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
     {
         ENTER()(issue);
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load issue.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         issue_ = issue;
 
@@ -480,9 +501,20 @@ RedTimer::loadIssueStatuses()
 {
     ENTER();
 
-    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses )
+    redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
+                                          QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load issue statuses.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         int currentIndex = 0;
 
@@ -518,9 +550,20 @@ RedTimer::loadLatestActivity()
         RETURN();
     }
 
-    redmine_->retrieveTimeEntries( [&]( TimeEntries timeEntries )
+    redmine_->retrieveTimeEntries( [&]( TimeEntries timeEntries, RedmineError redmineError,
+                                        QStringList errors )
     {
         ENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load time entries.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            RETURN();
+        }
 
         if( timeEntries.size() == 1 )
             activityId_ = timeEntries[0].activity.id;
