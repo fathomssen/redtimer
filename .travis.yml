@@ -8,6 +8,9 @@ os:
 matrix:
   allow_failures:
     - os: osx
+  exclude:
+    # Workaround to prevent building in an empty environment
+    - compiler: clang
   include:
     ####################### Ubuntu #######################
     ###
@@ -153,6 +156,7 @@ before_install:
   - run $isUbuntu $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH
   ### OS X
   - run $isOsX brew update
+  - run $isOsX brew install qt5
   - run $isOsX brew linkapps qt5
 
 install:
