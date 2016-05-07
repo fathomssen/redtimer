@@ -132,10 +132,10 @@ before_install:
   ### Create aliases for checking variables
   - alias isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - alias isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - alias isUbuntu=$( [[ isLinux -a "${dist}" == "ubuntu" ]] && echo true || echo false )
+  - alias isUbuntu=$( [[ isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
   - alias is386=$( [[ "${arch}" == "i386" ]] && echo true || echo false )
   - alias hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
-  - alias hasQtPpa=$( [[ isUbuntu -a -n "${qtppa}" ]] && echo true || echo false )
+  - alias hasQtPpa=$( [[ isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
   - alias hasQtPkg=$( [[ -n "${qtpkg}" ]] && echo true || echo false )
   ### Linux
   - isLinux && docker pull ${dist}:${distver}
