@@ -8,18 +8,6 @@ os:
   - linux
   - osx
 
-matrix:
-  allow_failures:
-    - os: osx
-  include:
-    - os: linux
-      dist: trusty
-      sudo: required
-      env: dist=ubuntu
-    - os: osx
-      osx_image: xcode7.3
-      env: dist=osx
-
 env:
   ###
   ### Ubuntu 14.04
@@ -97,6 +85,18 @@ env:
   ### OS X
   - dist: osx
 
+matrix:
+  allow_failures:
+    - os: osx
+  include:
+    - os: linux
+      dist: trusty
+      sudo: required
+      env: dist=ubuntu
+    - os: osx
+      osx_image: xcode7.3
+      env: dist=osx
+
 services:
   - docker
 
@@ -169,7 +169,7 @@ script:
       $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh;
     fi
   - if [ "$TRAVIS_OS_NAME" = "osx" ]; then
-      ./build.sh
+      ./build.sh;
     fi
 
 before_deploy:
