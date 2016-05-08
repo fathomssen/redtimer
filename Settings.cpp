@@ -64,6 +64,8 @@ Settings::apply()
     DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
                                 (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
 
+    save();
+
     DEBUG() << "Emitting applied() signal";
     applied();
 
@@ -190,6 +192,8 @@ Settings::save()
         settings_.setValue( "subject", data.recentIssues.at(i).subject );
     }
     settings_.endArray();
+
+    settings_.sync();
 
     RETURN();
 }
