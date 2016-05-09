@@ -7,6 +7,7 @@
 #include <QMenu>
 #include <QNetworkInterface>
 #include <QObject>
+#include <QTime>
 
 using namespace qtredmine;
 using namespace redtimer;
@@ -106,6 +107,10 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
 
     // Connect the issueStatus selected signal to the issueStatusSelected slot
     connect( qml("issueStatus"), SIGNAL(activated(int)), this, SLOT(issueStatusSelected(int)) );
+
+    // Connect the counter text field signals to pause or resume the displayed counted time
+    connect( qml("redTimer"), SIGNAL(counterAnyKeyPressed()), this, SLOT(pauseCounterGui()) );
+    connect( qml("counter"), SIGNAL(accepted()), this, SLOT(resumeCounterGui()) );
 
     // Connect the settings saved signal to the reconnect slot
     connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
@@ -597,6 +602,32 @@ RedTimer::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility co
 }
 
 void
+RedTimer::pauseCounterGui()
+{
+    ENTER();
+    updateCounterGui_ = false;
+    RETURN();
+}
+
+void
+RedTimer::resumeCounterGui()
+{
+    ENTER();
+
+    QString stime = qml("counter")->property( "text" ).toString();
+    QTime time = QTime::fromString( stime );
+
+    if( time.isValid() )
+        counter_ = time.hour()*3600 + time.minute()*60 + time.second();
+    else
+        message( tr("Invalid time specified: ").append(stime), QtCriticalMsg );
+
+    updateCounterGui_ = true;
+
+    RETURN();
+}
+
+void
 RedTimer::reconnect()
 {
     ENTER();
@@ -647,7 +678,9 @@ void
 RedTimer::refreshCounter()
 {
     ++counter_;
-    qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
+
+    if( updateCounterGui_ )
+        qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
 }
 
 void

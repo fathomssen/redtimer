@@ -49,6 +49,9 @@ private:
     /// Timer for stopping the worked on time
     QTimer* timer_ = nullptr;
 
+    /// Update the counter in the GUI
+    bool updateCounterGui_ = true;
+
     /// Timer for manually checking the connection
     QTimer* checkConnectionTimer_ = nullptr;
 
@@ -187,6 +190,16 @@ private slots:
      * @param connected Current connection status
      */
     void notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected );
+
+    /**
+     * @brief Pause the update of the counter in the GUI
+     */
+    void pauseCounterGui();
+
+    /**
+     * @brief Resume the update of the counter in the GUI
+     */
+    void resumeCounterGui();
 
     /**
      * @brief Reconnect to Redmine

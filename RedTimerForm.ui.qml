@@ -11,13 +11,13 @@ Item {
     Layout.minimumHeight: 400
 
     property alias activity: activity
+    property alias counter: counter
     property alias issueData: issueData
+    property alias issueStatus: issueStatus
     property alias quickPick: quickPick
     property alias selectIssue: selectIssue
     property alias settings: settings
     property alias startStop: startStop
-    property alias issueStatus: issueStatus
-    property alias counter: counter
 
     ToolBar {
         id: toolBar
@@ -166,7 +166,6 @@ Item {
                             objectName: "counter"
                             text: "00:00:00"
                             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                            readOnly: true
                         }
                     }
 
