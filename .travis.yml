@@ -2,8 +2,6 @@ language: cpp
 compiler: clang
 
 matrix:
-  allow_failures:
-    - os: osx
   exclude:
     # Workaround to prevent building in an empty environment
     - compiler: clang
