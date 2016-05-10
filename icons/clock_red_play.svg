@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8"
+   height="8"
+   viewBox="0 0 8 8"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="clock_red_play.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1366"
+     inkscape:window-height="705"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="32"
+     inkscape:cx="6.4864205"
+     inkscape:cy="3.2019054"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <path
+     d="M 2.90625,0 C 1.3078125,0 0,1.3078125 0,2.90625 0,4.5046875 1.3078125,5.8125 2.90625,5.8125 4.5046875,5.8125 5.8125,4.5046875 5.8125,2.90625 5.8125,1.3078125 4.5046875,0 2.90625,0 Z m 0,0.7265625 c 1.2060938,0 2.1796875,0.9735938 2.1796875,2.1796875 0,1.2060938 -0.9735937,2.1796875 -2.1796875,2.1796875 -1.2060937,0 -2.1796875,-0.9735937 -2.1796875,-2.1796875 0,-1.2060937 0.9735938,-2.1796875 2.1796875,-2.1796875 z m -0.3632812,0.7265625 0,1.6129688 0.11625,0.094453 L 3.0225,3.5238281 3.2695313,3.7999219 3.7926563,3.2767969 3.5165625,3.0297656 3.2695313,2.7827344 l 0,-1.3150781 -0.7265625,0 z"
+     id="path4"
+     style="fill:#ff0000;fill-opacity:1"
+     inkscape:connector-curvature="0" />
+  <g
+     id="g4821"
+     transform="matrix(1.1153846,0,0,1.1153846,-0.9266827,-0.9266827)">
+    <rect
+       y="4.8810911"
+       x="4.984375"
+       height="2.3238876"
+       width="2.3066735"
+       id="rect4158"
+       style="fill:#000000;fill-opacity:1" />
+    <path
+       inkscape:connector-curvature="0"
+       style="fill:#ffffff"
+       id="path4-4"
+       d="M 6,3.96875 C 4.8777344,3.96875 3.96875,4.8777344 3.96875,6 3.96875,7.1222656 4.8777344,8.03125 6,8.03125 7.1222656,8.03125 8.03125,7.1222656 8.03125,6 8.03125,4.8777344 7.1222656,3.96875 6,3.96875 Z M 5.4921875,4.984375 7.015625,6 5.4921875,7.015625 l 0,-2.03125 z" />
+  </g>
+</svg>

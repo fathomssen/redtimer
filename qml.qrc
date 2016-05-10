@@ -18,5 +18,7 @@
         <file>open-iconic/svg/plus.svg</file>
         <file>IssueCreator.qml</file>
         <file>IssueCreatorForm.ui.qml</file>
+        <file>icons/clock_red_play.svg</file>
+        <file>icons/clock_red_stop.svg</file>
     </qresource>
 </RCC>

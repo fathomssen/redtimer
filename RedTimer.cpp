@@ -345,11 +345,13 @@ RedTimer::initTrayIcon()
             && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( this );
-        trayIcon_->setIcon( QIcon(":/icons/clock_red.svg") );
+        trayIcon_->setIcon( QIcon(":/icons/clock_red_stop.svg") );
         trayIcon_->show();
 
         QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(this) );
         trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/media-play.svg"), tr("S&tart/stop"),
+                             this, SLOT(startStop()) );
         trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, SLOT(exit()) );
         trayIcon_->setContextMenu( trayMenu );
 
@@ -513,7 +515,7 @@ RedTimer::loadIssueStatuses()
 
         if( redmineError != NO_ERROR )
         {
-            QString errorMsg = tr("Could not load issue statuses.");
+            QString errorMsg = tr( "Could not load issue statuses." );
             for( const auto& error : errors )
                 errorMsg.append("\n").append(error);
 
@@ -562,7 +564,7 @@ RedTimer::loadLatestActivity()
 
         if( redmineError != NO_ERROR )
         {
-            QString errorMsg = tr("Could not load time entries.");
+            QString errorMsg = tr( "Could not load time entries." );
             for( const auto& error : errors )
                 errorMsg.append("\n").append(error);
 
@@ -742,7 +744,10 @@ RedTimer::startTimer()
 
     // Set the start/stop button icon to stop
     qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
-    qml("startStop")->setProperty( "text", "Stop time tracking" );
+    qml("startStop")->setProperty( "tooltip", tr("Stop time tracking") );
+
+    if( trayIcon_ )
+        trayIcon_->setIcon( QIcon(":/icons/clock_red_play.svg") );
 
     // Set the issue status ID to the worked on ID if not already done
     int workedOnId = settings_->data.workedOnId;
@@ -779,7 +784,7 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
 
         if( !success && errorCode != ERR_TIME_ENTRY_TOO_SHORT )
         {
-            QString errorMsg = tr("Could not save the time entry.");
+            QString errorMsg = tr( "Could not save the time entry." );
             for( const auto& error : errors )
                 errorMsg.append("\n").append(error);
 
@@ -820,7 +825,10 @@ RedTimer::stopTimer()
 
     // Set the start/stop button icon to start
     qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-play.svg" );
-    qml("startStop")->setProperty( "text", tr("Start time tracking") );
+    qml("startStop")->setProperty( "tooltip", tr("Start time tracking") );
+
+    if( trayIcon_ )
+        trayIcon_->setIcon( QIcon(":/icons/clock_red_stop.svg") );
 
     RETURN();
 }
@@ -866,7 +874,7 @@ RedTimer::updateIssueStatus( int statusId )
 
         if( !success )
         {
-            QString errorMsg = tr("Could not update the issue.");
+            QString errorMsg = tr( "Could not update the issue." );
             for( const auto& error : errors )
                 errorMsg.append("\n").append(error);
 
