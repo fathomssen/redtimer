@@ -110,7 +110,7 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
 
     // Connect the counter text field signals to pause or resume the displayed counted time
     connect( qml("redTimer"), SIGNAL(counterAnyKeyPressed()), this, SLOT(pauseCounterGui()) );
-    connect( qml("counter"), SIGNAL(accepted()), this, SLOT(resumeCounterGui()) );
+    connect( qml("counter"), SIGNAL(editingFinished()), this, SLOT(resumeCounterGui()) );
 
     // Connect the settings saved signal to the reconnect slot
     connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
