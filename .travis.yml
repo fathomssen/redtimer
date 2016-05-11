@@ -217,7 +217,7 @@ before_deploy:
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
   - run $isUbuntu export DEPLOYFILE=$(run $isUbuntu cat .deployfile | tr -d '\r\n')
   # OS X
-  - run $isOsX cp -a qtredmine/libqtredmine*.dylib /usr/lib
+  - run $isOsX sudo cp -a qtredmine/libqtredmine* /usr/lib
   - run $isOsX macdeployqt RedTimer.app -dmg
   - run $isOsX export DEPLOYFILE=RedTimer.dmg
 
