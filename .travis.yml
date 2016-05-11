@@ -204,6 +204,10 @@ script:
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh
   - run $isOsX ./build.sh
+  # @todo Move to before_deploy
+  - run $isOsX cp -av qtredmine/libqtredmine* .
+  - run $isOsX macdeployqt RedTimer.app -dmg -verbose=3
+  - run $isOsX export DEPLOYFILE=RedTimer.dmg
 
 before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
@@ -217,8 +221,8 @@ before_deploy:
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
   - run $isUbuntu export DEPLOYFILE=$(run $isUbuntu cat .deployfile | tr -d '\r\n')
   # OS X
-  - run $isOsX cp -a qtredmine/libqtredmine* /usr/local/lib
-  - run $isOsX macdeployqt RedTimer.app -dmg
+  - run $isOsX cp -av qtredmine/libqtredmine* /usr/local/lib
+  - run $isOsX macdeployqt RedTimer.app -dmg -verbose=3
   - run $isOsX export DEPLOYFILE=RedTimer.dmg
 
 deploy:
