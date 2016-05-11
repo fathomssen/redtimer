@@ -118,7 +118,7 @@ matrix:
 #        - qmakeopt: "-qt5"
 #        - deploy: true
 #        - deployscript: build/deploy.ubuntu.sh
-#    ####################### OS X #######################
+    ####################### OS X #######################
     ###
     ### OS X 10.11
     ###
@@ -229,5 +229,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: "${deploy}" = "true"
+    condition: -n "${deploy}"
     tags: true
