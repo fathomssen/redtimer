@@ -196,12 +196,12 @@ script:
   - echo "set -ex" >> build.sh
   - run $isUbuntu echo "cd /build" >> build.sh
   - echo "cd qtredmine" >> build.sh
-  - run $isOsX "echo 'CONFIG+=staticlib' >> qtredmine.pro" >> build.sh
+  - run $isOsX echo "echo 'CONFIG+=staticlib' >> qtredmine.pro" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "cd .." >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
-  - run $isOsX "sed -i 's#-lqtredmine#qtredmine/libqtredmine.a#'" >> build.sh
+  - run $isOsX echo "sed -i 's#-lqtredmine#qtredmine/libqtredmine.a#'" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh
