@@ -4,9 +4,9 @@ import QtQuick.Layouts 1.2
 
 Item {
     width: 400
-    height: 200
+    height: 280
     Layout.minimumWidth: 400
-    Layout.minimumHeight: 160
+    Layout.minimumHeight: 280
 
     GridLayout {
         id: gridLayout1
@@ -26,10 +26,6 @@ Item {
             id: url
             Layout.fillWidth: true
             objectName: "url"
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 150
             placeholderText: qsTr("Redmine Connection URL")
         }
 
@@ -42,13 +38,8 @@ Item {
             id: apikey
             Layout.fillWidth: true
             objectName: "apikey"
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 150
             placeholderText: qsTr("Redmine API Key")
         }
-
 
         Label {
             id: label4
@@ -59,10 +50,6 @@ Item {
             id: numRecentIssues
             Layout.fillWidth: true
             objectName: "numRecentIssues"
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 150
             placeholderText: qsTr("Maximum number of recently opened issues (-1: indefinitely)")
         }
 
@@ -74,13 +61,57 @@ Item {
         ComboBox {
             id: workedOn
             Layout.fillWidth: true
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 150
             objectName: "workedOn"
             model: issueStatusModel
             textRole: "name"
+        }
+
+        Label {
+            id: label5
+            text: qsTr("Shortcut to show/hide RedTimer")
+        }
+
+        TextField {
+            id: shortcutToggle
+            Layout.fillWidth: true
+            objectName: "shortcutToggle"
+            placeholderText: qsTr("Ctrl+Alt+R")
+        }
+
+        Label {
+            id: label6
+            text: qsTr("Shortcut to start/stop RedTimer")
+        }
+
+        TextField {
+            id: shortcutStartStop
+            Layout.fillWidth: true
+            objectName: "shortcutStartStop"
+            placeholderText: qsTr("Ctrl+Alt+S")
+        }
+
+        Label {
+            id: label7
+            text: qsTr("Shortcut to create an issue")
+        }
+
+        TextField {
+            id: shortcutCreateIssue
+            Layout.fillWidth: true
+            objectName: "shortcutCreateIssue"
+            placeholderText: qsTr("Ctrl+Alt+C")
+        }
+
+        Label {
+            id: label8
+            text: qsTr("Shortcut to load an issue")
+        }
+
+        TextField {
+            id: shortcutSelectIssue
+            Layout.fillWidth: true
+            objectName: "shortcutSelectIssue"
+            placeholderText: qsTr("Ctrl+Alt+L")
         }
 
         CheckBox {
@@ -110,18 +141,12 @@ Item {
             isDefault: true
         }
 
-
-
         ToolButton {
             id: cancel
             objectName: "cancel"
             text: qsTr("&Cancel")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
-
-
-
-
     }
 }
 

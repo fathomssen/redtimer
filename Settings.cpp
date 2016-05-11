@@ -44,6 +44,11 @@ Settings::apply()
     data.url               = qml("url")->property("text").toString();
     data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
 
+    data.shortcutCreateIssue = qml("shortcutCreateIssue")->property("text").toString();
+    data.shortcutSelectIssue = qml("shortcutSelectIssue")->property("text").toString();
+    data.shortcutStartStop   = qml("shortcutStartStop")->property("text").toString();
+    data.shortcutToggle      = qml("shortcutToggle")->property("text").toString();
+
     if( oldUrl == data.url )
     {
         int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
@@ -100,6 +105,11 @@ Settings::display()
     qml("url")->setProperty( "text", data.url );
     qml("useSystemTrayIcon")->setProperty( "checked", data.useSystemTrayIcon );
 
+    qml("shortcutCreateIssue")->setProperty( "text", data.shortcutCreateIssue );
+    qml("shortcutSelectIssue")->setProperty( "text", data.shortcutSelectIssue );
+    qml("shortcutStartStop")->setProperty(   "text", data.shortcutStartStop );
+    qml("shortcutToggle")->setProperty(      "text", data.shortcutToggle );
+
     updateIssueStatuses();
 
     if( !isVisible() )
@@ -132,6 +142,16 @@ Settings::load()
 
     if( !settings_.value("numRecentIssues").isNull() )
         data.numRecentIssues = settings_.value("numRecentIssues").toInt();
+
+    // Shortcuts
+    if( !settings_.value("shortcutCreateIssue").isNull() )
+        data.shortcutCreateIssue = settings_.value("shortcutCreateIssue").toString();
+    if( !settings_.value("shortcutSelectIssue").isNull() )
+        data.shortcutSelectIssue = settings_.value("shortcutSelectIssue").toString();
+    if( !settings_.value("shortcutStartStop").isNull() )
+        data.shortcutStartStop = settings_.value("shortcutStartStop").toString();
+    if( !settings_.value("shortcutToggle").isNull() )
+        data.shortcutToggle = settings_.value("shortcutToggle").toString();
 
     // Other GUIs
     data.activityId  = settings_.value("activity").toInt();
@@ -177,6 +197,11 @@ Settings::save()
     settings_.setValue( "url",               data.url );
     settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
     settings_.setValue( "workedOnId",        data.workedOnId );
+
+    settings_.setValue("shortcutCreateIssue", data.shortcutCreateIssue );
+    settings_.setValue("shortcutSelectIssue", data.shortcutSelectIssue );
+    settings_.setValue("shortcutStartStop",   data.shortcutStartStop );
+    settings_.setValue("shortcutToggle",      data.shortcutToggle );
 
     // From other GUIs
     settings_.setValue( "activity", data.activityId );

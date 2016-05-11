@@ -7,6 +7,8 @@
 
 #include "qtredmine/SimpleRedmineClient.h"
 
+#include "qxtglobalshortcut.h"
+
 #include <QApplication>
 #include <QEvent>
 #include <QList>
@@ -39,6 +41,12 @@ private:
 
     /// Main application
     QApplication* app_ = nullptr;
+
+    /// Shortcuts
+    QxtGlobalShortcut* shortcutCreateIssue_;
+    QxtGlobalShortcut* shortcutSelectIssue_;
+    QxtGlobalShortcut* shortcutStartStop_;
+    QxtGlobalShortcut* shortcutToggle_;
 
     /// Show the system tray icon
     bool useSystemTrayIcon_;

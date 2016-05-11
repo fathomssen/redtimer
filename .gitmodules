@@ -4,3 +4,6 @@
 [submodule "open-iconic"]
 	path = open-iconic
 	url = https://github.com/iconic/open-iconic.git
+[submodule "qxtglobalshortcut5"]
+	path = qxtglobalshortcut5
+	url = https://github.com/ddqd/qxtglobalshortcut5.git

@@ -59,6 +59,16 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     checkConnectionTimer_->setTimerType( Qt::VeryCoarseTimer );
     checkConnectionTimer_->setInterval( 5000 );
 
+    // Shortcuts
+    shortcutCreateIssue_ = new QxtGlobalShortcut( this );
+    connect( shortcutCreateIssue_, &QxtGlobalShortcut::activated, this, &RedTimer::createIssue );
+    shortcutSelectIssue_ = new QxtGlobalShortcut( this );
+    connect( shortcutSelectIssue_, &QxtGlobalShortcut::activated, this, &RedTimer::selectIssue );
+    shortcutStartStop_ = new QxtGlobalShortcut( this );
+    connect( shortcutStartStop_, &QxtGlobalShortcut::activated, this, &RedTimer::startStop );
+    shortcutToggle_ = new QxtGlobalShortcut( this );
+    connect( shortcutToggle_, &QxtGlobalShortcut::activated, this, &RedTimer::toggle );
+
     // Initially connect and update the GUI
     reconnect();
 
@@ -252,6 +262,7 @@ RedTimer::display()
 
     showNormal();
     requestActivate();
+    raise();
 
     RETURN();
 }
@@ -658,6 +669,11 @@ RedTimer::refreshGui()
     else
         checkConnectionTimer_->stop();
 
+    shortcutCreateIssue_->setShortcut( QKeySequence(settings_->data.shortcutCreateIssue) );
+    shortcutSelectIssue_->setShortcut( QKeySequence(settings_->data.shortcutSelectIssue) );
+    shortcutStartStop_->setShortcut( QKeySequence(settings_->data.shortcutStartStop) );
+    shortcutToggle_->setShortcut(  QKeySequence(settings_->data.shortcutToggle) );
+
     initTrayIcon();
 
     loadLatestActivity();
@@ -698,7 +714,6 @@ RedTimer::selectIssue()
     connect( issueSelector, &IssueSelector::selected, [=](int issueId)
     {
         settings_->data.projectId = issueSelector->getProjectId();
-        issueSelector->close();
         loadIssue( issueId );
     } );
 }

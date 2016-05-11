@@ -40,6 +40,12 @@ public:
         /// Maximum number of recently opened issues
         int numRecentIssues = 10;
 
+        /// Shortcuts
+        QString shortcutCreateIssue = "Ctrl+Alt+C";
+        QString shortcutSelectIssue = "Ctrl+Alt+L";
+        QString shortcutStartStop   = "Ctrl+Alt+S";
+        QString shortcutToggle      = "Ctrl+Alt+R";
+
         /// Redmine base URL
         QString url;
 

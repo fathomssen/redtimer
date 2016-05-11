@@ -20,17 +20,17 @@ Window::Window( QString qml, QQuickView* parent )
 }
 
 bool
-Window::event( QEvent* e )
+Window::event( QEvent* event )
 {
     // Show warning on close and if timer is running
-    if( emitClosedSignal_ && e->type() == QEvent::Close )
+    if( emitClosedSignal_ && event->type() == QEvent::Close )
     {
-        DEBUG()(e->type());
+        DEBUG("Received close signal")(this)(event->type());
         emitClosedSignal_ = false;
         closed();
     }
 
-    return QQuickView::event( e );
+    return QQuickView::event( event );
 }
 
 

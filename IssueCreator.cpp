@@ -77,7 +77,8 @@ IssueCreator::close()
         if( cancelOnClose_ )
             cancelled();
 
-        Window::close();
+        hide();
+        deleteLater();
     }
 
     RETURN();
