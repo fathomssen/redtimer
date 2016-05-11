@@ -1,6 +1,7 @@
 TEMPLATE = app
 
 QT += gui qml quick svg widgets
+QT += gui-private # Required for global shortcuts on some Linux distributions
 QMAKE_CXXFLAGS += -std=c++11
 
 RC_ICONS = icons/clock_red.ico
