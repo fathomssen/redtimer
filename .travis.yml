@@ -19,7 +19,7 @@ matrix:
         - distver: "14.04"
         - init: /sbin/init
         - qtenv: /opt/qt55/bin/qt55-env.sh
-        - qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
+        - qtpkg: "'qt55base qt55quickcontrols qt55svg qt55x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt551-trusty
     ### Ubuntu 14.04 x86_64, Qt 5.6 - DEPLOY
     - os: linux
@@ -30,7 +30,7 @@ matrix:
         - distver: "14.04"
         - init: /sbin/init
         - qtenv: /opt/qt56/bin/qt56-env.sh
-        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
+        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt56-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
@@ -44,7 +44,7 @@ matrix:
         - arch: i386
         - init: /sbin/init
         - qtenv: /opt/qt55/bin/qt55-env.sh
-        - qtpkg: "'qt55base qt55quickcontrols qt55svg mesa-common-dev libgl1-mesa-dev'"
+        - qtpkg: "'qt55base qt55quickcontrols qt55svg qt55x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt551-trusty
     ### Ubuntu 14.04 i386, Qt 5.6 - DEPLOY
     - os: linux
@@ -56,7 +56,7 @@ matrix:
         - arch: i386
         - init: /sbin/init
         - qtenv: /opt/qt56/bin/qt56-env.sh
-        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
+        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt56-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
@@ -71,7 +71,7 @@ matrix:
         - dist: ubuntu
         - distver: "15.10"
         - init: /sbin/init
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
+        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
         - qmakeopt: "-qt5"
         - qtppa: ppa:canonical-qt5-edgers/backup-qt551
         - deploy: true
@@ -85,7 +85,7 @@ matrix:
         - distver: "15.10"
         - arch: i386
         - init: /sbin/init
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
+        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
         - qmakeopt: "-qt5"
         - qtppa: ppa:canonical-qt5-edgers/backup-qt551
         - deploy: true
@@ -101,7 +101,7 @@ matrix:
         - dist: ubuntu
         - distver: "16.04"
         - init: /sbin/init
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
+        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev'"
         - qmakeopt: "-qt5"
         - deploy: true
         - deployscript: build/deploy.ubuntu.sh
@@ -114,7 +114,7 @@ matrix:
         - distver: "16.04"
         - arch: i386
         - init: /sbin/init
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
+        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev'"
         - qmakeopt: "-qt5"
         - deploy: true
         - deployscript: build/deploy.ubuntu.sh
