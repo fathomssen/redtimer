@@ -148,7 +148,7 @@ before_install:
   - export hasQtPkg=$( [[ isUbuntu && -n "${qtpkg}" ]] && echo true || echo false )
   ### Linux
   - run $isLinux docker pull ${dist}:${distver}
-  - run $isLinux export CONTAINER=$(docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
+  - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - run $isLinux export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
   ### Ubuntu
   - run $isUbuntu $DOCKER apt-get update
@@ -215,7 +215,7 @@ before_deploy:
   - run $isUbuntu echo "${deployscript} > .deployfile" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
-  - run $isUbuntu export DEPLOYFILE=$(cat .deployfile | tr -d '\r\n')
+  - run $isUbuntu export DEPLOYFILE=$(run $isUbuntu cat .deployfile | tr -d '\r\n')
   # OS X
   - run $isOsX cp -a qtredmine/libqtredmine*.dylib /usr/lib
   - run $isOsX macdeployqt RedTimer.app -dmg
