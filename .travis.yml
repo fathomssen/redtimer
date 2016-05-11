@@ -201,7 +201,7 @@ script:
   - echo "make" >> build.sh
   - echo "cd .." >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
-  - run $isOsX echo "sed -i 's#-lqtredmine#qtredmine/libqtredmine.a#'" >> build.sh
+  - run $isOsX echo "sed -i 's#-lqtredmine#qtredmine/libqtredmine.a#' Makefile" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh
