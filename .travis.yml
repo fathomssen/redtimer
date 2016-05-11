@@ -32,6 +32,7 @@ matrix:
 #        - qtenv: /opt/qt56/bin/qt56-env.sh
 #        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
 #        - qtppa: ppa:beineri/opt-qt56-trusty
+#        - deploy: true
 #        - deployscript: "'build/deploy.ubuntu.sh -qt'"
 #    ### Ubuntu 14.04 i386, Qt 5.5 - DO NOT DEPLOY
 #    - os: linux
@@ -57,6 +58,7 @@ matrix:
 #        - qtenv: /opt/qt56/bin/qt56-env.sh
 #        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg mesa-common-dev libgl1-mesa-dev'"
 #        - qtppa: ppa:beineri/opt-qt56-trusty
+#        - deploy: true
 #        - deployscript: "'build/deploy.ubuntu.sh -qt'"
 #    ###
 #    ### Ubuntu 15.10
@@ -72,6 +74,7 @@ matrix:
 #        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
 #        - qmakeopt: "-qt5"
 #        - qtppa: ppa:canonical-qt5-edgers/backup-qt551
+#        - deploy: true
 #        - deployscript: "'build/deploy.ubuntu.sh -qt'"
 #    ### Ubuntu 15.10 i386, Qt 5.5 - DEPLOY
 #    - os: linux
@@ -85,6 +88,7 @@ matrix:
 #        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
 #        - qmakeopt: "-qt5"
 #        - qtppa: ppa:canonical-qt5-edgers/backup-qt551
+#        - deploy: true
 #        - deployscript: "'build/deploy.ubuntu.sh -qt'"
 #    ###
 #    ### Ubuntu 16.04
@@ -99,6 +103,7 @@ matrix:
 #        - init: /sbin/init
 #        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
 #        - qmakeopt: "-qt5"
+#        - deploy: true
 #        - deployscript: build/deploy.ubuntu.sh
 #    ### Ubuntu 16.04 i386, Qt 5.5 - DEPLOY
 #    - os: linux
@@ -111,6 +116,7 @@ matrix:
 #        - init: /sbin/init
 #        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev'"
 #        - qmakeopt: "-qt5"
+#        - deploy: true
 #        - deployscript: build/deploy.ubuntu.sh
 #    ####################### OS X #######################
     ###
@@ -118,6 +124,8 @@ matrix:
     ###
     - os: osx
       osx_image: xcode7.3
+      env:
+        - deploy: true
 
 services:
   - docker
@@ -201,7 +209,6 @@ before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
   ### The following commands have to define a $DEPLOYFILE
   # Ubuntu
-  - run $isUbuntu test "${deployscript}"
   - run $isUbuntu echo "#!/bin/bash" >> deploy.sh
   - run $isUbuntu echo "set -ex" >> deploy.sh
   - run $isUbuntu echo "cd /build" >> deploy.sh
@@ -222,5 +229,5 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: -n "${deployscript}"
+    condition: "${deploy}" = "true"
     tags: true
