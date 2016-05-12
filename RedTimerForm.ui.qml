@@ -37,7 +37,7 @@ Item {
             anchors.leftMargin: 0
             anchors.left: parent.left
             tooltip: "Create new issue"
-            iconSource: "qrc:///open-iconic/svg/plus.svg"
+            iconSource: "open-iconic/svg/plus.svg"
         }
 
         ToolButton {
@@ -49,7 +49,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: settings.left
             tooltip: "Reload"
-            iconSource: "qrc:///open-iconic/svg/reload.svg"
+            iconSource: "open-iconic/svg/reload.svg"
         }
 
         ToolButton {
@@ -61,14 +61,12 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             tooltip: "Open Settings"
-            iconSource: "qrc:///open-iconic/svg/cog.svg"
+            iconSource: "open-iconic/svg/cog.svg"
         }
     }
 
-
-    GridLayout {
-        id: gridLayout1
-        flow: GridLayout.TopToBottom
+    ColumnLayout {
+        id: columnLayout1
         anchors.rightMargin: 5
         anchors.leftMargin: 5
         anchors.bottomMargin: 5
@@ -78,124 +76,76 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
 
-        Item {
-            id: item1
+        RowLayout {
+            id: rowLayout1
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.minimumHeight: 100
 
-            GroupBox {
-                id: groupBox1
-                anchors.fill: parent
-                title: qsTr("Issue")
+            ComboBox {
+                id: quickPick
+                objectName: "quickPick"
+                Layout.fillWidth: true
+                editable: true
+                model: recentIssuesModel
+                textRole: "text"
+            }
 
-
-                ColumnLayout {
-                    id: columnLayout2
-                    anchors.fill: parent
-
-                    RowLayout {
-                        id: rowLayout1
-                        Layout.fillWidth: true
-
-                        ComboBox {
-                            id: quickPick
-                            objectName: "quickPick"
-                            Layout.fillWidth: true
-                            editable: true
-                            model: recentIssuesModel
-                            textRole: "text"
-                        }
-
-                        ToolButton {
-                            id: selectIssue
-                            objectName: "selectIssue"
-                            width: 24
-                            height: 24
-                            iconSource: "qrc:///open-iconic/svg/list.svg"
-                            tooltip: "Select issue from list"
-                        }
-                    }
-
-
-                    TextArea {
-                        id: issueData
-                        Layout.fillHeight: true
-                        Layout.alignment: Qt.AlignLeft | Qt.AlignTop
-                        Layout.fillWidth: true
-                        objectName: "issueData"
-                        readOnly: true
-                    }
-
-
-                }
+            ToolButton {
+                id: selectIssue
+                objectName: "selectIssue"
+                width: 24
+                height: 24
+                iconSource: "open-iconic/svg/list.svg"
+                tooltip: "Select issue from list"
             }
         }
 
-        Item {
-            id: item2
-            height: 100
+        TextArea {
+            id: issueData
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
-            Layout.minimumHeight: 100
+            objectName: "issueData"
+            readOnly: true
+        }
 
-            GroupBox {
-                id: groupBox2
-                anchors.fill: parent
-                title: qsTr("Tracking")
+        RowLayout {
+            id: rowLayout2
+            Layout.fillWidth: true
 
-                ColumnLayout {
-                    id: columnLayout3
-                    anchors.fill: parent
-
-                    RowLayout {
-                        id: rowLayout2
-                        Layout.fillWidth: true
-
-                        ToolButton {
-                            id: startStop
-                            objectName: "startStop"
-                            width: 24
-                            height: 24
-                            isDefault: true
-                            iconSource: "qrc:///open-iconic/svg/media-play.svg"
-                            tooltip: "Start time tracking"
-                        }
-
-                        TextField {
-                            id: counter
-                            objectName: "counter"
-                            text: "00:00:00"
-                            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                        }
-                    }
-
-                    ComboBox {
-                        id: activity
-                        Layout.fillWidth: true
-                        objectName: "activity"
-                        model: activityModel
-                        textRole: "name"
-                    }
-
-
-
-                    ComboBox {
-                        id: issueStatus
-                        Layout.fillWidth: true
-                        objectName: "issueStatus"
-                        model: issueStatusModel
-                        textRole: "name"
-                    }
-
-
-
-
-                }
+            ToolButton {
+                id: startStop
+                objectName: "startStop"
+                width: 24
+                height: 24
+                isDefault: true
+                iconSource: "open-iconic/svg/media-play.svg"
+                tooltip: "Start time tracking"
             }
+
+            TextField {
+                id: counter
+                objectName: "counter"
+                text: "00:00:00"
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+        }
+
+        ComboBox {
+            id: activity
+            Layout.fillWidth: true
+            objectName: "activity"
+            model: activityModel
+            textRole: "name"
+        }
+
+        ComboBox {
+            id: issueStatus
+            Layout.fillWidth: true
+            objectName: "issueStatus"
+            model: issueStatusModel
+            textRole: "name"
         }
     }
-
-
-
 }
 
