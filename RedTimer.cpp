@@ -3,6 +3,7 @@
 #include "RedTimer.h"
 #include "logging.h"
 
+#include <QEventLoop>
 #include <QMessageBox>
 #include <QMenu>
 #include <QNetworkInterface>
@@ -314,9 +315,21 @@ RedTimer::exit()
         case QMessageBox::Save:
         {
             DEBUG() << "Saving time entry before closing the application";
-            connect( this, &RedTimer::timeEntrySaved, [=](){ app_->quit(); } );
+
+            // Only go on with closing the window if saving was successful
+            // If saving was successful before the blocker has been started, do not start it at all
+            QEventLoop* blocker = new QEventLoop();
+            bool startBlocker = true;
+            connect( this, &RedTimer::timeEntrySaved, [&]()
+            {
+                startBlocker = false;
+                blocker->exit();
+            } );
+
             stop();
-            return;
+
+            if( startBlocker )
+                blocker->exec();
         }
 
         default:
