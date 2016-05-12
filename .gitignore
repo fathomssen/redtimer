@@ -75,3 +75,4 @@ html
 /*.ini
 /redtimer_plugin_import.cpp
 /redtimer_qml_plugin_import.cpp
+/Release/*.ini

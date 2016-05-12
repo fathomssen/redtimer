@@ -279,11 +279,8 @@ IssueCreator::selectParentIssue()
     issueSelector->display();
 
     // Connect the issue selected signal to the setIssue slot
-    connect( issueSelector, &IssueSelector::selected, [=](int issueId)
-    {
-        qml("parentIssue")->setProperty( "text", issueId );
-        issueSelector->close();
-    } );
+    connect( issueSelector, &IssueSelector::selected,
+             [=](int issueId){ qml("parentIssue")->setProperty( "text", issueId ); } );
 }
 
 void
