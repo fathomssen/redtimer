@@ -195,9 +195,6 @@ install:
   - run $isOsX brew install qt5
   - run $isOsX brew linkapps qt5
   - run $isOsX brew link --force qt5
-  ### Install clang on old OS X
-  #- run $isOldOsX brew install llvm --with-clang
-  #- run $isOldOsX brew linkapps llvm
 
 script:
   - export USER_ID=$(id -u)
