@@ -33,7 +33,7 @@ You first have to install current Qt 5 packages in Ubuntu:
 
 ```
 sudo add-apt-repository ppa:beineri/opt-qt56-trusty
-sudo apt-get install qt56base qt56quickcontrols qt56quickcontrols2 qt56svg
+sudo apt-get install qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev
 source /opt/qt56/bin/qt56-env.sh
 ```
 
@@ -44,7 +44,7 @@ Then, you can follow the build instructions from the [main README](README.md).
 You first have to install some Qt 5 development packages in Ubuntu:
 
 ```
-sudo apt-get install build-essential qtbase5-dev qtdeclarative5-dev
+sudo apt-get install build-essential qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev
 
 ```
 

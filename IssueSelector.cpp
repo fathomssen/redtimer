@@ -76,7 +76,7 @@ IssueSelector::issueSelected( int index )
     ENTER();
 
     QModelIndex proxyIndex = issuesProxyModel_.index( index, 0 );
-    int issueId = issuesProxyModel_.data( proxyIndex, SimpleModel::IdRole ).toInt();
+    int issueId = proxyIndex.data(SimpleModel::IdRole).toInt();
     DEBUG()(index)(proxyIndex)(issueId);
 
     selected( issueId );

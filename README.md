@@ -9,11 +9,7 @@ on an issue.
 Usage
 -----
 
-Usually, you can start the RedTimer executable from your file manager. After closing, RedTimer will create a
-settings file called `RedTimer.ini` in your current working directory.
-
-If you experience problems with the system tray icon, e.g. on Linux, you can deactivate the system tray icon
-by calling `RedTimer --no-tray-icon`.
+You can start the RedTimer executable from your file manager.
 
 Installation instructions
 -------------------------

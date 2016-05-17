@@ -40,7 +40,7 @@ public:
         : SimpleItem( item.id, item.name )
     {}
 
-    /// @name
+    /// @name Getter
     /// @{
 
     /**
@@ -58,6 +58,19 @@ public:
     QString name() const;
 
     /// @}
+
+    /// @name Setter
+    /// @{
+
+    /**
+     * @brief Set the name
+     *
+     * @param name New name
+     */
+    void setName( QString name );
+
+    /// @}
+
 };
 
 /**
@@ -240,6 +253,16 @@ public:
     QList<SimpleItem> data() const;
 
     /**
+     * @brief Get the simple item at the specified index from the model
+     *
+     * @param index Index to fetch
+     * @param role Role to fetch
+     *
+     * @return The simple item at the specified index
+     */
+    QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
+
+    /**
      * @brief Get the row count
      *
      * @param parent Parent model index
@@ -265,19 +288,31 @@ public:
      */
     void push_back( const SimpleItem& item );
 
+    /**
+     * @brief Remove rows from the model
+     *
+     * @param begin First row to remove
+     * @param count Number of rows to remove
+     * @param parent Parent model index
+     *
+     * @return True if rows have successfully been removed, false otherwise
+     */
+    bool removeRows( int begin, int count, const QModelIndex& parent = QModelIndex() );
+
+    /**
+     * @brief Change model data
+     *
+     * @param index Index model to change
+     * @param value New value
+     * @param role Role to change
+     *
+     * @return true if data were successfully changed, false otherwise
+     */
+    bool setData( const QModelIndex& index, const QVariant& value, int role = NameRole );
+
     /// @}
 
 protected:
-    /**
-     * @brief Get the simple item at the specified index from the model
-     *
-     * @param index Index to fetch
-     * @param role Role to fetch
-     *
-     * @return The simple item at the specified index
-     */
-    QVariant data( const QModelIndex& index, int role = Qt::DisplayRole ) const;
-
     /**
      * @brief Get a list of all role names in the model
      *

@@ -20,5 +20,8 @@
         <file>IssueCreatorForm.ui.qml</file>
         <file>icons/clock_red_play.svg</file>
         <file>icons/clock_red_stop.svg</file>
+        <file>open-iconic/svg/minus.svg</file>
+        <file>open-iconic/svg/trash.svg</file>
+        <file>open-iconic/svg/pencil.svg</file>
     </qresource>
 </RCC>

@@ -48,9 +48,6 @@ private:
     QxtGlobalShortcut* shortcutStartStop_;
     QxtGlobalShortcut* shortcutToggle_;
 
-    /// Show the system tray icon
-    bool useSystemTrayIcon_;
-
     /// System tray icon
     QSystemTrayIcon* trayIcon_ = nullptr;
 
@@ -111,9 +108,8 @@ public:
      * @brief RedTimer constructor
      *
      * @param parent Parent QObject
-     * @param trayIcon Show tray icon
      */
-    explicit RedTimer( QApplication* parent = nullptr, bool trayIcon = true );
+    explicit RedTimer( QApplication* parent = nullptr );
 
     /**
      * @brief Initialise the tray icon
