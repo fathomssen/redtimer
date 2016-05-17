@@ -12,7 +12,6 @@ int main(int argc, char* argv[])
 {
     QApplication app( argc, argv );
     QApplication::setApplicationName( "RedTimer" );
-    QApplication::setApplicationVersion( "0.0.5" );
 
     // Command line options
     QCommandLineParser parser;
@@ -20,17 +19,12 @@ int main(int argc, char* argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
-    // Disable tray icon
-    QCommandLineOption noTrayOption( QStringList() << "no-tray-icon",
-                                     QApplication::translate("main", "Do not provide a tray icon.") );
-    parser.addOption( noTrayOption );
-
     // Process command line options
     parser.process( app );
 
     app.setWindowIcon( QIcon(":/icons/clock_red.svg") );
 
-    new RedTimer( &app, !parser.isSet(noTrayOption) );
+    new RedTimer( &app );
 
     return app.exec();
 }

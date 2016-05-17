@@ -14,10 +14,9 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-RedTimer::RedTimer( QApplication* parent, bool trayIcon )
+RedTimer::RedTimer( QApplication* parent )
     : Window( "qrc:/RedTimer.qml" ),
-      app_( parent ),
-      useSystemTrayIcon_( trayIcon )
+      app_( parent )
 {
     ENTER();
 
@@ -27,6 +26,9 @@ RedTimer::RedTimer( QApplication* parent, bool trayIcon )
     // Settings initialisation
     settings_ = new Settings( redmine_ );
     settings_->load();
+
+    if( settings_->data.apiKey.isEmpty() || settings_->data.url.isEmpty() )
+        settings_->display();
 
     // Main window initialisation
     installEventFilter( this );
@@ -365,7 +367,7 @@ RedTimer::initTrayIcon()
     ENTER();
 
     // Create tray icon if desired and not yet available
-    if( !trayIcon_ && useSystemTrayIcon_ && settings_->data.useSystemTrayIcon
+    if( !trayIcon_ && settings_->data.useSystemTrayIcon
             && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( this );
@@ -384,7 +386,7 @@ RedTimer::initTrayIcon()
     }
 
     // Hide tray icon if desired and currently shown
-    if( trayIcon_ && (!useSystemTrayIcon_ || !settings_->data.useSystemTrayIcon) )
+    if( trayIcon_ && !settings_->data.useSystemTrayIcon )
     {
         trayIcon_->hide();
         delete trayIcon_;

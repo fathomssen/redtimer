@@ -22,6 +22,14 @@ SimpleItem::name() const
     return name_;
 }
 
+void
+SimpleItem::setName( QString name )
+{
+    ENTER();
+    name_ = name;
+    RETURN();
+}
+
 IssueModel::IssueModel( QObject* parent )
     : QAbstractListModel( parent )
 {}
@@ -269,6 +277,23 @@ SimpleModel::data() const
     RETURN( items_ );
 }
 
+bool
+SimpleModel::removeRows( int begin, int count, const QModelIndex& parent )
+{
+    int end = begin + count - 1;
+
+    ENTER()(begin)(count)(end);
+
+    if( end >= rowCount() )
+        RETURN( false );
+
+    beginRemoveRows( parent, begin, end );
+    for( int i = begin; i <= end; ++i )
+        items_.removeAt( i );
+    endRemoveRows();
+
+    RETURN( true );
+}
 
 QHash<int, QByteArray>
 SimpleModel::roleNames() const
@@ -281,4 +306,21 @@ SimpleModel::roleNames() const
     roles[TextRole] = "text";
 
     RETURN( roles );
+}
+
+bool
+SimpleModel::setData( const QModelIndex& index, const QVariant& value, int role )
+{
+    ENTER()(index)(value)(role);
+
+    if( index.row() < 0 || index.row() >= items_.count() )
+        RETURN( false );
+
+    if( role != NameRole )
+        RETURN( false );
+
+    items_[index.row()].setName( value.toString() );
+    dataChanged( index, index );
+
+    RETURN( true );
 }

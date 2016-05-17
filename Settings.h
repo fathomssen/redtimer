@@ -11,6 +11,7 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QSettings>
+#include <QSortFilterProxyModel>
 
 namespace redtimer {
 
@@ -22,7 +23,7 @@ class Settings : public Window
     Q_OBJECT
 
 public:
-    /// Settings data structure
+    /// Settings data structure for the currently loaded profile
     struct Data
     {
         /// @name GUI settings
@@ -32,28 +33,28 @@ public:
         QString apiKey;
 
         /// Manually check the network connection
-        bool checkConnection = false;
+        bool checkConnection;
 
         /// Ignore SSL errors
-        bool ignoreSslErrors = false;
+        bool ignoreSslErrors;
 
         /// Maximum number of recently opened issues
-        int numRecentIssues = 10;
+        int numRecentIssues;
 
         /// Shortcuts
-        QString shortcutCreateIssue = "Ctrl+Alt+C";
-        QString shortcutSelectIssue = "Ctrl+Alt+L";
-        QString shortcutStartStop   = "Ctrl+Alt+S";
-        QString shortcutToggle      = "Ctrl+Alt+R";
+        QString shortcutCreateIssue;
+        QString shortcutSelectIssue;
+        QString shortcutStartStop;
+        QString shortcutToggle;
 
         /// Redmine base URL
         QString url;
 
         /// Use system tray icon
-        bool useSystemTrayIcon = true;
+        bool useSystemTrayIcon;
 
         /// Issue status to switch after tracking time
-        int workedOnId = NULL_ID;
+        int workedOnId;
 
         /// @}
 
@@ -61,16 +62,16 @@ public:
         /// @{
 
         /// Last used activity
-        int activityId = NULL_ID;
+        int activityId;
 
         /// Last opened issue
-        int issueId = NULL_ID;
+        int issueId;
 
         /// Last window position
         QPoint position;
 
         /// Last opened project
-        int projectId = NULL_ID;
+        int projectId;
 
         /// Recently opened issues
         qtredmine::Issues recentIssues;
@@ -91,6 +92,31 @@ private:
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
 
+    /// GUI profiles
+    SimpleModel profilesModel_;
+    QSortFilterProxyModel profilesProxyModel_;
+
+    /// Current profile ID
+    int profileId_;
+
+    /// Current profile hash
+    QString profileHash_;
+
+    /// List of initially loaded profiles
+    QSet<int> loadedProfiles_;
+
+private:
+    /**
+     * @brief Display a message box to get a profile name
+     *
+     * @param[out] name Profile name
+     * @param[in]  title Title
+     * @param[in]  initText Initial text
+     *
+     * @return true if valid profile name was specified, false otherwise
+     */
+    bool getProfileName( QString& name, QString title, QString initText );
+
 public:
     /**
      * @brief Constructor for a Settings object
@@ -106,6 +132,11 @@ public:
     void load();
 
     /**
+     * @brief Load profile-dependent settings from settings file
+     */
+    void loadProfileData();
+
+    /**
      * @brief Save settings to settings file
      */
     void save();
@@ -117,14 +148,45 @@ public slots:
     void apply();
 
     /**
-     * @brief Close the settings dialog
+     * @brief Store the settings and close
      */
-    void close();
+    void applyAndClose();
+
+    /**
+     * @brief Create a new profile
+     *
+     * @return true if profile was created successfully, false otherwise
+     */
+    bool createProfile();
+
+    /**
+     * @brief Cancel and close
+     */
+    void cancel();
+
+    /**
+     * @brief Delete the currently selected profile
+     */
+    void deleteProfile();
 
     /**
      * @brief Display the settings dialog
+     *
+     * @param loadData Load data from settings file before displaying
      */
-    void display();
+    void display( bool loadData = true );
+
+    /**
+     * @brief A profile has been selected
+     *
+     * @param profileIndex Selected profile index
+     */
+    void profileSelected( int profileIndex );
+
+    /**
+     * @brief Rename the currently selected profile
+     */
+    void renameProfile();
 
     /**
      * @brief Update issue statuses
