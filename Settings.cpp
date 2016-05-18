@@ -110,7 +110,7 @@ Settings::applyAndClose()
     ENTER();
 
     apply();
-    hide();
+    close();
 
     RETURN();
 }
@@ -121,7 +121,7 @@ Settings::cancel()
     ENTER();
 
     applied();
-    hide();
+    close();
 
     RETURN();
 }
