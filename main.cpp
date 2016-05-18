@@ -11,7 +11,8 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     QApplication app( argc, argv );
-    QApplication::setApplicationName( "RedTimer" );
+    app.setApplicationName( "RedTimer" );
+    app.setQuitOnLastWindowClosed( false );
 
     // Command line options
     QCommandLineParser parser;

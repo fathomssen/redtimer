@@ -81,8 +81,7 @@ IssueSelector::issueSelected( int index )
 
     selected( issueId );
 
-    hide();
-    deleteLater();
+    close();
 
     RETURN();
 }
