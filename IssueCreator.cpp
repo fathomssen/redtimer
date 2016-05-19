@@ -77,7 +77,7 @@ IssueCreator::close()
         if( cancelOnClose_ )
             cancelled();
 
-        close();
+        Window::close();
     }
 
     RETURN();
