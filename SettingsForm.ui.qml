@@ -1,6 +1,6 @@
 import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.2
+import QtQuick.Controls 1.5
+import QtQuick.Layouts 1.3
 
 ColumnLayout {
     id: columnLayout1
@@ -47,7 +47,7 @@ ColumnLayout {
     TabView {
         id: tabView1
         currentIndex: 0
-        Layout.fillHeight: true
+        Layout.minimumHeight: 200
         Layout.fillWidth: true
         frameVisible: false
 
@@ -112,6 +112,13 @@ ColumnLayout {
                 }
 
                 CheckBox {
+                    id: useCustomFields
+                    objectName: "useCustomFields"
+                    text: qsTr("Use custom fields (requires 'redmine_shared_api' plugin)")
+                    Layout.columnSpan: 2
+                }
+
+                CheckBox {
                     id: ignoreSslErrors
                     objectName: "ignoreSslErrors"
                     text: qsTr("Ignore SSL errors")
@@ -124,6 +131,7 @@ ColumnLayout {
                     text: qsTr("Check network connection every 5s")
                     Layout.columnSpan: 2
                 }
+
             }
         }
 

@@ -93,5 +93,9 @@ QQuickItem*
 Window::qml( QString qmlItem )
 {
     ENTER()(qmlItem);
-    RETURN( item_->findChild<QQuickItem*>(qmlItem) );
+
+    if( qmlItem.isEmpty() )
+        RETURN( item_ );
+    else
+        RETURN( item_->findChild<QQuickItem*>(qmlItem) );
 }

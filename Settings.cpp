@@ -20,7 +20,6 @@ Settings::Settings( SimpleRedmineClient* redmine, QQuickView* parent )
     ENTER();
 
     // Settings window initialisation
-    setResizeMode( QQuickView::SizeRootObjectToView );
     setModality( Qt::ApplicationModal );
     setFlags( Qt::Dialog );
     setTitle( "Settings" );
@@ -69,6 +68,7 @@ Settings::apply()
     data.ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
     data.numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
     data.url               = qml("url")->property("text").toString();
+    data.useCustomFields   = qml("useCustomFields")->property("checked").toBool();
     data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
 
     data.shortcutCreateIssue = qml("shortcutCreateIssue")->property("text").toString();
@@ -94,6 +94,7 @@ Settings::apply()
     }
 
     DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
+                                (data.useCustomFields)
                                 (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
 
     save();
@@ -208,6 +209,7 @@ Settings::display( bool loadData )
     qml("ignoreSslErrors")->setProperty( "checked", data.ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", data.numRecentIssues );
     qml("url")->setProperty( "text", data.url );
+    qml("useCustomFields")->setProperty( "checked", data.useCustomFields );
     qml("useSystemTrayIcon")->setProperty( "checked", data.useSystemTrayIcon );
 
     qml("shortcutCreateIssue")->setProperty( "text", data.shortcutCreateIssue );
@@ -300,7 +302,7 @@ Settings::load()
 
     DEBUG("Loaded settings from file:")
             (data.apiKey)(data.checkConnection)(data.ignoreSslErrors)(data.numRecentIssues)(data.url)
-            (data.useSystemTrayIcon)(data.workedOnId)
+            (data.useCustomFields)(data.useSystemTrayIcon)(data.workedOnId)
             (data.activityId)(data.issueId)(data.position)(data.projectId)(data.recentIssues);
 
     applied();
@@ -324,6 +326,10 @@ Settings::loadProfileData()
         data.url = settings_.value("url").toString();
         data.checkConnection = settings_.value("checkConnection").toBool();
         data.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
+
+        data.useCustomFields = settings_.value("useCustomFields").isValid()
+                                 ? settings_.value("useCustomFields").toBool()
+                                 : true;
 
         data.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
                                  ? settings_.value("useSystemTrayIcon").toBool()
@@ -456,6 +462,7 @@ Settings::save()
         settings_.setValue( "ignoreSslErrors",   data.ignoreSslErrors );
         settings_.setValue( "numRecentIssues",   data.numRecentIssues );
         settings_.setValue( "url",               data.url );
+        settings_.setValue( "useCustomFields",   data.useCustomFields );
         settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
         settings_.setValue( "workedOnId",        data.workedOnId );
 

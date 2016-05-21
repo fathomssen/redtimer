@@ -37,11 +37,13 @@ public:
     /**
      * @brief Get a QML GUI item
      *
+     * Fetches the root item if \c qmlItem is empty.
+     *
      * @param qmlItem Name of the QML GUI item
      *
      * @return QML GUI item
      */
-    QQuickItem* qml( QString qmlItem );
+    QQuickItem* qml( QString qmlItem = "" );
 
 protected:
     /**

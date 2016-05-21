@@ -32,7 +32,6 @@ RedTimer::RedTimer( QApplication* parent )
 
     // Main window initialisation
     installEventFilter( this );
-    setResizeMode( QQuickView::SizeRootObjectToView );
     setModality( Qt::ApplicationModal );
     setTitle( "RedTimer" );
 
@@ -237,6 +236,8 @@ RedTimer::createIssue()
     IssueCreator* issueCreator = new IssueCreator( redmine_ );
     issueCreator->setTransientParent( this );
     issueCreator->setParentIssueId( issue_.id );
+    issueCreator->setProjectId( settings_->data.projectId );
+    issueCreator->setUseCustomFields( settings_->data.useCustomFields );
     issueCreator->display();
 
     // Empty the issue information and set ID to NULL_ID
@@ -253,7 +254,11 @@ RedTimer::createIssue()
     } );
 
     // Connect the issue selected signal to the setIssue slot
-    connect( issueCreator, &IssueCreator::created, [=](int issueId){ loadIssue(issueId, true, true); } );
+    connect( issueCreator, &IssueCreator::created, [=]( int issueId )
+    {
+        loadIssue( issueId, true, true );
+        settings_->data.projectId = issueCreator->getProjectId();
+    } );
 
     RETURN();
 }
@@ -892,7 +897,7 @@ RedTimer::updateIssueStatus( int statusId )
 {
     ENTER();
 
-    if( statusId == NULL_ID )
+    if( statusId == NULL_ID || issue_.id == NULL_ID )
         RETURN();
 
     Issue issue;
