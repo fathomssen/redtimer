@@ -42,7 +42,7 @@ DISTFILES += \
 RESOURCES += qml.qrc
 
 # No debug statements in release
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+CONFIG(release, debug|release):DEFINES += DEBUG_OUTPUT # QT_NO_DEBUG_OUTPUT
 CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
 
 win32:CONFIG(release, debug|release): LIBS += -static -L$$PWD/qtredmine/Release/release/ -lqtredmine

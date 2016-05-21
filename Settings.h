@@ -50,6 +50,9 @@ public:
         /// Redmine base URL
         QString url;
 
+        /// Use custom fields
+        bool useCustomFields;
+
         /// Use system tray icon
         bool useSystemTrayIcon;
 

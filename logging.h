@@ -55,7 +55,7 @@ inline QDebug operator<<( QDebug debug, argLast )
 #define TOS(i) std::to_string(i)
 
 // Function name
-#define FUNC C( STR(__func__).append("()") )
+#define FUNC Q_FUNC_INFO
 
 // Filename and position
 #define POS C( QFileInfo(__FILE__).fileName().toStdString().append(":").append(TOS(__LINE__)).append(":") )

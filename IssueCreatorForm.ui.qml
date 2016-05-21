@@ -1,6 +1,6 @@
 import QtQuick 2.5
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.2
+import QtQuick.Controls 1.5
+import QtQuick.Layouts 1.3
 
 GridLayout {
     id: gridLayout1
@@ -32,6 +32,7 @@ GridLayout {
         Layout.fillWidth: true
         model: trackerModel
         textRole: "name"
+        enabled: false
     }
 
     Label {
@@ -43,9 +44,8 @@ GridLayout {
         id: subject
         Layout.fillWidth: true
         objectName: "subject"
-        placeholderText: qsTr("")
+        enabled: false
     }
-
 
     Label {
         id: label4
@@ -61,15 +61,15 @@ GridLayout {
             id: parentIssue
             Layout.fillWidth: true
             objectName: "parentIssue"
-            placeholderText: qsTr("")
+            enabled: false
         }
 
-        ToolButton {
+        Button {
             id: selectParentIssue
             objectName: "selectParentIssue"
-            width: 23
             iconSource: "open-iconic/svg/list.svg"
             tooltip: "Select parent issue from list"
+            enabled: false
         }
     }
 
@@ -82,7 +82,30 @@ GridLayout {
         id: estimatedTime
         Layout.fillWidth: true
         objectName: "estimatedTime"
-        placeholderText: qsTr("")
+        enabled: false
+    }
+
+    Label {
+        id: label7
+        text: qsTr("Category")
+    }
+
+    ComboBox {
+        id: category
+        objectName: "category"
+        Layout.fillWidth: true
+        model: categoryModel
+        textRole: "name"
+        enabled: false
+    }
+
+    Label {
+        id: customFields
+        objectName: "customFields"
+        text: qsTr("Custom fields")
+        visible: false
+        Layout.columnSpan: 2
+        font.underline: true
     }
 
     Label {
@@ -96,6 +119,7 @@ GridLayout {
         Layout.fillHeight: true
         Layout.fillWidth: true
         objectName: "description"
+        enabled: false
     }
 
     RowLayout {
@@ -109,6 +133,7 @@ GridLayout {
             id: create
             objectName: "create"
             text: qsTr("Create")
+            enabled: false
             isDefault: true
         }
 
@@ -118,5 +143,7 @@ GridLayout {
             text: qsTr("Cancel")
         }
     }
+
+
 }
 

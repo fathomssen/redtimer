@@ -25,7 +25,7 @@ private:
     QSortFilterProxyModel issuesProxyModel_;
 
     /// Current project
-    int projectId_;
+    int projectId_ = NULL_ID;
 
     /// List of projects in the GUI
     SimpleModel projectModel_;
@@ -58,8 +58,9 @@ public:
      * @brief Set the currently selected project ID
      *
      * @param id Project ID
+     * @param fixed The project may not be changed
      */
-    void setProjectId( int id );
+    void setProjectId( int id, bool fixed = false );
 
     /// @}
 

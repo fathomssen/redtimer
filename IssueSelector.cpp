@@ -12,7 +12,6 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QQuickView* parent )
     ENTER();
 
     // Issue selector window initialisation
-    setResizeMode( QQuickView::SizeRootObjectToView );
     setModality( Qt::ApplicationModal );
     setFlags( Qt::Dialog );
     setTitle( "Issue Selector" );
@@ -48,13 +47,10 @@ IssueSelector::display()
 {
     ENTER();
 
-    if( !isVisible() )
-    {
-        DEBUG() << "Displaying issue selector window";
-        show();
-        qml("search")->setProperty( "text", "" );
+    show();
+
+    if( projectModel_.rowCount() == 0 )
         loadProjects();
-    }
 
     RETURN();
 }
@@ -185,10 +181,17 @@ IssueSelector::getProjectId() const
 }
 
 void
-IssueSelector::setProjectId( int id )
+IssueSelector::setProjectId( int id, bool fixed )
 {
     ENTER();
+
     projectId_ = id;
+    loadProjects();
+
+    if( fixed )
+        qml("project")->setProperty( "enabled", false );
+
     loadIssues();
+
     RETURN();
 }
