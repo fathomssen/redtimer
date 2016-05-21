@@ -16,21 +16,21 @@ QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
 QMAKE_TARGET_COPYRIGHT = "LGPL 3"
 
 HEADERS += \
-    RedTimer.h \
     Settings.h \
     logging.h \
     Models.h \
     IssueSelector.h \
     IssueCreator.h \
-    Window.h
+    Window.h \
+    MainWindow.h
 
 SOURCES += main.cpp \
-    RedTimer.cpp \
     Settings.cpp \
     Models.cpp \
     IssueSelector.cpp \
     IssueCreator.cpp \
-    Window.cpp
+    Window.cpp \
+    MainWindow.cpp
 
 DISTFILES += \
     .travis.yml \
@@ -41,7 +41,7 @@ DISTFILES += \
 RESOURCES += qml.qrc
 
 # No debug statements in release
-CONFIG(release, debug|release):DEFINES += DEBUG_OUTPUT # QT_NO_DEBUG_OUTPUT
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
 
 win32:CONFIG(release, debug|release): LIBS += -static -L$$PWD/qtredmine/Release/release/ -lqtredmine

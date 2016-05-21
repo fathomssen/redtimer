@@ -1,6 +1,7 @@
 #ifndef ISSUESELECTOR_H
 #define ISSUESELECTOR_H
 
+#include "MainWindow.h"
 #include "Models.h"
 #include "Window.h"
 #include "qtredmine/SimpleRedmineClient.h"
@@ -35,9 +36,9 @@ public:
      * @brief Constructor for an IssueSelector object
      *
      * @param redmine Redmine connection object
-     * @param parent Parent QObject
+     * @param mainWindow Main window object
      */
-    explicit IssueSelector( qtredmine::SimpleRedmineClient* redmine, QQuickView* parent = nullptr );
+    explicit IssueSelector( qtredmine::SimpleRedmineClient* redmine, MainWindow* mainWindow );
 
     /// @name Getters
     /// @{

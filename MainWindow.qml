@@ -4,7 +4,7 @@ Item {
     width: 250
     height: 400
 
-    RedTimerForm {
+    MainWindowForm {
         objectName: "redTimer"
 
         signal counterAnyKeyPressed()

@@ -1,6 +1,7 @@
 #ifndef ISSUECREATOR_H
 #define ISSUECREATOR_H
 
+#include "MainWindow.h"
 #include "Models.h"
 #include "Window.h"
 #include "qtredmine/SimpleRedmineClient.h"
@@ -94,10 +95,9 @@ public:
      * @brief Constructor for an IssueCreator object
      *
      * @param redmine Redmine connection object
-     * @param parent Parent window
+     * @param mainWindow Main window object
      */
-    explicit IssueCreator( qtredmine::SimpleRedmineClient* redmine,
-                           Window* parent = nullptr );
+    explicit IssueCreator( qtredmine::SimpleRedmineClient* redmine, MainWindow* mainWindow );
 
     /**
      * @brief Destructor

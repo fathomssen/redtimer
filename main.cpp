@@ -1,4 +1,4 @@
-#include "RedTimer.h"
+#include "MainWindow.h"
 
 #include <QApplication>
 #include <QCommandLineParser>
@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
 
     app.setWindowIcon( QIcon(":/icons/clock_red.svg") );
 
-    new RedTimer( &app );
+    new MainWindow( &app );
 
     return app.exec();
 }

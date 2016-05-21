@@ -1,6 +1,7 @@
 #ifndef SETTINGS_H
 #define SETTINGS_H
 
+#include "MainWindow.h"
 #include "Models.h"
 #include "Window.h"
 
@@ -125,9 +126,9 @@ public:
      * @brief Constructor for a Settings object
      *
      * @param redmine Redmine connection object
-     * @param parent Parent QObject
+     * @param mainWindow Main window object
      */
-    explicit Settings( qtredmine::SimpleRedmineClient* redmine, QQuickView* parent = nullptr );
+    explicit Settings( qtredmine::SimpleRedmineClient* redmine, MainWindow* mainWindow );
 
     /**
      * @brief Load settings from settings file

@@ -2,7 +2,6 @@
 #define REDTIMER_H
 
 #include "Models.h"
-#include "Settings.h"
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
@@ -25,10 +24,13 @@
 
 namespace redtimer {
 
+// forward declarations
+class Settings;
+
 /**
  * @brief RedTimer, a Redmine Time Tracker
  */
-class RedTimer : public Window
+class MainWindow : public Window
 {
     Q_OBJECT
 
@@ -109,12 +111,19 @@ public:
      *
      * @param parent Parent QObject
      */
-    explicit RedTimer( QApplication* parent = nullptr );
+    explicit MainWindow( QApplication* parent = nullptr );
 
     /**
      * @brief Initialise the tray icon
      */
     void initTrayIcon();
+
+    /**
+     * @brief Get the system tray icon
+     *
+     * @return Tray icon object
+     */
+    QSystemTrayIcon* trayIcon();
 
 protected:
     /**
