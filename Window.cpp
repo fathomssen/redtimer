@@ -1,3 +1,4 @@
+#include "MainWindow.h"
 #include "Window.h"
 #include "logging.h"
 
@@ -7,14 +8,15 @@
 using namespace redtimer;
 using namespace std;
 
-Window::Window( QString qml, QQuickView* parent )
-    : QQuickView( QUrl(qml), parent )
+Window::Window( QString qml, MainWindow* mainWindow )
+    : QQuickView( QUrl(qml) )
 {
     ENTER();
 
     // Issue selector window access members
     ctx_ = rootContext();
     item_ = qobject_cast<QQuickItem*>( rootObject() );
+    mainWindow_ = mainWindow;
 
     RETURN();
 }
@@ -33,24 +35,34 @@ Window::event( QEvent* event )
     return QQuickView::event( event );
 }
 
+MainWindow*
+Window::mainWindow()
+{
+    ENTER();
+    RETURN( mainWindow_ );
+}
 
 QQuickItem*
-Window::message( QString text, QTimer* timer, QtMsgType type)
+Window::message( QString text, QTimer* timer, QtMsgType type )
 {
     ENTER()(text)(timer)(type);
 
     QString colour;
+    QSystemTrayIcon::MessageIcon icon;
 
     switch( type )
     {
     case QtInfoMsg:
         colour = "#006400";
+        icon = QSystemTrayIcon::Information;
         break;
     case QtWarningMsg:
         colour = "#FF8C00";
+        icon = QSystemTrayIcon::Warning;
         break;
     case QtCriticalMsg:
         colour = "#8B0000";
+        icon = QSystemTrayIcon::Critical;
         break;
     case QtDebugMsg:
     case QtFatalMsg:
@@ -67,6 +79,10 @@ Window::message( QString text, QTimer* timer, QtMsgType type)
 
     if( timer )
         connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
+
+    // If tray icon is displayed but this (!) window is closed, show a tray notification
+    if( mainWindow_->trayIcon() && !isVisible() )
+        mainWindow_->trayIcon()->showMessage( "RedTimer", text, icon );
 
     RETURN( item );
 }

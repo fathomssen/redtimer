@@ -1,6 +1,7 @@
 #include "IssueCreator.h"
 #include "IssueSelector.h"
-#include "RedTimer.h"
+#include "MainWindow.h"
+#include "Settings.h"
 #include "logging.h"
 
 #include <QEventLoop>
@@ -14,8 +15,8 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-RedTimer::RedTimer( QApplication* parent )
-    : Window( "qrc:/RedTimer.qml" ),
+MainWindow::MainWindow( QApplication* parent )
+    : Window( "qrc:/MainWindow.qml", this ),
       app_( parent )
 {
     ENTER();
@@ -24,7 +25,7 @@ RedTimer::RedTimer( QApplication* parent )
     redmine_ = new SimpleRedmineClient( this );
 
     // Settings initialisation
-    settings_ = new Settings( redmine_ );
+    settings_ = new Settings( redmine_, this );
     settings_->load();
 
     if( settings_->data.apiKey.isEmpty() || settings_->data.url.isEmpty() )
@@ -48,7 +49,7 @@ RedTimer::RedTimer( QApplication* parent )
     display();
 
     // Notify upon connection status change
-    connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &RedTimer::notifyConnectionStatus );
+    connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &MainWindow::notifyConnectionStatus );
 
     // Main window access members
     ctx_ = rootContext();
@@ -57,19 +58,19 @@ RedTimer::RedTimer( QApplication* parent )
 
     // Additional connection check in case that VirtualBox or similar is installed
     checkConnectionTimer_ = new QTimer( this );
-    connect( checkConnectionTimer_, &QTimer::timeout, this, &RedTimer::checkNetworkConnection );
+    connect( checkConnectionTimer_, &QTimer::timeout, this, &MainWindow::checkNetworkConnection );
     checkConnectionTimer_->setTimerType( Qt::VeryCoarseTimer );
     checkConnectionTimer_->setInterval( 5000 );
 
     // Shortcuts
     shortcutCreateIssue_ = new QxtGlobalShortcut( this );
-    connect( shortcutCreateIssue_, &QxtGlobalShortcut::activated, this, &RedTimer::createIssue );
+    connect( shortcutCreateIssue_, &QxtGlobalShortcut::activated, this, &MainWindow::createIssue );
     shortcutSelectIssue_ = new QxtGlobalShortcut( this );
-    connect( shortcutSelectIssue_, &QxtGlobalShortcut::activated, this, &RedTimer::selectIssue );
+    connect( shortcutSelectIssue_, &QxtGlobalShortcut::activated, this, &MainWindow::selectIssue );
     shortcutStartStop_ = new QxtGlobalShortcut( this );
-    connect( shortcutStartStop_, &QxtGlobalShortcut::activated, this, &RedTimer::startStop );
+    connect( shortcutStartStop_, &QxtGlobalShortcut::activated, this, &MainWindow::startStop );
     shortcutToggle_ = new QxtGlobalShortcut( this );
-    connect( shortcutToggle_, &QxtGlobalShortcut::activated, this, &RedTimer::toggle );
+    connect( shortcutToggle_, &QxtGlobalShortcut::activated, this, &MainWindow::toggle );
 
     // Initially connect and update the GUI
     reconnect();
@@ -125,10 +126,10 @@ RedTimer::RedTimer( QApplication* parent )
     connect( qml("counter"), SIGNAL(editingFinished()), this, SLOT(resumeCounterGui()) );
 
     // Connect the settings saved signal to the reconnect slot
-    connect( settings_, &Settings::applied, this, &RedTimer::reconnect );
+    connect( settings_, &Settings::applied, this, &MainWindow::reconnect );
 
     // Connect the timer to the tracking counter
-    connect( timer_, &QTimer::timeout, this, &RedTimer::refreshCounter );
+    connect( timer_, &QTimer::timeout, this, &MainWindow::refreshCounter );
 
     // Initially check the internet connection
     redmine_->checkConnectionStatus();
@@ -137,7 +138,7 @@ RedTimer::RedTimer( QApplication* parent )
 }
 
 void
-RedTimer::activitySelected( int index )
+MainWindow::activitySelected( int index )
 {
     ENTER();
 
@@ -148,7 +149,7 @@ RedTimer::activitySelected( int index )
 }
 
 void
-RedTimer::addRecentIssue( qtredmine::Issue issue )
+MainWindow::addRecentIssue( qtredmine::Issue issue )
 {
     ENTER()(issue);
 
@@ -173,7 +174,7 @@ RedTimer::addRecentIssue( qtredmine::Issue issue )
 }
 
 void
-RedTimer::checkNetworkConnection()
+MainWindow::checkNetworkConnection()
 {
     ENTER();
 
@@ -221,7 +222,7 @@ RedTimer::checkNetworkConnection()
 }
 
 void
-RedTimer::createIssue()
+MainWindow::createIssue()
 {
     ENTER();
 
@@ -233,7 +234,7 @@ RedTimer::createIssue()
         startTimer();
 
     // Display the issue creator with the current issue as parent
-    IssueCreator* issueCreator = new IssueCreator( redmine_ );
+    IssueCreator* issueCreator = new IssueCreator( redmine_, this );
     issueCreator->setTransientParent( this );
     issueCreator->setParentIssueId( issue_.id );
     issueCreator->setProjectId( settings_->data.projectId );
@@ -264,7 +265,7 @@ RedTimer::createIssue()
 }
 
 void
-RedTimer::display()
+MainWindow::display()
 {
     ENTER();
 
@@ -276,7 +277,7 @@ RedTimer::display()
 }
 
 bool
-RedTimer::eventFilter( QObject* obj, QEvent* event )
+MainWindow::eventFilter( QObject* obj, QEvent* event )
 {
     // Control closing behaviour depending on tray icon usage
     if( event->type() == QEvent::Close )
@@ -293,7 +294,7 @@ RedTimer::eventFilter( QObject* obj, QEvent* event )
 }
 
 void
-RedTimer::exit()
+MainWindow::exit()
 {
     ENTER();
 
@@ -327,7 +328,7 @@ RedTimer::exit()
             // If saving was successful before the blocker has been started, do not start it at all
             QEventLoop* blocker = new QEventLoop();
             bool startBlocker = true;
-            connect( this, &RedTimer::timeEntrySaved, [&]()
+            connect( this, &MainWindow::timeEntrySaved, [&]()
             {
                 startBlocker = false;
                 blocker->exit();
@@ -367,7 +368,7 @@ RedTimer::exit()
 }
 
 void
-RedTimer::initTrayIcon()
+MainWindow::initTrayIcon()
 {
     ENTER();
 
@@ -387,7 +388,7 @@ RedTimer::initTrayIcon()
         trayIcon_->setContextMenu( trayMenu );
 
         // Connect the tray icon to the window show slot
-        connect( trayIcon_, &QSystemTrayIcon::activated, this, &RedTimer::trayEvent );
+        connect( trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::trayEvent );
     }
 
     // Hide tray icon if desired and currently shown
@@ -402,7 +403,7 @@ RedTimer::initTrayIcon()
 }
 
 void
-RedTimer::issueStatusSelected( int index )
+MainWindow::issueStatusSelected( int index )
 {
     ENTER();
 
@@ -415,7 +416,7 @@ RedTimer::issueStatusSelected( int index )
 }
 
 void
-RedTimer::loadActivities()
+MainWindow::loadActivities()
 {
     ENTER();
 
@@ -458,7 +459,7 @@ RedTimer::loadActivities()
 }
 
 void
-RedTimer::loadIssueFromList( int index )
+MainWindow::loadIssueFromList( int index )
 {
     ENTER()(index);
 
@@ -468,7 +469,7 @@ RedTimer::loadIssueFromList( int index )
 }
 
 void
-RedTimer::loadIssueFromTextField()
+MainWindow::loadIssueFromTextField()
 {
     ENTER();
 
@@ -483,7 +484,7 @@ RedTimer::loadIssueFromTextField()
 }
 
 void
-RedTimer::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
+MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 {
     ENTER()(issueId)(startTimer);
 
@@ -535,7 +536,7 @@ RedTimer::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 }
 
 void
-RedTimer::loadIssueStatuses()
+MainWindow::loadIssueStatuses()
 {
     ENTER();
 
@@ -578,7 +579,7 @@ RedTimer::loadIssueStatuses()
 }
 
 void
-RedTimer::loadLatestActivity()
+MainWindow::loadLatestActivity()
 {
     ENTER();
 
@@ -616,7 +617,7 @@ RedTimer::loadLatestActivity()
 }
 
 void
-RedTimer::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected )
+MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected )
 {
     ENTER();
 
@@ -635,7 +636,7 @@ RedTimer::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility co
 }
 
 void
-RedTimer::pauseCounterGui()
+MainWindow::pauseCounterGui()
 {
     ENTER();
     updateCounterGui_ = false;
@@ -643,7 +644,7 @@ RedTimer::pauseCounterGui()
 }
 
 void
-RedTimer::resumeCounterGui()
+MainWindow::resumeCounterGui()
 {
     ENTER();
 
@@ -661,7 +662,7 @@ RedTimer::resumeCounterGui()
 }
 
 void
-RedTimer::reconnect()
+MainWindow::reconnect()
 {
     ENTER();
 
@@ -677,7 +678,7 @@ RedTimer::reconnect()
 }
 
 void
-RedTimer::refreshGui()
+MainWindow::refreshGui()
 {
     ENTER();
 
@@ -713,7 +714,7 @@ RedTimer::refreshGui()
 }
 
 void
-RedTimer::refreshCounter()
+MainWindow::refreshCounter()
 {
     ++counter_;
 
@@ -722,10 +723,10 @@ RedTimer::refreshCounter()
 }
 
 void
-RedTimer::selectIssue()
+MainWindow::selectIssue()
 {
     // Issue selector initialisation
-    IssueSelector* issueSelector = new IssueSelector( redmine_ );
+    IssueSelector* issueSelector = new IssueSelector( redmine_, this );
     issueSelector->setTransientParent( this );
     issueSelector->setProjectId( settings_->data.projectId );
     issueSelector->display();
@@ -739,7 +740,7 @@ RedTimer::selectIssue()
 }
 
 void
-RedTimer::start()
+MainWindow::start()
 {
     ENTER();
 
@@ -757,7 +758,7 @@ RedTimer::start()
 }
 
 void
-RedTimer::startStop()
+MainWindow::startStop()
 {
     ENTER();
 
@@ -771,7 +772,7 @@ RedTimer::startStop()
 }
 
 void
-RedTimer::startTimer()
+MainWindow::startTimer()
 {
     ENTER();
 
@@ -793,7 +794,7 @@ RedTimer::startTimer()
 }
 
 void
-RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
+MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
 {
     ENTER();
 
@@ -852,7 +853,7 @@ RedTimer::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
 }
 
 void
-RedTimer::stopTimer()
+MainWindow::stopTimer()
 {
     ENTER();
 
@@ -869,7 +870,7 @@ RedTimer::stopTimer()
 }
 
 void
-RedTimer::toggle()
+MainWindow::toggle()
 {
     ENTER();
 
@@ -882,7 +883,7 @@ RedTimer::toggle()
 }
 
 void
-RedTimer::trayEvent( QSystemTrayIcon::ActivationReason reason )
+MainWindow::trayEvent( QSystemTrayIcon::ActivationReason reason )
 {
     ENTER()(reason);
 
@@ -892,8 +893,15 @@ RedTimer::trayEvent( QSystemTrayIcon::ActivationReason reason )
     RETURN();
 }
 
+QSystemTrayIcon*
+MainWindow::trayIcon()
+{
+    ENTER();
+    RETURN( trayIcon_ );
+}
+
 void
-RedTimer::updateIssueStatus( int statusId )
+MainWindow::updateIssueStatus( int statusId )
 {
     ENTER();
 

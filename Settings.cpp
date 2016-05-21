@@ -12,8 +12,8 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-Settings::Settings( SimpleRedmineClient* redmine, QQuickView* parent )
-    : Window( "qrc:/Settings.qml", parent ),
+Settings::Settings( SimpleRedmineClient* redmine, MainWindow* mainWindow )
+    : Window( "qrc:/Settings.qml", mainWindow ),
       redmine_( redmine ),
       settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this )
 {

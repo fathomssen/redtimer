@@ -10,6 +10,9 @@
 
 namespace redtimer {
 
+// forward declaration
+class MainWindow;
+
 class Window : public QQuickView
 {
     Q_OBJECT
@@ -25,14 +28,24 @@ protected:
     /// Window context
     QQmlContext* ctx_;
 
+    /// Main window
+    MainWindow* mainWindow_;
+
 public:
     /**
      * @brief Window constructor for a window from a QML file within a Qt resource file
      *
      * @param qml Path to the QML file within the Qt resouce file
-     * @param parent Parent QObject
+     * @param mainWindow Main window object
      */
-    Window( QString qml, QQuickView* parent = nullptr );
+    Window( QString qml, MainWindow* mainWindow );
+
+    /**
+     * @brief Get the main window
+     *
+     * @return Main window object
+     */
+    MainWindow* mainWindow();
 
     /**
      * @brief Get a QML GUI item

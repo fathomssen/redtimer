@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>RedTimer.qml</file>
-        <file>RedTimerForm.ui.qml</file>
+        <file>MainWindow.qml</file>
+        <file>MainWindowForm.ui.qml</file>
         <file>Settings.qml</file>
         <file>SettingsForm.ui.qml</file>
         <file>IssueSelector.qml</file>

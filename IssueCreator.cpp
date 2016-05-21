@@ -8,8 +8,8 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-IssueCreator::IssueCreator( SimpleRedmineClient* redmine, Window* parent )
-    : Window( "qrc:/IssueCreator.qml", parent ),
+IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow )
+    : Window( "qrc:/IssueCreator.qml", mainWindow ),
       redmine_( redmine )
 {
     ENTER();
@@ -551,7 +551,7 @@ void
 IssueCreator::selectParentIssue()
 {
     // Issue selector initialisation
-    IssueSelector* issueSelector = new IssueSelector( redmine_ );
+    IssueSelector* issueSelector = new IssueSelector( redmine_, mainWindow() );
     issueSelector->setTransientParent( this );
     if( projectId_ != NULL_ID )
         issueSelector->setProjectId( projectId_, true );

@@ -5,8 +5,8 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-IssueSelector::IssueSelector( SimpleRedmineClient* redmine, QQuickView* parent )
-    : Window( "qrc:/IssueSelector.qml", parent ),
+IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWindow )
+    : Window( "qrc:/IssueSelector.qml", mainWindow ),
       redmine_( redmine )
 {
     ENTER();
