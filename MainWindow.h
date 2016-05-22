@@ -271,18 +271,6 @@ private slots:
     void startStop();
 
     /**
-     * @brief Stop time tracking
-     *
-     * Stops time tracking using the timer.
-     *
-     * @param resetTimerOnError Reset timer even after an error occurred
-     * @param stopTimerAfterSaving Stop the timer after saving the time and resetting the counter.
-     *
-     * \sa timer_
-     */
-    void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true );
-
-    /**
      * @brief Display or hide the main window
      */
     void toggle();
@@ -300,6 +288,22 @@ private slots:
      * @param statusId Issue status ID
      */
     void updateIssueStatus( int statusId );
+
+public slots:
+
+    /**
+     * @brief Stop time tracking
+     *
+     * Stops time tracking using the timer.
+     *
+     * @param resetTimerOnError Reset timer even after an error occurred
+     * @param stopTimerAfterSaving Stop the timer after saving the time and resetting the counter
+     * @param cb Success callback
+     *
+     * \sa timer_
+     */
+    void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true ,
+               qtredmine::SuccessCb cb = nullptr );
 
 signals:
     /**

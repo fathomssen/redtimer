@@ -6,43 +6,6 @@ ColumnLayout {
     id: columnLayout1
     width: 400
     Layout.minimumWidth: 400
-    
-    RowLayout {
-        Layout.fillWidth: true
-        
-        Label {
-            id: label9
-            text: qsTr("Profile")
-        }
-        
-        ComboBox {
-            id: profiles
-            objectName: "profiles"
-            model: profilesModel
-            textRole: "name"
-        }
-        
-        Button {
-            id: createProfile
-            objectName: "createProfile"
-            tooltip: "Create new profile"
-            iconSource: "open-iconic/svg/plus.svg"
-        }
-        
-        Button {
-            id: deleteProfile
-            objectName: "deleteProfile"
-            tooltip: "Delete profile"
-            iconSource: "open-iconic/svg/trash.svg"
-        }
-
-        Button {
-            id: renameProfile
-            objectName: "renameProfile"
-            tooltip: "Rename profile"
-            iconSource: "open-iconic/svg/pencil.svg"
-        }
-    }
 
     TabView {
         id: tabView1
@@ -60,6 +23,44 @@ ColumnLayout {
                 id: gridLayout3
                 anchors.fill: parent
                 columns: 2
+
+                RowLayout {
+                    Layout.columnSpan: 2
+                    Layout.fillWidth: true
+
+                    Label {
+                        id: label9
+                        text: qsTr("Profile")
+                    }
+
+                    ComboBox {
+                        id: profiles
+                        objectName: "profiles"
+                        model: profilesModel
+                        textRole: "name"
+                    }
+
+                    Button {
+                        id: createProfile
+                        objectName: "createProfile"
+                        tooltip: "Create new profile"
+                        iconSource: "open-iconic/svg/plus.svg"
+                    }
+
+                    Button {
+                        id: deleteProfile
+                        objectName: "deleteProfile"
+                        tooltip: "Delete profile"
+                        iconSource: "open-iconic/svg/trash.svg"
+                    }
+
+                    Button {
+                        id: renameProfile
+                        objectName: "renameProfile"
+                        tooltip: "Rename profile"
+                        iconSource: "open-iconic/svg/pencil.svg"
+                    }
+                }
 
                 Label {
                     id: label1
@@ -131,6 +132,7 @@ ColumnLayout {
                     text: qsTr("Check network connection every 5s")
                     Layout.columnSpan: 2
                 }
+
 
             }
         }

@@ -10,7 +10,7 @@ ICON = icons/clock_red.icns
 # Global shortcuts
 include(qxtglobalshortcut5/qxt.pri)
 
-VERSION = 1.0.90.2
+VERSION = 1.1.0
 QMAKE_TARGET_COMPANY = "Thomssen IT"
 QMAKE_TARGET_PRODUCT = "RedTimer"
 QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
