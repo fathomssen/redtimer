@@ -12,12 +12,14 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-Settings::Settings( SimpleRedmineClient* redmine, MainWindow* mainWindow )
+Settings::Settings( MainWindow* mainWindow )
     : Window( "qrc:/Settings.qml", mainWindow ),
-      redmine_( redmine ),
       settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this )
 {
     ENTER();
+
+    // Connect to Redmine
+    redmine_ = new SimpleRedmineClient( this );
 
     // Settings window initialisation
     setModality( Qt::ApplicationModal );
@@ -61,46 +63,68 @@ Settings::apply()
 {
     ENTER();
 
-    QString oldUrl = data.url;
-
-    data.apiKey            = qml("apikey")->property("text").toString();
-    data.checkConnection   = qml("checkConnection")->property("checked").toBool();
-    data.ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
-    data.numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
-    data.url               = qml("url")->property("text").toString();
-    data.useCustomFields   = qml("useCustomFields")->property("checked").toBool();
-    data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
-
-    data.shortcutCreateIssue = qml("shortcutCreateIssue")->property("text").toString();
-    data.shortcutSelectIssue = qml("shortcutSelectIssue")->property("text").toString();
-    data.shortcutStartStop   = qml("shortcutStartStop")->property("text").toString();
-    data.shortcutToggle      = qml("shortcutToggle")->property("text").toString();
-
-    if( oldUrl == data.url )
+    auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
-        if( issueStatusModel_.rowCount() && workedOnIndex )
-            data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
-    }
-    else
-    {
-        data.activityId = NULL_ID;
-        data.issueId    = NULL_ID;
-        data.projectId  = NULL_ID;
-        data.workedOnId = NULL_ID;
+        if( !success )
+        {
+            QString errorMsg = tr( "Could not save the time entry." );
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+            message( errorMsg, QtCriticalMsg );
 
-        while( !data.recentIssues.isEmpty() )
-            data.recentIssues.removeLast();
-    }
+            RETURN();
+        }
 
-    DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
-                                (data.useCustomFields)
-                                (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
+        data = temp;
 
-    save();
+        QString oldUrl = data.url;
 
-    DEBUG() << "Emitting applied() signal";
-    applied();
+        // Connection
+        data.apiKey            = qml("apikey")->property("text").toString();
+        data.checkConnection   = qml("checkConnection")->property("checked").toBool();
+        data.ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
+        data.numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
+        data.url               = qml("url")->property("text").toString();
+        data.useCustomFields   = qml("useCustomFields")->property("checked").toBool();
+
+        // Shortcuts
+        data.shortcutCreateIssue = qml("shortcutCreateIssue")->property("text").toString();
+        data.shortcutSelectIssue = qml("shortcutSelectIssue")->property("text").toString();
+        data.shortcutStartStop   = qml("shortcutStartStop")->property("text").toString();
+        data.shortcutToggle      = qml("shortcutToggle")->property("text").toString();
+
+        // Interface
+        data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
+
+        if( oldUrl == data.url )
+        {
+            int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
+            if( issueStatusModel_.rowCount() && workedOnIndex )
+                data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
+        }
+        else
+        {
+            data.activityId = NULL_ID;
+            data.issueId    = NULL_ID;
+            data.projectId  = NULL_ID;
+            data.workedOnId = NULL_ID;
+
+            while( !data.recentIssues.isEmpty() )
+                data.recentIssues.removeLast();
+        }
+
+        DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
+                                    (data.useCustomFields)
+                                    (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
+
+        save();
+
+        DEBUG() << "Emitting applied() signal";
+        applied();
+    };
+
+    // Save current time before applying
+    mainWindow_->stop( true, true, cb );
 
     RETURN();
 }
@@ -120,10 +144,7 @@ void
 Settings::cancel()
 {
     ENTER();
-
-    applied();
     close();
-
     RETURN();
 }
 
@@ -204,18 +225,18 @@ Settings::display( bool loadData )
             qml("profiles")->setProperty( "currentIndex", indices[0].row() );
     }
 
-    qml("apikey")->setProperty( "text", data.apiKey );
-    qml("checkConnection")->setProperty( "checked", data.checkConnection );
-    qml("ignoreSslErrors")->setProperty( "checked", data.ignoreSslErrors );
-    qml("numRecentIssues")->setProperty( "text", data.numRecentIssues );
-    qml("url")->setProperty( "text", data.url );
-    qml("useCustomFields")->setProperty( "checked", data.useCustomFields );
-    qml("useSystemTrayIcon")->setProperty( "checked", data.useSystemTrayIcon );
+    qml("apikey")->setProperty( "text", temp.apiKey );
+    qml("checkConnection")->setProperty( "checked", temp.checkConnection );
+    qml("ignoreSslErrors")->setProperty( "checked", temp.ignoreSslErrors );
+    qml("numRecentIssues")->setProperty( "text", temp.numRecentIssues );
+    qml("url")->setProperty( "text", temp.url );
+    qml("useCustomFields")->setProperty( "checked", temp.useCustomFields );
+    qml("useSystemTrayIcon")->setProperty( "checked", temp.useSystemTrayIcon );
 
-    qml("shortcutCreateIssue")->setProperty( "text", data.shortcutCreateIssue );
-    qml("shortcutSelectIssue")->setProperty( "text", data.shortcutSelectIssue );
-    qml("shortcutStartStop")->setProperty( "text", data.shortcutStartStop );
-    qml("shortcutToggle")->setProperty( "text", data.shortcutToggle );
+    qml("shortcutCreateIssue")->setProperty( "text", temp.shortcutCreateIssue );
+    qml("shortcutSelectIssue")->setProperty( "text", temp.shortcutSelectIssue );
+    qml("shortcutStartStop")->setProperty( "text", temp.shortcutStartStop );
+    qml("shortcutToggle")->setProperty( "text", temp.shortcutToggle );
 
     updateIssueStatuses();
 
@@ -260,15 +281,15 @@ Settings::load()
 {
     ENTER();
 
-    // First, load general settings
+    // General settings
     {
-        data.position = settings_.value("position").toPoint();
+        temp.position = settings_.value("position").toPoint();
 
         if( !settings_.value("profileId").isNull() )
             profileId_ = settings_.value("profileId").toInt();
     }
 
-    // Then, load profiles
+    // Profiles
     {
         loadedProfiles_.clear();
         profilesModel_.clear();
@@ -298,13 +319,33 @@ Settings::load()
             loadedProfiles_.insert( profile.id() );
     }
 
+    // Shortcuts
+    temp.shortcutCreateIssue = settings_.value("shortcutCreateIssue").isValid()
+                               ? settings_.value("shortcutCreateIssue").toString()
+                               : "Ctrl+Alt+C";
+    temp.shortcutSelectIssue = settings_.value("shortcutSelectIssue").isValid()
+                               ? settings_.value("shortcutSelectIssue").toString()
+                               : "Ctrl+Alt+L";
+    temp.shortcutStartStop = settings_.value("shortcutStartStop").isValid()
+                             ? settings_.value("shortcutStartStop").toString()
+                             : "Ctrl+Alt+S";
+    temp.shortcutToggle = settings_.value("shortcutToggle").isValid()
+                          ? settings_.value("shortcutToggle").toString()
+                          : "Ctrl+Alt+R";
+
+    // Interface
+    temp.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
+                             ? settings_.value("useSystemTrayIcon").toBool()
+                             : true;
+
     loadProfileData();
 
     DEBUG("Loaded settings from file:")
-            (data.apiKey)(data.checkConnection)(data.ignoreSslErrors)(data.numRecentIssues)(data.url)
-            (data.useCustomFields)(data.useSystemTrayIcon)(data.workedOnId)
-            (data.activityId)(data.issueId)(data.position)(data.projectId)(data.recentIssues);
+            (temp.apiKey)(temp.checkConnection)(temp.ignoreSslErrors)(temp.numRecentIssues)(temp.url)
+            (temp.useCustomFields)(temp.useSystemTrayIcon)(temp.workedOnId)
+            (temp.activityId)(temp.issueId)(temp.position)(temp.projectId)(temp.recentIssues);
 
+    data = temp;
     applied();
 
     RETURN();
@@ -317,71 +358,49 @@ Settings::loadProfileData()
 
     profileHash_ = QString("profile-%1").arg(profileId_);
 
-    // Then, load general settings for the profile
+    // Connection settings
     settings_.beginGroup( profileHash_ );
 
     {
-        // Settings GUI
-        data.apiKey = settings_.value("apikey").toString();
-        data.url = settings_.value("url").toString();
-        data.checkConnection = settings_.value("checkConnection").toBool();
-        data.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
+        temp.apiKey = settings_.value("apikey").toString();
+        temp.checkConnection = settings_.value("checkConnection").toBool();
+        temp.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
+        temp.url = settings_.value("url").toString();
 
-        data.useCustomFields = settings_.value("useCustomFields").isValid()
-                                 ? settings_.value("useCustomFields").toBool()
-                                 : true;
-
-        data.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
-                                 ? settings_.value("useSystemTrayIcon").toBool()
-                                 : true;
-
-        data.workedOnId = settings_.value("workedOnId").isValid()
-                          ? settings_.value("workedOnId").toInt()
-                          : NULL_ID;
-
-        data.numRecentIssues = settings_.value("numRecentIssues").isValid()
+        temp.numRecentIssues = settings_.value("numRecentIssues").isValid()
                                ? settings_.value("numRecentIssues").toInt()
                                : 10;
 
-        // Shortcuts
-        data.shortcutCreateIssue = settings_.value("shortcutCreateIssue").isValid()
-                                   ? settings_.value("shortcutCreateIssue").toString()
-                                   : "Ctrl+Alt+C";
+        temp.useCustomFields = settings_.value("useCustomFields").isValid()
+                               ? settings_.value("useCustomFields").toBool()
+                               : true;
 
-        data.shortcutSelectIssue = settings_.value("shortcutSelectIssue").isValid()
-                                   ? settings_.value("shortcutSelectIssue").toString()
-                                   : "Ctrl+Alt+L";
-
-        data.shortcutStartStop = settings_.value("shortcutStartStop").isValid()
-                                 ? settings_.value("shortcutStartStop").toString()
-                                 : "Ctrl+Alt+S";
-
-        data.shortcutToggle = settings_.value("shortcutToggle").isValid()
-                              ? settings_.value("shortcutToggle").toString()
-                              : "Ctrl+Alt+R";
-
-        // Other GUIs
-        data.activityId  = settings_.value("activity").isValid()
+        temp.activityId  = settings_.value("activity").isValid()
                            ? settings_.value("activity").toInt()
                            : NULL_ID;
-        data.issueId = settings_.value("issue").isValid()
+        temp.issueId = settings_.value("issue").isValid()
                        ? settings_.value("issue").toInt()
                        : NULL_ID;
-        data.projectId = settings_.value("project").isValid()
+        temp.projectId = settings_.value("project").isValid()
                          ? settings_.value("project").toInt()
                          : NULL_ID;
+        temp.workedOnId = settings_.value("workedOnId").isValid()
+                          ? settings_.value("workedOnId").toInt()
+                          : NULL_ID;
     }
 
-    // Last, load recently used issues for the profile
+    // Recently used issues
     {
+        temp.recentIssues.clear();
         int size = settings_.beginReadArray( "recentIssues" );
         for( int i = 0; i < size; ++i )
         {
             settings_.setArrayIndex( i );
+
             Issue issue;
             issue.id      = settings_.value("id").toInt();
             issue.subject = settings_.value("subject").toString();
-            data.recentIssues.append( issue );
+            temp.recentIssues.append( issue );
         }
         settings_.endArray();
     }
@@ -400,7 +419,6 @@ Settings::profileSelected( int profileIndex )
 
     profileId_ = proxyIndex.data(SimpleModel::IdRole).toInt();
     loadProfileData();
-    applied();
     display( false );
 
     RETURN();
@@ -430,15 +448,23 @@ Settings::save()
 {
     ENTER();
 
-    // First, save general settings
+    // General settings
     {
         settings_.setValue( "position", data.position );
         settings_.setValue( "profileId", profileId_ );
+        settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
+
+        // Shortcuts
+        settings_.setValue("shortcutCreateIssue", data.shortcutCreateIssue );
+        settings_.setValue("shortcutSelectIssue", data.shortcutSelectIssue );
+        settings_.setValue("shortcutStartStop",   data.shortcutStartStop );
+        settings_.setValue("shortcutToggle",      data.shortcutToggle );
     }
 
-    // Then, save profiles
+    // Profiles
     {
         settings_.beginWriteArray( "profiles" );
+        settings_.remove( "" );
         int i = 0;
         for( const auto& profile : profilesModel_.data() )
         {
@@ -454,32 +480,25 @@ Settings::save()
 
     settings_.beginGroup( profileHash_ );
 
-    // Then, save general settings for the profile
+    // Connection
     {
-        // From Settings GUI
         settings_.setValue( "apikey",            data.apiKey );
         settings_.setValue( "checkConnection",   data.checkConnection );
         settings_.setValue( "ignoreSslErrors",   data.ignoreSslErrors );
         settings_.setValue( "numRecentIssues",   data.numRecentIssues );
         settings_.setValue( "url",               data.url );
         settings_.setValue( "useCustomFields",   data.useCustomFields );
-        settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
         settings_.setValue( "workedOnId",        data.workedOnId );
 
-        settings_.setValue("shortcutCreateIssue", data.shortcutCreateIssue );
-        settings_.setValue("shortcutSelectIssue", data.shortcutSelectIssue );
-        settings_.setValue("shortcutStartStop",   data.shortcutStartStop );
-        settings_.setValue("shortcutToggle",      data.shortcutToggle );
-
-        // From other GUIs
         settings_.setValue( "activity", data.activityId );
         settings_.setValue( "issue",    data.issueId );
         settings_.setValue( "project",  data.projectId );
     }
 
-    // Last, save recently used issues for the profile
+    // Recently used issues for the profile
     {
         settings_.beginWriteArray( "recentIssues" );
+        settings_.remove( "" );
         for( int i = 0; i < data.recentIssues.size(); ++i )
         {
             settings_.setArrayIndex( i );
@@ -508,7 +527,7 @@ Settings::updateIssueStatuses()
 {
     ENTER();
 
-    if( data.apiKey.isEmpty() || data.url.isEmpty() )
+    if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
     {
         issueStatusModel_.clear();
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
@@ -519,6 +538,9 @@ Settings::updateIssueStatuses()
 
         RETURN();
     }
+
+    redmine_->setUrl( temp.url );
+    redmine_->setAuthenticator( temp.apiKey );
 
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
@@ -545,13 +567,13 @@ Settings::updateIssueStatuses()
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
-            if( issueStatus.id == data.workedOnId )
+            if( issueStatus.id == temp.workedOnId )
                 currentIndex = issueStatusModel_.rowCount();
 
             issueStatusModel_.push_back( SimpleItem(issueStatus) );
         }
 
-        DEBUG()(issueStatusModel_)(data.workedOnId)(currentIndex);
+        DEBUG()(issueStatusModel_)(temp.workedOnId)(currentIndex);
 
         qml("workedOn")->setProperty( "enabled", true );
         qml("workedOn")->setProperty( "currentIndex", -1 );

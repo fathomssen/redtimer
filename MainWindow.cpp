@@ -25,11 +25,11 @@ MainWindow::MainWindow( QApplication* parent )
     redmine_ = new SimpleRedmineClient( this );
 
     // Settings initialisation
-    settings_ = new Settings( redmine_, this );
+    settings_ = new Settings( this );
     settings_->load();
 
     if( settings_->data.apiKey.isEmpty() || settings_->data.url.isEmpty() )
-        settings_->display();
+        settings_->display( false );
 
     // Main window initialisation
     installEventFilter( this );
@@ -64,32 +64,25 @@ MainWindow::MainWindow( QApplication* parent )
 
     // Shortcuts
     shortcutCreateIssue_ = new QxtGlobalShortcut( this );
-    connect( shortcutCreateIssue_, &QxtGlobalShortcut::activated, this, &MainWindow::createIssue );
     shortcutSelectIssue_ = new QxtGlobalShortcut( this );
+    shortcutStartStop_   = new QxtGlobalShortcut( this );
+    shortcutToggle_      = new QxtGlobalShortcut( this );
+    connect( shortcutCreateIssue_, &QxtGlobalShortcut::activated, this, &MainWindow::createIssue );
     connect( shortcutSelectIssue_, &QxtGlobalShortcut::activated, this, &MainWindow::selectIssue );
-    shortcutStartStop_ = new QxtGlobalShortcut( this );
-    connect( shortcutStartStop_, &QxtGlobalShortcut::activated, this, &MainWindow::startStop );
-    shortcutToggle_ = new QxtGlobalShortcut( this );
-    connect( shortcutToggle_, &QxtGlobalShortcut::activated, this, &MainWindow::toggle );
-
-    // Initially connect and update the GUI
-    reconnect();
+    connect( shortcutStartStop_,   &QxtGlobalShortcut::activated, this, &MainWindow::startStop );
+    connect( shortcutToggle_,      &QxtGlobalShortcut::activated, this, &MainWindow::toggle );
 
     // Timer initialisation
     timer_ = new QTimer( this );
     timer_->setTimerType( Qt::VeryCoarseTimer );
     timer_->setInterval( 1000 );
 
-    // Apply loaded settings
-    activityId_ = settings_->data.activityId;
-    loadIssue( settings_->data.issueId, false );
-
-    for( const auto& issue : settings_->data.recentIssues )
-        recentIssues_.push_back( issue );
-    ctx_->setContextProperty( "recentIssuesModel", &recentIssues_ );
+    // Initially connect and update the GUI
+    reconnect();
 
     ctx_->setContextProperty( "activityModel", &activityModel_ );
     ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+    ctx_->setContextProperty( "recentIssuesModel", &recentIssues_ );
 
     // Set transient window parent
     settings_->setTransientParent( this );
@@ -486,17 +479,21 @@ MainWindow::loadIssueFromTextField()
 void
 MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 {
-    ENTER()(issueId)(startTimer);
+    ENTER()(issueId)(startTimer)(saveNewIssue);
 
-    if( issueId == NULL_ID )
-        RETURN();
+    // If the timer is currently active, save the currently logged time first
+    // If there will be no new issue selected, stop the timer
+    if( timer_->isActive() )
+        stop( true, issueId == NULL_ID );
 
     if( saveNewIssue )
         issue_.id = issueId;
 
-    // If the timer is currently active, save the currently logged time first
-    if( timer_->isActive() )
-        stop( true, false );
+    if( issueId == NULL_ID )
+    {
+        qml("issueData")->setProperty( "text", "" );
+        RETURN();
+    }
 
     redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
     {
@@ -671,7 +668,7 @@ MainWindow::reconnect()
 
     refreshGui();
 
-    if( timer_ && !timer_->isActive() && counter_ )
+    if( !timer_->isActive() && counter_ )
         stop();
 
     RETURN();
@@ -684,6 +681,8 @@ MainWindow::refreshGui()
 
     if( settings_->data.ignoreSslErrors )
         redmine_->setCheckSsl( false );
+    else
+        redmine_->setCheckSsl( true );
 
     if( settings_->data.checkConnection )
         checkConnectionTimer_->start();
@@ -696,6 +695,13 @@ MainWindow::refreshGui()
     shortcutToggle_->setShortcut(  QKeySequence(settings_->data.shortcutToggle) );
 
     initTrayIcon();
+
+    activityId_ = settings_->data.activityId;
+    loadIssue( settings_->data.issueId, false, true);
+
+    recentIssues_.clear();
+    for( const auto& issue : settings_->data.recentIssues )
+        recentIssues_.push_back( issue );
 
     loadLatestActivity();
     loadIssueStatuses();
@@ -794,14 +800,28 @@ MainWindow::startTimer()
 }
 
 void
-MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
+MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb cb )
 {
     ENTER();
+
+    if( !timer_->isActive() && counter_ == 0 )
+    {
+        if( cb )
+            cb( true, NULL_ID, (RedmineError)0, QStringList() );
+
+        RETURN();
+    }
 
     // Check that an activity has been selected
     if( activityId_ == NULL_ID )
     {
-        message( tr("Please select an activity before saving the time entry."), QtCriticalMsg );
+        QStringList errors;
+        errors.append( tr("Select an activity before saving the time entry.") );
+        message( errors.at(0), QtCriticalMsg );
+
+        if( cb )
+            cb( false, NULL_ID, ERR_NOT_SAVED, errors );
+
         RETURN();
     }
 
@@ -823,8 +843,11 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
             QString errorMsg = tr( "Could not save the time entry." );
             for( const auto& error : errors )
                 errorMsg.append("\n").append(error);
-
             message( errorMsg, QtCriticalMsg );
+
+            if( cb )
+                cb( success, id, errorCode, errors );
+
             RETURN();
         }
 
@@ -845,6 +868,9 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving )
 
         DEBUG() << "Emitting signal timeEntrySaved()";
         timeEntrySaved();
+
+        if( cb )
+            cb( true, id, errorCode, errors );
 
         RETURN();
     });

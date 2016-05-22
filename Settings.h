@@ -86,6 +86,9 @@ public:
     /// Settings data
     Data data;
 
+    /// Not applied settings data
+    Data temp;
+
 private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
@@ -125,10 +128,9 @@ public:
     /**
      * @brief Constructor for a Settings object
      *
-     * @param redmine Redmine connection object
      * @param mainWindow Main window object
      */
-    explicit Settings( qtredmine::SimpleRedmineClient* redmine, MainWindow* mainWindow );
+    explicit Settings( MainWindow* mainWindow );
 
     /**
      * @brief Load settings from settings file
