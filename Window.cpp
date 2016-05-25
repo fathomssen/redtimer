@@ -18,6 +18,8 @@ Window::Window( QString qml, MainWindow* mainWindow )
     item_ = qobject_cast<QQuickItem*>( rootObject() );
     mainWindow_ = mainWindow;
 
+    setResizeMode( QQuickView::SizeRootObjectToView );
+
     RETURN();
 }
 
