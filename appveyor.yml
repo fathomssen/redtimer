@@ -13,6 +13,9 @@ install:
   - C:\Qt\5.6\mingw49_32\bin\qtenv2.bat
 
 build_script:
+  - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
+  - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
+  - echo %VERSION%
   # qtredmine
   - cd %APPVEYOR_BUILD_FOLDER%\qtredmine
   - qmake -r
@@ -24,10 +27,10 @@ build_script:
 
 after_build:
   # Variables
-  - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
-  - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - set BUILD=%APPVEYOR_BUILD_FOLDER%
   - set DIST=redtimer-%VERSION%-win32
+  - echo %BUILD%
+  - echo %DIST%
   # Create directories
   - mkdir %DIST%
   - mkdir %DIST%\iconengines
@@ -70,9 +73,9 @@ artifacts:
 
 deploy:
   - provider: GitHub
-    release: RedTimer %VERSION%
+    release: RedTimer $(VERSION)
     auth_token:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
-    artifact: redtimer-%VERSION%-win32.zip
+    artifact: redtimer-$(VERSION)-win32.zip
     #on:
     #  appveyor_repo_tag: true
