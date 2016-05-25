@@ -76,5 +76,5 @@ deploy:
     auth_token:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
     artifact: $(DEPLOYFILE)
-    #on:
-    #  appveyor_repo_tag: true
+    on:
+      appveyor_repo_tag: true
