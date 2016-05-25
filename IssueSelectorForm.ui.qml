@@ -4,7 +4,6 @@ import QtQuick.Layouts 1.2
 
 ColumnLayout {
     id: columnLayout1
-    width: 200
 
     property alias issues: issues
     property alias project: project

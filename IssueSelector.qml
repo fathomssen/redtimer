@@ -1,28 +1,35 @@
 import QtQuick 2.5
 import QtQuick.Layouts 1.2
 
-IssueSelectorForm {
-    id: issueSelector // required by issueDelegate
+Item {
+    height: 400
+    width: 200
 
-    Component{
-        id: issueDelegate
+    IssueSelectorForm {
+        id: issueSelector // required by issueDelegate
+        anchors.margins: 5
+        anchors.fill: parent
 
-        Item{
-            height: 25
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 0
-            anchors.rightMargin: 0
+        Component{
+            id: issueDelegate
 
-            Text {
-                text: subject + " (#" + id + ")"
-                verticalAlignment: Text.AlignVCenter
-            }
+            Item{
+                height: 25
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.leftMargin: 0
+                anchors.rightMargin: 0
 
-            MouseArea {
-                anchors.fill: parent
-                onClicked: issueSelector.issues.currentIndex = index
-                onDoubleClicked: issueSelector.issues.activated( index )
+                Text {
+                    text: subject + " (#" + id + ")"
+                    verticalAlignment: Text.AlignVCenter
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: issueSelector.issues.currentIndex = index
+                    onDoubleClicked: issueSelector.issues.activated( index )
+                }
             }
         }
     }

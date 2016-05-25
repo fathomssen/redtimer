@@ -4,13 +4,11 @@ import QtQuick.Layouts 1.2
 
 ColumnLayout {
     id: columnLayout1
-    width: 400
-    Layout.minimumWidth: 400
 
     TabView {
         id: tabView1
         currentIndex: 0
-        Layout.minimumHeight: 200
+        Layout.fillHeight: true
         Layout.fillWidth: true
         frameVisible: false
 
