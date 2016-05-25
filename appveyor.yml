@@ -24,8 +24,10 @@ build_script:
 
 after_build:
   # Variables
+  - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
+  - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - set BUILD=%APPVEYOR_BUILD_FOLDER%
-  - set DIST=redtimer-%APPVEYOR_REPO_TAG_NAME%-win32
+  - set DIST=redtimer-%VERSION%-win32
   # Create directories
   - mkdir %DIST%
   - mkdir %DIST%\iconengines
@@ -57,20 +59,20 @@ after_build:
   - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
   - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
   # Remove debug DLLs
-  - for /f %%i in ('dir /s /b QtQuick\*d.dll') do del %%i
-  - for /f %%i in ('dir /s /b QtQuick.2\*d.dll') do del %%i
+  - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
+  - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
   # Create the archive
   - 7z a -tzip -mx=9 %DIST%.zip %DIST%
 
 artifacts:
   - name: Archive
-    path: 'redtimer-%APPVEYOR_REPO_TAG_NAME%-win32.zip'
+    path: 'redtimer-%VERSION%-win32.zip'
 
 deploy:
-- provider: GitHub
-  release: RedTimer %APPVEYOR_REPO_TAG_NAME%
-  auth_token:
-    secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
-  artifact: redtimer-%APPVEYOR_REPO_TAG_NAME%-win32.zip
-  #on:
-  #  appveyor_repo_tag: true
+  - provider: GitHub
+    release: RedTimer %VERSION%
+    auth_token:
+      secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
+    artifact: redtimer-%VERSION%-win32.zip
+    #on:
+    #  appveyor_repo_tag: true
