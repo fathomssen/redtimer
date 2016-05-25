@@ -1,9 +1,5 @@
 version: '{branch}-{build}'
 
-branches:
-  except:
-    - gh-pages
-
 environment:
   QTDIR: C:\Qt\5.6\mingw49_32
 
@@ -15,7 +11,11 @@ install:
 build_script:
   - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
+  - set DIST=redtimer-%VERSION%-win32
+  - set DEPLOYFILE=%DIST%.zip
   - echo %VERSION%
+  - echo %DEPLOYFILE%
+  - echo %DIST%
   # qtredmine
   - cd %APPVEYOR_BUILD_FOLDER%\qtredmine
   - qmake -r
@@ -28,9 +28,7 @@ build_script:
 after_build:
   # Variables
   - set BUILD=%APPVEYOR_BUILD_FOLDER%
-  - set DIST=redtimer-%VERSION%-win32
   - echo %BUILD%
-  - echo %DIST%
   # Create directories
   - mkdir %DIST%
   - mkdir %DIST%\iconengines
@@ -64,18 +62,19 @@ after_build:
   # Remove debug DLLs
   - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
   - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
-  # Create the archive
-  - 7z a -tzip -mx=9 %DIST%.zip %DIST%
+  # Create and push the archive
+  - 7z a -tzip -mx=9 %DEPLOYFILE% %DIST%
+  - appveyor PushArtifact %DEPLOYFILE%
 
 artifacts:
   - name: Archive
-    path: 'redtimer-%VERSION%-win32.zip'
+    path: %DEPLOYFILE%
 
 deploy:
   - provider: GitHub
-    release: RedTimer $(VERSION)
+    release: $(VERSION)
     auth_token:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
-    artifact: redtimer-$(VERSION)-win32.zip
+    artifact: $(DEPLOYFILE)
     #on:
     #  appveyor_repo_tag: true
