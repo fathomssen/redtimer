@@ -4,11 +4,18 @@ set -e
 
 function usage()
 {
-  echo "Usage: $0 [-qt|--deploy-qt] [-h|--help]"
+  echo "Usage: $0 [-qt|--deploy-qt] [-h|--help] <version>"
   echo
   echo "    -qt   Deploy Qt with RedTimer"
   echo "    -h    Display this help"
+  echo
+  echo "This will produce <version>.tar.bz2"
 }
+
+if [ $# -eq 0 ]; then
+  usage
+  exit 1
+fi
 
 while [ $# -gt 0 ]; do
   case $1 in
@@ -24,9 +31,13 @@ while [ $# -gt 0 ]; do
       exit 0
       ;;
     *)
+      if [ -z "$redtimer" ]; then
+        redtimer=$1
+        shift
+        continue
+      fi
       usage
       exit 1
-      break
       ;;
   esac
 
@@ -35,17 +46,6 @@ done
 
 execdir=$(dirname $0)
 src=$execdir/..
-
-ver=$(cat RedTimer.pro | grep "^VERSION")
-ver=${ver##VERSION = }
-
-dist=$(lsb_release -i -s)
-dist=${dist,,}
-distver=$(lsb_release -r -s)
-
-machine=$(uname -m)
-
-redtimer="redtimer-v${ver}-${dist}-${distver}-$machine"
 
 distdir=$execdir/$redtimer
 
@@ -152,6 +152,3 @@ fi
 distfile=$redtimer.tar.bz2
 
 tar jcf $distfile -C $distdir/.. $redtimer
-
-echo $distfile
-

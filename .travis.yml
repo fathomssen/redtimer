@@ -17,6 +17,7 @@ matrix:
       env:
         - dist: ubuntu
         - distver: "14.04"
+        - arch: x86_64
         - init: /sbin/init
         - qtenv: /opt/qt55/bin/qt55-env.sh
         - qtpkg: "'qt55base qt55quickcontrols qt55svg qt55x11extras mesa-common-dev libgl1-mesa-dev'"
@@ -28,6 +29,7 @@ matrix:
       env:
         - dist: ubuntu
         - distver: "14.04"
+        - arch: x86_64
         - init: /sbin/init
         - qtenv: /opt/qt56/bin/qt56-env.sh
         - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
@@ -70,6 +72,7 @@ matrix:
       env:
         - dist: ubuntu
         - distver: "15.10"
+        - arch: x86_64
         - init: /sbin/init
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev qtdeclarative5-controls-plugin libqt5libqgtk2'"
         - qmakeopt: "-qt5"
@@ -100,6 +103,7 @@ matrix:
       env:
         - dist: ubuntu
         - distver: "16.04"
+        - arch: x86_64
         - init: /sbin/init
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
         - qmakeopt: "-qt5"
@@ -225,13 +229,14 @@ before_deploy:
   - test $TRAVIS_TEST_RESULT = 0
   ### The following commands have to define a $DEPLOYFILE
   # Ubuntu
+  - run $isUbuntu export VERSION="redtimer-${TRAVIS_TAG}-${dist}-${distver}-${arch}"
+  - run $isUbuntu export DEPLOYFILE="${VERSION}.tar.bz2"
   - run $isUbuntu echo "#!/bin/bash" >> deploy.sh
   - run $isUbuntu echo "set -ex" >> deploy.sh
   - run $isUbuntu echo "cd /build" >> deploy.sh
-  - run $isUbuntu echo "${deployscript} > .deployfile" >> deploy.sh
+  - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
   - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
-  - run $isUbuntu export DEPLOYFILE=$(run $isUbuntu cat .deployfile | tr -d '\r\n')
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX macdeployqt RedTimer.app -dmg
