@@ -44,8 +44,8 @@ RESOURCES += qml.qrc
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
 
-win32:CONFIG(release, debug|release): LIBS += -static -L$$PWD/qtredmine/Release/release/ -lqtredmine
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/qtredmine/Debug/debug/ -lqtredmine
+win32:CONFIG(release, debug|release): LIBS += -static -L$$PWD/qtredmine/release/ -L$$PWD/qtredmine/Release/release/ -lqtredmine
+else:win32:CONFIG(debug, debug|release): LIBS += -static -L$$PWD/qtredmine/debug/ -L$$PWD/qtredmine/Debug/debug/ -lqtredmine
 else:unix: LIBS += -L$$PWD/qtredmine/ -lqtredmine
 
 INCLUDEPATH += $$PWD/qtredmine
