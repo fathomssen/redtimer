@@ -1,0 +1,69 @@
+version: '{branch}-{build}'
+
+environment:
+  QTDIR: C:\Qt\5.6\mingw49_32
+
+install:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git submodule update --init
+  - %QTDIR%\bin\qtenv2.bat
+
+build_script:
+  # qtredmine
+  - cd %APPVEYOR_BUILD_FOLDER%\qtredmine
+  - qmake -r
+  - mingw32-make
+  # RedTimer
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - qmake -r
+  - mingw32-make
+
+after_build:
+  # Variables
+  - set BUILD=%APPVEYOR_BUILD_FOLDER%
+  - set DIST=redtimer-%APPVEYOR_REPO_TAG_NAME%-win32
+  # Create directories
+  - mkdir %DIST%
+  - mkdir %DIST%\iconengines
+  - mkdir %DIST%\imageformats
+  - mkdir %DIST%\platforms
+  - mkdir %DIST%\QtQuick
+  - mkdir %DIST%\QtQuick.2
+  # Copy RedTimer and qtredmine
+  - xcopy %BUILD%\release\redtimer.exe %DIST%
+  - xcopy %BUILD%\qtredmine\release\qtredmine.dll %DIST%
+  # Copy Qt libraries
+  - xcopy %QTDIR%\bin\libEGL.dll %DIST%
+  - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
+  - xcopy %QTDIR%\bin\libGLESv2.dll %DIST%
+  - xcopy %QTDIR%\bin\libstdc++-6.dll %DIST%
+  - xcopy %QTDIR%\bin\libwinpthread-1.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Core.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Gui.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Network.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Qml.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
+  # Copy Qt plugins
+  - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
+  - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
+  - xcopy %QTDIR%\plugins\platforms\qwindows.dll %DIST%\platforms
+  # Copy Qt QML modules
+  - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
+  - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
+  # Create the archive
+  - 7z a -tzip -mx=9 %DIST%.zip %DIST%
+
+artifacts:
+  - name: Archive
+    path: 'redtimer-%APPVEYOR_REPO_TAG_NAME%-win32.zip'
+
+deploy:
+- provider: GitHub
+  release: RedTimer %APPVEYOR_REPO_TAG_NAME%
+  auth_token:
+    secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
+  artifact: redtimer-%APPVEYOR_REPO_TAG_NAME%-win32.zip
+  #on:
+  #  appveyor_repo_tag: true

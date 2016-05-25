@@ -1,4 +1,5 @@
-[![Travis](https://travis-ci.org/fathomssen/redtimer.svg?branch=master)](https://travis-ci.org/fathomssen/redtimer)
+[![Travis CI](https://travis-ci.org/fathomssen/redtimer.svg?branch=master)](https://travis-ci.org/fathomssen/redtimer)
+[![AppVeyor CI](https://ci.appveyor.com/api/projects/status/github/fathomssen/redtimer)](https://ci.appveyor.com/project/fathomssen/redtimer)
 
 Redmine Time Tracker
 ====================
