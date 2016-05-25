@@ -68,7 +68,7 @@ after_build:
 
 artifacts:
   - name: Archive
-    path: %DEPLOYFILE%
+    path: $(DEPLOYFILE)
 
 deploy:
   - provider: GitHub
