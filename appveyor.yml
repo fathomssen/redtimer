@@ -1,12 +1,16 @@
 version: '{branch}-{build}'
 
+branches:
+  except:
+    - gh-pages
+
 environment:
   QTDIR: C:\Qt\5.6\mingw49_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - %QTDIR%\bin\qtenv2.bat
+  - C:\Qt\5.6\mingw49_32\bin\qtenv2.bat
 
 build_script:
   # qtredmine
