@@ -21,7 +21,7 @@ sudo apt-get install libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 l
 For Ubuntu 16.04, you will have to install the following package:
 
 ```
-sudo apt-get install qtdeclarative5-controls-plugin
+sudo apt-get install qtdeclarative5-controls-plugin libqt5x11extras5
 ```
 
 Building
