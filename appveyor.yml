@@ -5,7 +5,7 @@ branches:
     - gh-pages
 
 environment:
-  QTDIR: C:\Qt\5.6\mingw49_32
+  - QTDIR: C:\Qt\5.6\mingw49_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -56,6 +56,9 @@ after_build:
   # Copy Qt QML modules
   - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
   - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
+  # Remove debug DLLs
+  - for /f %%i in ('dir /s /b QtQuick\*d.dll') do del %%i
+  - for /f %%i in ('dir /s /b QtQuick.2\*d.dll') do del %%i
   # Create the archive
   - 7z a -tzip -mx=9 %DIST%.zip %DIST%
 
