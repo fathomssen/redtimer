@@ -4,25 +4,35 @@ Item {
     width: 250
     height: 400
 
+    signal counterEntered()
+
+    function counterKeyEvent( event )
+    {
+        if( event.key == Qt.Key_Enter || event.key == Qt.Key_Return )
+            event.accept = true
+        else
+            counterEntered()
+    }
+
+    function counterMouseAreaEvent( mouse )
+    {
+        counterEntered()
+        mouse.accepted = false
+    }
+
+    Component.onCompleted: {
+        mainForm.counter.Keys.pressed.connect( counterKeyEvent )
+    }
+
+    Connections {
+        target: mainForm.counterMouseArea
+        onPressed: { counterMouseAreaEvent(mouse) }
+    }
+
     MainWindowForm {
-        objectName: "redTimer"
+        id: mainForm
 
-        signal counterAnyKeyPressed()
-
-        function counterKeyEvent( event )
-        {
-            if( event.key == Qt.Key_Enter || event.key == Qt.Key_Return )
-                event.accept = true
-            else
-                counterAnyKeyPressed()
-        }
-
-        Component.onCompleted: counter.Keys.pressed.connect( counterKeyEvent )
-
-        anchors.rightMargin: 0
-        anchors.bottomMargin: 0
-        anchors.leftMargin: 0
-        anchors.topMargin: 0
+        anchors.margins: 0
         anchors.fill: parent
     }
 }

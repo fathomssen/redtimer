@@ -3,8 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 Item {
-    id: redTimer
-    objectName: "redTimer"
+    id: mainForm
     width: 250
     height: 400
     Layout.minimumWidth: 250
@@ -12,6 +11,7 @@ Item {
 
     property alias activity: activity
     property alias counter: counter
+    property alias counterMouseArea: counterMouseArea
     property alias issueData: issueData
     property alias issueStatus: issueStatus
     property alias quickPick: quickPick
@@ -120,6 +120,7 @@ Item {
                 isDefault: true
                 iconSource: "open-iconic/svg/media-play.svg"
                 tooltip: "Start time tracking"
+                activeFocusOnPress: true
             }
 
             TextField {
@@ -128,6 +129,11 @@ Item {
                 text: "00:00:00"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.fillWidth: true
+                
+                MouseArea {
+                    id: counterMouseArea
+                    anchors.fill: parent
+                }
             }
         }
 
