@@ -5,10 +5,10 @@
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
-
 #include "qxtglobalshortcut.h"
 
 #include <QApplication>
+#include <QDateTime>
 #include <QEvent>
 #include <QList>
 #include <QMap>
@@ -17,8 +17,8 @@
 #include <QQuickItem>
 #include <QQuickView>
 #include <QSystemTrayIcon>
-#include <QTimer>
 #include <QTime>
+#include <QTimer>
 
 #include <memory>
 
@@ -85,6 +85,9 @@ private:
 
     /// Recently opened issues
     IssueModel recentIssues_;
+
+    /// Last time the counter was increased
+    QDateTime lastTime_;
 
     /**
      * @brief Add an issue to the list of recent issues

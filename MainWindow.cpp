@@ -296,15 +296,11 @@ MainWindow::exit()
     {
         DEBUG() << "Received close event while timer is running";
 
-        QMessageBox msgBox( QMessageBox::Warning, QString("RedTimer"),
-                            tr("The timer is currently running"),
-                            QMessageBox::NoButton, qobject_cast<QWidget*>(this) );
-        msgBox.setInformativeText( tr("Do you want to save the logged time?") );
-        msgBox.setWindowModality( Qt::ApplicationModal );
-        msgBox.setStandardButtons( QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel );
-        msgBox.setDefaultButton( QMessageBox::Cancel );
-
-        int ret = msgBox.exec();
+        int ret = QMessageBox::question( qobject_cast<QWidget*>(this), tr("RedTimer"),
+                                         tr("The timer is currently running.\n"
+                                            "Do you want to save the logged time?"),
+                                         QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel,
+                                         QMessageBox::Cancel );
 
         switch( ret )
         {
@@ -722,10 +718,29 @@ MainWindow::refreshGui()
 void
 MainWindow::refreshCounter()
 {
+    // Internal counter update
     ++counter_;
 
+    // GUI counter update
     if( updateCounterGui_ )
         qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
+
+    // Time difference check
+    int minDiff = 60; // minimum difference in seconds
+    QDateTime curTime = QDateTime::currentDateTimeUtc();
+
+    int diff = lastTime_.secsTo(curTime);
+    lastTime_ = curTime;
+
+    if( diff > minDiff )
+    {
+        int ret = QMessageBox::question( qobject_cast<QWidget*>(this), tr("RedTimer"),
+                  tr("The timer was paused the last %1 minute(s).\n"
+                     "Do you want to add this time to the currently tracked time?").arg(diff/60) );
+
+        if( ret == QMessageBox::Yes )
+            counter_ += diff;
+    }
 }
 
 void
@@ -781,6 +796,8 @@ void
 MainWindow::startTimer()
 {
     ENTER();
+
+    lastTime_ = QDateTime::currentDateTimeUtc();
 
     timer_->start();
 

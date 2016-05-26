@@ -19,6 +19,9 @@ For Ubuntu instructions, please have a look at the [Ubuntu README](README.Ubuntu
 
 The simplest way is to pick a binary from GitHub (https://github.com/fathomssen/redtimer/releases).
 
+The latest development build for Windows can be found at
+https://ci.appveyor.com/project/fathomssen/redtimer/build/artifacts.
+
 To use Redmine custom fields in RedTimer, please install the `redmine_shared_api` plugin from
 https://github.com/anovitsky/redmine_shared_api.
 

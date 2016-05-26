@@ -24,7 +24,7 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
     issuesProxyModel_.setFilterRole( IssueModel::IssueRoles::SubjectRole );
     ctx_->setContextProperty( "issuesModel", &issuesProxyModel_ );
 
-    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel();
+    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel( this );
     projectProxyModel->setSourceModel( &projectModel_ );
     projectProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
     projectProxyModel->setDynamicSortFilter( true );
@@ -38,6 +38,20 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
 
     // Connect the search accepted signal to the filterIssues slot
     connect( qml("search"), SIGNAL(textChanged()), this, SLOT(filterIssues()) );
+
+    // Connect the closed signal to the close slot
+    connect( this, &Window::closed, [=](){ close(); } );
+
+    RETURN();
+}
+
+void
+IssueSelector::close()
+{
+    ENTER();
+
+    Window::close();
+    this->deleteLater();
 
     RETURN();
 }

@@ -67,6 +67,11 @@ public:
 
 public slots:
     /**
+     * @brief Close the issue selector dialog
+     */
+    void close();
+
+    /**
      * @brief Display the issue selector dialog
      */
     void display();

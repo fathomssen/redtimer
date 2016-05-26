@@ -21,17 +21,17 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     initHeight_ = height();
 
     // Set models
-    QSortFilterProxyModel* categoryProxyModel = new QSortFilterProxyModel();
+    QSortFilterProxyModel* categoryProxyModel = new QSortFilterProxyModel( this );
     categoryProxyModel->setSourceModel( &categoryModel_ );
     categoryProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
     ctx_->setContextProperty( "categoryModel", categoryProxyModel );
 
-    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel();
+    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel( this );
     projectProxyModel->setSourceModel( &projectModel_ );
     projectProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
     ctx_->setContextProperty( "projectModel", projectProxyModel );
 
-    QSortFilterProxyModel* trackerProxyModel = new QSortFilterProxyModel();
+    QSortFilterProxyModel* trackerProxyModel = new QSortFilterProxyModel( this );
     trackerProxyModel->setSourceModel( &trackerModel_ );
     trackerProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
     ctx_->setContextProperty( "trackerModel", trackerProxyModel );
@@ -86,6 +86,7 @@ IssueCreator::close()
         cancelled();
 
     Window::close();
+    this->deleteLater();
 
     RETURN();
 }
@@ -267,7 +268,7 @@ IssueCreator::loadCustomFields()
                     s <<   layout << endl;
                     s << "}" << endl;
 
-                    customFieldModels_[customField.id] = new SimpleModel();
+                    customFieldModels_[customField.id] = new SimpleModel( this );
 
                     for( const auto& value : customField.possibleValues )
                         customFieldModels_[customField.id]->push_back( SimpleItem(NULL_ID, value) );
