@@ -20,6 +20,9 @@ Window::Window( QString qml, MainWindow* mainWindow )
 
     setResizeMode( QQuickView::SizeRootObjectToView );
 
+    setMinimumHeight( height() );
+    setMinimumWidth( width() );
+
     RETURN();
 }
 

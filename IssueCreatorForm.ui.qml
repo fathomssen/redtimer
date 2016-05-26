@@ -3,7 +3,8 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 
 GridLayout {
-    id: gridLayout1
+    id: maingrid
+    objectName: "maingrid"
     columns: 2
 
     Label {
@@ -143,7 +144,4 @@ GridLayout {
             text: qsTr("Cancel")
         }
     }
-
-
 }
-

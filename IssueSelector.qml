@@ -1,8 +1,9 @@
 import QtQuick 2.5
 import QtQuick.Layouts 1.2
 
-IssueSelectorForm {
-    id: issueSelector // required by issueDelegate
+Item {
+    height: 400
+    width: 200
 
     Component{
         id: issueDelegate
@@ -26,4 +27,10 @@ IssueSelectorForm {
             }
         }
     }
+
+    IssueSelectorForm {
+        id: issueSelector // required by issueDelegate
+        anchors.margins: 5
+        anchors.fill: parent
+   }
 }

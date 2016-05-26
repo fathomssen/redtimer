@@ -19,6 +19,9 @@ private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_ = nullptr;
 
+    /// Initial height
+    int initHeight_;
+
     /// Use custom fields
     bool useCustomFields_ = false;
 

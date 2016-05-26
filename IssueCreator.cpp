@@ -18,6 +18,7 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     setModality( Qt::ApplicationModal );
     setFlags( Qt::Dialog );
     setTitle( "Issue Creator" );
+    initHeight_ = height();
 
     // Set models
     QSortFilterProxyModel* categoryProxyModel = new QSortFilterProxyModel();
@@ -303,7 +304,7 @@ IssueCreator::loadCustomFields()
                 }
 
                 item = qobject_cast<QQuickItem*>( component.create() );
-                item->setParentItem( qml() );
+                item->setParentItem( qml("maingrid") );
 
                 RETURN();
             };
@@ -324,6 +325,10 @@ IssueCreator::loadCustomFields()
 
             customFieldItems_[customField.id] = qMakePair( labelItem, entryFieldItem );
         }
+
+        // @todo Rough estimation that a custom field is 30 pixels in height
+        setHeight( initHeight_ + customFieldItems_.size()*30);
+        setMinimumHeight( height() );
 
         RETURN();
     },
