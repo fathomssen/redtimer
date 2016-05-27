@@ -21,16 +21,11 @@ ColumnLayout {
         id: search
         objectName: "search"
         Layout.fillWidth: true
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
         placeholderText: qsTr("Search in issue list")
     }
 
     ListView {
         id: issues
-        height: 300
         boundsBehavior: Flickable.StopAtBounds
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
         objectName: "issues"
@@ -45,12 +40,9 @@ ColumnLayout {
             radius: 5
         }
 
+        Layout.minimumHeight: 300
         Layout.fillWidth: true
         Layout.fillHeight: true
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
     }
 }
 

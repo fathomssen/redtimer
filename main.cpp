@@ -12,6 +12,7 @@ int main(int argc, char* argv[])
 {
     QApplication app( argc, argv );
     app.setApplicationName( "RedTimer" );
+    app.setAttribute( Qt::AA_UseHighDpiPixmaps );
     app.setQuitOnLastWindowClosed( false );
 
     // Command line options

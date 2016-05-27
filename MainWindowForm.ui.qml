@@ -21,7 +21,6 @@ Item {
 
     ToolBar {
         id: toolBar
-        height: 32
         objectName: "toolBar"
         anchors.right: parent.right
         anchors.left: parent.left
@@ -29,8 +28,6 @@ Item {
 
         ToolButton {
             id: createIssue
-            width: 24
-            height: 24
             objectName: "createIssue"
             text: "Create &new issue"
             anchors.verticalCenter: parent.verticalCenter
@@ -42,8 +39,6 @@ Item {
 
         ToolButton {
             id: reload
-            width: 24
-            height: 24
             objectName: "reload"
             text: "&Reload"
             anchors.verticalCenter: parent.verticalCenter
@@ -54,8 +49,6 @@ Item {
 
         ToolButton {
             id: settings
-            width: 24
-            height: 24
             objectName: "settings"
             text: "&Settings"
             anchors.verticalCenter: parent.verticalCenter
@@ -92,8 +85,6 @@ Item {
             ToolButton {
                 id: selectIssue
                 objectName: "selectIssue"
-                width: 24
-                height: 24
                 iconSource: "open-iconic/svg/list.svg"
                 tooltip: "Select issue from list"
             }
@@ -115,8 +106,6 @@ Item {
             ToolButton {
                 id: startStop
                 objectName: "startStop"
-                width: 24
-                height: 24
                 isDefault: true
                 iconSource: "open-iconic/svg/media-play.svg"
                 tooltip: "Start time tracking"

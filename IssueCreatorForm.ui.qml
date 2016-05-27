@@ -15,7 +15,6 @@ GridLayout {
     ComboBox {
         id: project
         objectName: "project"
-        Layout.minimumWidth: 200
         Layout.fillWidth: true
         model: projectModel
         textRole: "name"
@@ -29,7 +28,6 @@ GridLayout {
     ComboBox {
         id: tracker
         objectName: "tracker"
-        Layout.minimumWidth: 200
         Layout.fillWidth: true
         model: trackerModel
         textRole: "name"
@@ -54,8 +52,6 @@ GridLayout {
     }
 
     RowLayout {
-        width: 100
-        height: 100
         Layout.fillWidth: true
 
         TextField {
@@ -125,8 +121,6 @@ GridLayout {
 
     RowLayout {
         id: rowLayout1
-        width: 100
-        height: 100
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         Layout.columnSpan: 2
 
