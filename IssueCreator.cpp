@@ -2,6 +2,7 @@
 #include "IssueSelector.h"
 #include "logging.h"
 
+#include <QScreen>
 #include <QSortFilterProxyModel>
 
 using namespace qtredmine;
@@ -327,7 +328,8 @@ IssueCreator::loadCustomFields()
         }
 
         // @todo Rough estimation that a custom field is 30 pixels in height
-        setHeight( initHeight_ + customFieldItems_.size()*30);
+        int cfHeight = 30 * screen()->devicePixelRatio();
+        setHeight( initHeight_ + customFieldItems_.size() * cfHeight);
         setMinimumHeight( height() );
 
         RETURN();

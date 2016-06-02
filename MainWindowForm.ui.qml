@@ -1,13 +1,14 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
+import QtQuick.Window 2.0
 
 Item {
     id: mainForm
-    width: 250
-    height: 400
-    Layout.minimumWidth: 250
-    Layout.minimumHeight: 400
+    width: 250 * Screen.devicePixelRatio
+    height: 400 * Screen.devicePixelRatio
+    Layout.minimumWidth: 250 * Screen.devicePixelRatio
+    Layout.minimumHeight: 400 * Screen.devicePixelRatio
 
     property alias activity: activity
     property alias counter: counter
