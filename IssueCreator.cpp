@@ -4,6 +4,7 @@
 
 #include <QScreen>
 #include <QSortFilterProxyModel>
+#include <QTime>
 
 using namespace qtredmine;
 using namespace redtimer;
@@ -45,6 +46,9 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
 
     // Connect the tracker selected signal to the trackerSelected slot
     connect( qml("tracker"), SIGNAL(activated(int)), this, SLOT(trackerSelected(int)) );
+
+    // Connect the category selected signal to the categorySelected slot
+    connect( qml("category"), SIGNAL(activated(int)), this, SLOT(categorySelected(int)) );
 
     // Connect the issue selector button
     connect( qml("selectParentIssue"), SIGNAL(clicked()), this, SLOT(selectParentIssue()) );
@@ -478,6 +482,8 @@ IssueCreator::save()
 {
     ENTER();
 
+    Issue issue;
+
     if( projectId_ == NULL_ID )
     {
         message( "Please select a project", QtCriticalMsg );
@@ -496,18 +502,59 @@ IssueCreator::save()
         RETURN();
     }
 
+    QString stime = qml("estimatedTime")->property("text").toString();
+    if( !stime.isEmpty() )
+    {
+        // Try to find valid time string format
+        // @todo: Source out to function
+        QTime time = QTime::fromString( stime, "hh:mm:ss" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh:mm:s" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh:m:ss" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh:m:s" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h:mm:s" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h:m:ss" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h:m:s" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh:mm" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh:m" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h:mm" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h:m" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "hh" );
+        if( !time.isValid() )
+            time = QTime::fromString( stime, "h" );
+
+        if( time.isValid() )
+        {
+            issue.estimatedHours = time.hour() + (double)time.minute()/60 + (double)time.second()/3600;
+        }
+        else
+        {
+            message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
+            RETURN();
+        }
+    }
+
     cancelOnClose_ = false;
 
-    Issue issue;
     issue.project.id = projectId_;
     issue.tracker.id = trackerId_;
     issue.assignedTo.id = currentUserId_;
 
+    if( categoryId_ != NULL_ID )
+        issue.category.id = categoryId_;
+
     if( !qml("parentIssue")->property("text").toString().isEmpty() )
         issue.parentId = qml("parentIssue")->property("text").toInt();
-
-    if( !qml("parentIssue")->property("estimatedTime").toString().isEmpty() )
-        issue.estimatedHours = qml("estimatedTime")->property("text").toDouble();
 
     issue.subject = qml("subject")->property("text").toString();
     issue.description = qml("description")->property("text").toString();
