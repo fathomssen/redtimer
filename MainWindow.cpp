@@ -642,12 +642,37 @@ MainWindow::resumeCounterGui()
     ENTER();
 
     QString stime = qml("counter")->property( "text" ).toString();
-    QTime time = QTime::fromString( stime );
+    // Try to find valid time string format
+    QTime time = QTime::fromString( stime, "hh:mm:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:mm:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:mm:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:mm" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:mm" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h" );
 
     if( time.isValid() )
         counter_ = time.hour()*3600 + time.minute()*60 + time.second();
     else
-        message( tr("Invalid time specified: ").append(stime), QtCriticalMsg );
+        message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
 
     updateCounterGui_ = true;
 

@@ -1,6 +1,7 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
+import QtQuick.Window 2.0
 
 GridLayout {
     id: maingrid
@@ -15,7 +16,6 @@ GridLayout {
     ComboBox {
         id: project
         objectName: "project"
-        Layout.minimumWidth: 200
         Layout.fillWidth: true
         model: projectModel
         textRole: "name"
@@ -29,7 +29,6 @@ GridLayout {
     ComboBox {
         id: tracker
         objectName: "tracker"
-        Layout.minimumWidth: 200
         Layout.fillWidth: true
         model: trackerModel
         textRole: "name"
@@ -54,8 +53,6 @@ GridLayout {
     }
 
     RowLayout {
-        width: 100
-        height: 100
         Layout.fillWidth: true
 
         TextField {
@@ -116,7 +113,7 @@ GridLayout {
 
     TextArea {
         id: description
-        Layout.minimumHeight: 100
+        Layout.minimumHeight: 100 * Screen.devicePixelRatio
         Layout.fillHeight: true
         Layout.fillWidth: true
         objectName: "description"
@@ -125,8 +122,6 @@ GridLayout {
 
     RowLayout {
         id: rowLayout1
-        width: 100
-        height: 100
         Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         Layout.columnSpan: 2
 
