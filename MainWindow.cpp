@@ -40,12 +40,6 @@ MainWindow::MainWindow( QApplication* parent )
     if( !position.isNull() )
         setPosition( position );
 
-    // Additional window manager properties
-    Qt::WindowFlags flags = Qt::Window;
-    flags |= Qt::CustomizeWindowHint  | Qt::WindowTitleHint;
-    flags |= Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint;
-    setFlags( flags );
-
     display();
 
     // Notify upon connection status change
