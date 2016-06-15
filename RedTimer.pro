@@ -36,7 +36,8 @@ DISTFILES += \
     .travis.yml \
     README.md \
     README.Ubuntu.md \
-    build/deploy.ubuntu.sh
+    build/deploy.ubuntu.sh \
+    appveyor.yml
 
 RESOURCES += qml.qrc
 

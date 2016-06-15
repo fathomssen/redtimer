@@ -1,7 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
-import QtQuick.Window 2.0
 
 ColumnLayout {
     id: columnLayout1
@@ -41,7 +40,7 @@ ColumnLayout {
             radius: 5
         }
 
-        Layout.minimumHeight: 300 * Screen.devicePixelRatio
+        Layout.minimumHeight: 300
         Layout.fillWidth: true
         Layout.fillHeight: true
     }

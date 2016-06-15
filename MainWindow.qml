@@ -1,9 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Window 2.0
 
 Item {
-    width: 250 * Screen.devicePixelRatio
-    height: 400 * Screen.devicePixelRatio
+    width: 250
+    height: 400
 
     signal counterEntered()
 
