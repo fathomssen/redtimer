@@ -57,7 +57,7 @@ matrix:
         - distver: "14.04"
         - arch: i386
         - init: /sbin/init
-        - qtenv: /opt/qt56/bin/qt51-env.sh
+        - qtenv: /opt/qt56/bin/qt56-env.sh
         - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt561-trusty
         - deploy: true
