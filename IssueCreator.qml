@@ -1,9 +1,8 @@
 import QtQuick 2.5
-import QtQuick.Window 2.0
 
 Item {
-   height: 300 * Screen.devicePixelRatio
-   width: 400 * Screen.devicePixelRatio
+   height: 300
+   width: 400
 
    IssueCreatorForm {
         anchors.margins: 5

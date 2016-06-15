@@ -1,7 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
-import QtQuick.Window 2.0
 
 GridLayout {
     id: maingrid
@@ -113,7 +112,7 @@ GridLayout {
 
     TextArea {
         id: description
-        Layout.minimumHeight: 100 * Screen.devicePixelRatio
+        Layout.minimumHeight: 100
         Layout.fillHeight: true
         Layout.fillWidth: true
         objectName: "description"

@@ -33,7 +33,7 @@ matrix:
         - init: /sbin/init
         - qtenv: /opt/qt56/bin/qt56-env.sh
         - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt56-trusty
+        - qtppa: ppa:beineri/opt-qt561-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
     ### Ubuntu 14.04 i386, Qt 5.5 - DO NOT DEPLOY
@@ -57,9 +57,9 @@ matrix:
         - distver: "14.04"
         - arch: i386
         - init: /sbin/init
-        - qtenv: /opt/qt56/bin/qt56-env.sh
+        - qtenv: /opt/qt56/bin/qt51-env.sh
         - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt56-trusty
+        - qtppa: ppa:beineri/opt-qt561-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
     ###
