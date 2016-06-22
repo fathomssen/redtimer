@@ -52,14 +52,12 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
 {
     ENTER()(text)(timer)(type);
 
-    QString colour;
-    QSystemTrayIcon::MessageIcon icon;
+    QString colour = "#006400";
+    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information;
 
     switch( type )
     {
     case QtInfoMsg:
-        colour = "#006400";
-        icon = QSystemTrayIcon::Information;
         break;
     case QtWarningMsg:
         colour = "#FF8C00";
@@ -75,19 +73,25 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
         RETURN( nullptr );
     }
 
-    QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), this );
-    QQuickItem* item = view->rootObject();
-    item->setParentItem( item_ );
+    QQuickItem* item = nullptr;
 
-    item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
-    item->findChild<QQuickItem*>("message")->setProperty( "text", text );
-
-    if( timer )
-        connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
-
-    // If tray icon is displayed but this (!) window is closed, show a tray notification
-    if( mainWindow_->trayIcon() && !isVisible() )
+    // If tray icon is displayed, only show a tray notification
+    if( mainWindow_->trayIcon() )
+    {
         mainWindow_->trayIcon()->showMessage( "RedTimer", text, icon );
+    }
+    else
+    {
+        QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), this );
+        item = view->rootObject();
+        item->setParentItem( item_ );
+
+        item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
+        item->findChild<QQuickItem*>("message")->setProperty( "text", text );
+
+        if( timer )
+            connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
+    }
 
     RETURN( item );
 }
