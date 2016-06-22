@@ -754,8 +754,9 @@ MainWindow::refreshCounter()
     if( diff > minDiff )
     {
         int ret = QMessageBox::question( qobject_cast<QWidget*>(this), tr("RedTimer"),
-                  tr("The timer was paused the last %1 minute(s).\n"
-                     "Do you want to add this time to the currently tracked time?").arg(diff/60) );
+                  tr("The timer was paused the last %n minute(s).\n"
+                     "Do you want to add this time to the currently tracked time?",
+                     "", diff/60) );
 
         if( ret == QMessageBox::Yes )
             counter_ += diff;
