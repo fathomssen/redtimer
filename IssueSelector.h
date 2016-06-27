@@ -1,5 +1,4 @@
-#ifndef ISSUESELECTOR_H
-#define ISSUESELECTOR_H
+#pragma once
 
 #include "MainWindow.h"
 #include "Models.h"
@@ -110,5 +109,3 @@ signals:
 };
 
 } // redtimer
-
-#endif // ISSUESELECTOR_H

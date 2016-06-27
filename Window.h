@@ -1,5 +1,4 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#pragma once
 
 #include <QEvent>
 #include <QObject>
@@ -110,5 +109,3 @@ signals:
 };
 
 } // redtimer
-
-#endif // WINDOW_H
