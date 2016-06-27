@@ -1,5 +1,4 @@
-#ifndef MODELITEMS_H
-#define MODELITEMS_H
+#pragma once
 
 #include "qtredmine/SimpleRedmineClient.h"
 
@@ -377,5 +376,3 @@ operator<<( QDebug debug, const SimpleModel& model )
 }
 
 } // redtimer
-
-#endif // MODELITEMS_H

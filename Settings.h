@@ -1,5 +1,4 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H
+#pragma once
 
 #include "MainWindow.h"
 #include "Models.h"
@@ -207,5 +206,3 @@ signals:
 };
 
 } // redtimer
-
-#endif // SETTINGS_H

@@ -1,5 +1,4 @@
-#ifndef LOGGING_H
-#define LOGGING_H
+#pragma once
 
 #include <QDebug>
 
@@ -67,6 +66,14 @@ inline QDebug operator<<( QDebug debug, argLast )
 #define ENTER(...) DBG(__VA_ARGS__) << "Entering " << FUNC << ARGS
 #define RETURN(x) do{ DBG() << "Leaving " << FUNC; return x; }while(0)
 
+#else
+
+#define DEBUG(...) qDebug() << QString(__VA_ARGS__) << ARGS
+#define ENTER(...) DEBUG(__VA_ARGS__) << "Entering" << Q_FUNC_INFO << ARGS
+#define RETURN(x) do{ DEBUG() << "Leaving" << Q_FUNC_INFO; return x; }while(0)
+
+#endif
+
 // Callbacks
 #define CBENTER(...) do{\
         ENTER(__VA_ARGS__);\
@@ -78,13 +85,3 @@ inline QDebug operator<<( QDebug debug, argLast )
         if( deleteLater_ ) deleteLater();\
         RETURN();\
     }while(0)
-
-#else
-
-#define DEBUG(...) qDebug() << QString(__VA_ARGS__) << ARGS
-#define ENTER(...) DEBUG(__VA_ARGS__) << "Entering" << Q_FUNC_INFO << ARGS
-#define RETURN(x) do{ DEBUG() << "Leaving" << Q_FUNC_INFO; return x; }while(0)
-
-#endif
-
-#endif // LOGGING_H

@@ -1,5 +1,4 @@
-#ifndef ISSUECREATOR_H
-#define ISSUECREATOR_H
+#pragma once
 
 #include "MainWindow.h"
 #include "Models.h"
@@ -196,5 +195,3 @@ signals:
 };
 
 } // redtimer
-
-#endif // ISSUECREATOR_H

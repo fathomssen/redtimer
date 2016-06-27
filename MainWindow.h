@@ -1,5 +1,4 @@
-#ifndef REDTIMER_H
-#define REDTIMER_H
+#pragma once
 
 #include "Models.h"
 #include "Window.h"
@@ -313,5 +312,3 @@ signals:
 };
 
 } // redtimer
-
-#endif // REDTIMER_H
