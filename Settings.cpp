@@ -65,6 +65,8 @@ Settings::apply()
 
     auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
     {
+        CBENTER();
+
         if( !success )
         {
             QString errorMsg = tr( "Could not save the time entry." );
@@ -72,7 +74,7 @@ Settings::apply()
                 errorMsg.append("\n").append(error);
             message( errorMsg, QtCriticalMsg );
 
-            RETURN();
+            CBRETURN();
         }
 
         data = temp;
@@ -121,9 +123,12 @@ Settings::apply()
 
         DEBUG() << "Emitting applied() signal";
         applied();
+
+        CBRETURN();
     };
 
     // Save current time before applying
+    ++callbackCounter_;
     mainWindow_->stop( true, true, cb );
 
     RETURN();
@@ -542,10 +547,11 @@ Settings::updateIssueStatuses()
     redmine_->setUrl( temp.url );
     redmine_->setAuthenticator( temp.apiKey );
 
+    ++callbackCounter_;
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -554,7 +560,7 @@ Settings::updateIssueStatuses()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         int currentIndex = 0;
@@ -579,7 +585,7 @@ Settings::updateIssueStatuses()
         qml("workedOn")->setProperty( "currentIndex", -1 );
         qml("workedOn")->setProperty( "currentIndex", currentIndex );
 
-        RETURN();
+        CBRETURN();
     } );
 
     RETURN();

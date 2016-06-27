@@ -403,10 +403,11 @@ MainWindow::loadActivities()
 {
     ENTER();
 
+    ++callbackCounter_;
     redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities, RedmineError redmineError,
                                                 QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -415,7 +416,7 @@ MainWindow::loadActivities()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         int currentIndex = 0;
@@ -435,7 +436,7 @@ MainWindow::loadActivities()
         qml("activity")->setProperty( "currentIndex", -1 );
         qml("activity")->setProperty( "currentIndex", currentIndex );
 
-        RETURN();
+        CBRETURN();
     } );
 
     RETURN();
@@ -485,9 +486,12 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         RETURN();
     }
 
+    ++callbackCounter_;
     redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
     {
-        ENTER()(issue);
+        CBENTER();
+
+        DEBUG()(issue);
 
         if( redmineError != NO_ERROR )
         {
@@ -496,7 +500,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         issue_ = issue;
@@ -515,7 +519,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         if( startTimer )
             start();
 
-        RETURN();
+        CBRETURN();
     },
     issueId );
 
@@ -527,10 +531,11 @@ MainWindow::loadIssueStatuses()
 {
     ENTER();
 
+    ++callbackCounter_;
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -539,7 +544,7 @@ MainWindow::loadIssueStatuses()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         int currentIndex = 0;
@@ -559,7 +564,7 @@ MainWindow::loadIssueStatuses()
         qml("issueStatus")->setProperty( "currentIndex", -1 );
         qml("issueStatus")->setProperty( "currentIndex", currentIndex );
 
-        RETURN();
+        CBRETURN();
     } );
 
     RETURN();
@@ -576,10 +581,11 @@ MainWindow::loadLatestActivity()
         RETURN();
     }
 
+    ++callbackCounter_;
     redmine_->retrieveTimeEntries( [&]( TimeEntries timeEntries, RedmineError redmineError,
                                         QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -588,7 +594,7 @@ MainWindow::loadLatestActivity()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         if( timeEntries.size() == 1 )
@@ -596,7 +602,7 @@ MainWindow::loadLatestActivity()
 
         loadActivities();
 
-        RETURN();
+        CBRETURN();
     },
     QString("issue_id=%1&limit=1").arg(issue_.id) );
 
@@ -871,9 +877,12 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     // Stop the timer for now - might be started again later
     stopTimer();
 
+    ++callbackCounter_;
     redmine_->sendTimeEntry( timeEntry, [=](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        ENTER()(success)(id)(errorCode)(errors);
+        CBENTER();
+
+        DEBUG()(success)(id)(errorCode)(errors);
 
         if( !success && errorCode != ERR_TIME_ENTRY_TOO_SHORT )
         {
@@ -885,7 +894,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
             if( cb )
                 cb( success, id, errorCode, errors );
 
-            RETURN();
+            CBRETURN();
         }
 
         if( errorCode == ERR_TIME_ENTRY_TOO_SHORT )
@@ -909,7 +918,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         if( cb )
             cb( true, id, errorCode, errors );
 
-        RETURN();
+        CBRETURN();
     });
 
     RETURN();
@@ -974,9 +983,12 @@ MainWindow::updateIssueStatus( int statusId )
     Issue issue;
     issue.status.id = statusId;
 
+    ++callbackCounter_;
     redmine_->sendIssue( issue, [=](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        ENTER()(success)(id)(errorCode)(errors);
+        CBENTER();
+
+        DEBUG()(success)(id)(errorCode)(errors);
 
         if( !success )
         {
@@ -985,7 +997,7 @@ MainWindow::updateIssueStatus( int statusId )
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         message( tr("Issue updated") );
@@ -993,7 +1005,7 @@ MainWindow::updateIssueStatus( int statusId )
         issue_.status.id = statusId;
         loadIssueStatuses();
 
-        RETURN();
+        CBRETURN();
     },
     issue_.id );
 

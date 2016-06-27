@@ -40,6 +40,24 @@ Window::event( QEvent* event )
     return QQuickView::event( event );
 }
 
+void
+Window::deleteLater()
+{
+    ENTER()(deleteLater_)(callbackCounter_);
+
+    deleteLater_ = true;
+
+    if( callbackCounter_ == 0 )
+    {
+        DEBUG() << "Deleting the Window object";
+        QQuickView::deleteLater();
+    }
+    else
+        DEBUG() << "Not yet deleting the Window object";
+
+    RETURN();
+}
+
 MainWindow*
 Window::mainWindow()
 {

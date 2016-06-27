@@ -114,9 +114,10 @@ IssueSelector::loadIssues()
 {
     ENTER()(projectId_);
 
+    ++callbackCounter_;
     redmine_->retrieveIssues( [&]( Issues issues, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -125,7 +126,7 @@ IssueSelector::loadIssues()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         issuesModel_.clear();
@@ -134,6 +135,8 @@ IssueSelector::loadIssues()
             issuesModel_.push_back( issue );
 
         DEBUG()(issuesModel_);
+
+        CBRETURN();
     },
     RedmineOptions( QString("project_id=%1").arg(projectId_), true ) );
 
@@ -149,9 +152,10 @@ IssueSelector::loadProjects()
     projectModel_.clear();
     projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
 
+    ++callbackCounter_;
     redmine_->retrieveProjects( [=]( Projects projects, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -160,7 +164,7 @@ IssueSelector::loadProjects()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         int currentIndex = 0;
@@ -182,7 +186,7 @@ IssueSelector::loadProjects()
         qml("project")->setProperty( "currentIndex", -1 );
         qml("project")->setProperty( "currentIndex", currentIndex );
 
-        RETURN();
+        CBRETURN();
     },
     QString("limit=100") );
 }
