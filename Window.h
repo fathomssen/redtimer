@@ -22,6 +22,12 @@ private:
     bool emitClosedSignal_ = true;
 
 protected:
+    /// Counter to ensure that there are no idle callbacks after deleting the object
+    int callbackCounter_ = 0;
+
+    /// Flag to determine whether deleteLater() has been called
+    bool deleteLater_ = false;
+
     /// Main item
     QQuickItem* item_;
 
@@ -71,6 +77,11 @@ protected:
     bool event( QEvent* event );
 
 public slots:
+    /**
+     * @brief Delete the object after all callbacks have finished
+     */
+    void deleteLater();
+
     /**
      * @brief Display a message
      *

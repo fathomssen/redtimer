@@ -67,6 +67,18 @@ inline QDebug operator<<( QDebug debug, argLast )
 #define ENTER(...) DBG(__VA_ARGS__) << "Entering " << FUNC << ARGS
 #define RETURN(x) do{ DBG() << "Leaving " << FUNC; return x; }while(0)
 
+// Callbacks
+#define CBENTER(...) do{\
+        ENTER(__VA_ARGS__);\
+        if( deleteLater_ ) CBRETURN();\
+    }while(0)
+
+#define CBRETURN(x) do{\
+        --callbackCounter_;\
+        if( deleteLater_ ) deleteLater();\
+        RETURN();\
+    }while(0)
+
 #else
 
 #define DEBUG(...) qDebug() << QString(__VA_ARGS__) << ARGS

@@ -120,9 +120,10 @@ IssueCreator::loadCategories()
     if( projectId_ == NULL_ID )
         RETURN();
 
+    ++callbackCounter_;
     redmine_->retrieveProject( [&]( Project project, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -131,7 +132,7 @@ IssueCreator::loadCategories()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         categoryModel_.clear();
@@ -151,7 +152,7 @@ IssueCreator::loadCategories()
             qml("category")->setProperty( "enabled", true );
         }
 
-        RETURN();
+        CBRETURN();
     },
     projectId_ );
 
@@ -163,9 +164,10 @@ IssueCreator::loadCurrentUser()
 {
     ENTER();
 
+    ++callbackCounter_;
     redmine_->retrieveCurrentUser( [&]( User user, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -174,11 +176,11 @@ IssueCreator::loadCurrentUser()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         currentUserId_ = user.id;
-        RETURN();
+        CBRETURN();
     } );
 
     RETURN();
@@ -199,10 +201,11 @@ IssueCreator::loadCustomFields()
     filter.projectId = projectId_;
     filter.type = "issue";
 
+    ++callbackCounter_;
     redmine_->retrieveCustomFields( [&]( CustomFields customFields, RedmineError redmineError,
                                          QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -211,7 +214,7 @@ IssueCreator::loadCustomFields()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         // Delete previously loaded custom fields
@@ -335,7 +338,7 @@ IssueCreator::loadCustomFields()
         setHeight( initHeight_ + customFieldItems_.size() * cfHeight);
         setMinimumHeight( height() );
 
-        RETURN();
+        CBRETURN();
     },
     filter );
 
@@ -347,9 +350,10 @@ IssueCreator::loadProjects()
 {
     ENTER();
 
+    ++callbackCounter_;
     redmine_->retrieveProjects( [&]( Projects projects, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -358,7 +362,7 @@ IssueCreator::loadProjects()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         int currentIndex = 0;
@@ -381,7 +385,7 @@ IssueCreator::loadProjects()
         if( projectId_ )
             refreshGui();
 
-        RETURN();
+        CBRETURN();
     },
     QString("limit=100") );
 
@@ -396,9 +400,10 @@ IssueCreator::loadTrackers()
     if( projectId_ == NULL_ID )
         RETURN();
 
+    ++callbackCounter_;
     redmine_->retrieveProject( [&]( Project project, RedmineError redmineError, QStringList errors )
     {
-        ENTER();
+        CBENTER();
 
         if( redmineError != NO_ERROR )
         {
@@ -407,7 +412,7 @@ IssueCreator::loadTrackers()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         trackerModel_.clear();
@@ -420,7 +425,7 @@ IssueCreator::loadTrackers()
 
         qml("tracker")->setProperty( "enabled", true );
 
-        RETURN();
+        CBRETURN();
     },
     projectId_ );
 
@@ -573,9 +578,12 @@ IssueCreator::save()
         issue.customFields.push_back( cf );
     }
 
+    ++callbackCounter_;
     redmine_->sendIssue( issue, [=](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        ENTER()(success)(id)(errorCode)(errors);
+        CBENTER();
+
+        DEBUG()(success)(id)(errorCode)(errors);
 
         if( !success )
         {
@@ -586,7 +594,7 @@ IssueCreator::save()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
-            RETURN();
+            CBRETURN();
         }
 
         message( tr("New issue created with ID %1").arg(id) );
@@ -594,7 +602,7 @@ IssueCreator::save()
         created( id );
         close();
 
-        RETURN();
+        CBRETURN();
     } );
 
     RETURN();
