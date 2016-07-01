@@ -124,6 +124,15 @@ matrix:
         - deployscript: build/deploy.ubuntu.sh
     ####################### OS X #######################
     ###
+    ### OS X 10.9
+    ###
+    - os: osx
+      osx_image: beta-xcode6.2
+      env:
+        - deploy: true
+        - distver: "10.9"
+        - distname: "mavericks"
+    ###
     ### OS X 10.10
     ###
     - os: osx
