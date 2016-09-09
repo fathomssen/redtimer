@@ -34,7 +34,7 @@ Item {
             anchors.leftMargin: 0
             anchors.left: parent.left
             tooltip: "Create new issue"
-            iconSource: "open-iconic/svg/plus.svg"
+            iconSource: "/open-iconic/svg/plus.svg"
         }
 
         ToolButton {
@@ -44,7 +44,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: settings.left
             tooltip: "Reload"
-            iconSource: "open-iconic/svg/reload.svg"
+            iconSource: "/open-iconic/svg/reload.svg"
         }
 
         ToolButton {
@@ -54,7 +54,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             tooltip: "Open Settings"
-            iconSource: "open-iconic/svg/cog.svg"
+            iconSource: "/open-iconic/svg/cog.svg"
         }
     }
 
@@ -85,7 +85,7 @@ Item {
             ToolButton {
                 id: selectIssue
                 objectName: "selectIssue"
-                iconSource: "open-iconic/svg/list.svg"
+                iconSource: "/open-iconic/svg/list.svg"
                 tooltip: "Select issue from list"
             }
         }
@@ -107,7 +107,7 @@ Item {
                 id: startStop
                 objectName: "startStop"
                 isDefault: true
-                iconSource: "open-iconic/svg/media-play.svg"
+                iconSource: "/open-iconic/svg/media-play.svg"
                 tooltip: "Start time tracking"
                 activeFocusOnPress: true
             }

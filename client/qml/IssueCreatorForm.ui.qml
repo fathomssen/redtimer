@@ -64,7 +64,7 @@ GridLayout {
         Button {
             id: selectParentIssue
             objectName: "selectParentIssue"
-            iconSource: "open-iconic/svg/list.svg"
+            iconSource: "/open-iconic/svg/list.svg"
             tooltip: "Select parent issue from list"
             enabled: false
         }

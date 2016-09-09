@@ -6,7 +6,7 @@ using namespace redtimer;
 using namespace std;
 
 IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWindow )
-    : Window( "qrc:/IssueSelector.qml", mainWindow ),
+    : Window( "IssueSelector", mainWindow ),
       redmine_( redmine )
 {
     ENTER();

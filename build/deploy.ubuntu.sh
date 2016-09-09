@@ -52,10 +52,11 @@ distdir=$execdir/$redtimer
 mkdir -p $distdir
 
 cp -a $src/LICENSE $distdir
-cp -a $src/RedTimer $distdir
-cp -a $src/redtimer.sh $distdir
+cp -a $src/RedTimerClient $distdir
+cp -a $src/build/redtimer.sh $distdir
 
-cp -a $src/qtredmine/libqtredmine.so* $distdir
+cp -a $src/libqtredmine.so* $distdir
+cp -a $src/libredtimer.so* $distdir
 
 if [ $deploy_qt ]; then
   # Get Qt libraries from RedTimer executable  

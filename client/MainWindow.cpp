@@ -16,7 +16,7 @@ using namespace redtimer;
 using namespace std;
 
 MainWindow::MainWindow( QApplication* parent )
-    : Window( "qrc:/MainWindow.qml", this ),
+    : Window( "MainWindow", this ),
       app_( parent )
 {
     ENTER();

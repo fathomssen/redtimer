@@ -1,9 +1,9 @@
 [submodule "qtredmine"]
-	path = qtredmine
+	path = libqtredmine
 	url = https://github.com/fathomssen/qtredmine.git
 [submodule "open-iconic"]
-	path = open-iconic
+	path = client/open-iconic
 	url = https://github.com/iconic/open-iconic.git
 [submodule "qxtglobalshortcut5"]
-	path = qxtglobalshortcut5
+	path = client/qxtglobalshortcut5
 	url = https://github.com/fathomssen/qxtglobalshortcut5.git

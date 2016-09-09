@@ -10,7 +10,7 @@ using namespace redtimer;
 using namespace std;
 
 IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow )
-    : Window( "qrc:/IssueCreator.qml", mainWindow ),
+    : Window( "IssueCreator", mainWindow ),
       redmine_( redmine )
 {
     ENTER();

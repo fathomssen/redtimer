@@ -9,7 +9,7 @@ using namespace redtimer;
 using namespace std;
 
 Window::Window( QString qml, MainWindow* mainWindow )
-    : QQuickView( QUrl(qml) )
+    : QQuickView( QUrl(QString("qrc:/qml/").append(qml).append(".qml")) )
 {
     ENTER();
 

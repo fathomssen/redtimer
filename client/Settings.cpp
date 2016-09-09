@@ -13,7 +13,7 @@ using namespace redtimer;
 using namespace std;
 
 Settings::Settings( MainWindow* mainWindow )
-    : Window( "qrc:/Settings.qml", mainWindow ),
+    : Window( "Settings", mainWindow ),
       settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this )
 {
     ENTER();

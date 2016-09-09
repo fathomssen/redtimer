@@ -42,21 +42,21 @@ ColumnLayout {
                         id: createProfile
                         objectName: "createProfile"
                         tooltip: "Create new profile"
-                        iconSource: "open-iconic/svg/plus.svg"
+                        iconSource: "/open-iconic/svg/plus.svg"
                     }
 
                     Button {
                         id: deleteProfile
                         objectName: "deleteProfile"
                         tooltip: "Delete profile"
-                        iconSource: "open-iconic/svg/trash.svg"
+                        iconSource: "/open-iconic/svg/trash.svg"
                     }
 
                     Button {
                         id: renameProfile
                         objectName: "renameProfile"
                         tooltip: "Rename profile"
-                        iconSource: "open-iconic/svg/pencil.svg"
+                        iconSource: "/open-iconic/svg/pencil.svg"
                     }
                 }
 
