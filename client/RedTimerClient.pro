@@ -31,14 +31,6 @@ SOURCES += \
     Window.cpp \
     MainWindow.cpp
 
-DISTFILES += \
-    .travis.yml \
-    appveyor.yml \
-    README.md \
-    README.Ubuntu.md \
-    build/deploy.ubuntu.sh \
-    build/redtimer.sh
-
 RESOURCES += RedTimerClient.qrc
 
 # No debug statements in release
