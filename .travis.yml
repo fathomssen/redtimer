@@ -88,33 +88,20 @@ before_install:
   ### Linux
   - run $isLinux docker pull ${dist}:${distver}
   - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
-  - run $isLinux export DOCKER="docker exec --tty ${CONTAINER} env TERM=xterm"
+  - run $isLinux export DOCKER="docker exec -ti ${CONTAINER}"
   ### Ubuntu
+  - run $hasQtPpa $DOCKER apt-get install -y software-properties-common
+  - run $hasQtPpa $DOCKER add-apt-repository -y ${qtppa}
   - run $isUbuntu $DOCKER apt-get update
-  - run $isUbuntu $DOCKER apt-get install -y pbuilder debootstrap devscripts
-  - run $isUbuntu $DOCKER $LINUX32 pbuilder create --debootstrapopts --variant=buildd $ARCH
+  - run $isUbuntu $DOCKER apt-get dist-upgrade -y
   ### OS X
   - run $isOsX brew update
 
 install:
   ### Ubuntu
-  # Install dependencies in build chroot
-  # sources.list will be in Docker:/build and chroot:/root
-  - run $isUbuntu $DOCKER cp /etc/apt/sources.list /build
-  - run $isUbuntu touch prepare.sh
-  - run $isUbuntu chmod 755 prepare.sh
-  - run $isUbuntu echo "#!/bin/bash" >> prepare.sh
-  - run $isUbuntu echo >> prepare.sh
-  - run $isUbuntu echo "set -ex" >> prepare.sh
-  - run $isUbuntu echo "cp /build/sources.list /etc/apt" >> prepare.sh
-  - run $isUbuntu echo "apt-get update" >> prepare.sh
-  - run $hasQtPpa echo "apt-get install -y software-properties-common" >> prepare.sh
-  - run $hasQtPpa echo "add-apt-repository -y ${qtppa}" >> prepare.sh
-  - run $isUbuntu echo "apt-get update" >> prepare.sh
-  - run $isUbuntu echo "apt-get dist-upgrade -y" >> prepare.sh
-  - run $hasQtPkg echo "apt-get install -y ${qtpkg}" >> prepare.sh
-  - run $isUbuntu echo "apt-get install -y lsb-release" >> prepare.sh
-  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" --save-after-exec /build/prepare.sh
+  # Install dependencies
+  - run $hasQtPkg $DOCKER apt-get install -y ${qtpkg}
+  - run $isUbuntu $DOCKER apt-get install -y lsb-release
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
@@ -131,7 +118,6 @@ script:
   - echo "set -x" >> build.sh
   - run $hasQtEnv echo "source ${qtenv}" >> build.sh
   - echo "set -ex" >> build.sh
-  - run $isUbuntu echo "cd /build" >> build.sh
   #- run $isOsX echo "echo \"CONFIG+=staticlib\" >> libqtredmine/qtredmine.pro" >> build.sh
   #- run $isOsX echo "echo \"CONFIG+=staticlib\" >> libredtimer/libredtimer.pro" >> build.sh
   #- run $isOsX echo "sed -i \"\" -e \"s#-lqtredmine#libqtredmine/libqtredmine.a#\" libqtredmine/qtredmine.pri" >> build.sh
@@ -139,7 +125,7 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/build.sh
+  - run $isUbuntu $DOCKER ./build.sh
   - run $isOsX ./build.sh
 
 before_deploy:
@@ -153,7 +139,7 @@ before_deploy:
   - run $isUbuntu echo "cd /build" >> deploy.sh
   - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
-  - run $isUbuntu $DOCKER $LINUX32 pbuilder --execute --bindmounts "/build" /build/deploy.sh
+  - run $isUbuntu $DOCKER ./deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX macdeployqt RedTimer.app -dmg
