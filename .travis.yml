@@ -8,7 +8,7 @@ matrix:
   include:
     ####################### Ubuntu #######################
     ###
-    ### Ubuntu 14.04 x86_64, Qt 5.6
+    ### Ubuntu 14.04 x86_64, Qt 5.7
     ###
     - os: linux
       dist: trusty
@@ -18,9 +18,9 @@ matrix:
         - distver: "14.04"
         - arch: x86_64
         - init: /sbin/init
-        - qtenv: /opt/qt56/bin/qt56-env.sh
-        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt561-trusty
+        - qtenv: /opt/qt56/bin/qt57-env.sh
+        - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt57-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
     ###
@@ -88,7 +88,7 @@ before_install:
   ### Linux
   - run $isLinux docker pull ${dist}:${distver}
   - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
-  - run $isLinux export DOCKER="docker exec -ti ${CONTAINER}"
+  - run $isLinux export DOCKER="docker exec -t ${CONTAINER}"
   ### Ubuntu
   - run $hasQtPpa $DOCKER apt-get update
   - run $hasQtPpa $DOCKER apt-get install -y software-properties-common
