@@ -90,6 +90,7 @@ before_install:
   - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
   - run $isLinux export DOCKER="docker exec -ti ${CONTAINER}"
   ### Ubuntu
+  - run $hasQtPpa $DOCKER apt-get update
   - run $hasQtPpa $DOCKER apt-get install -y software-properties-common
   - run $hasQtPpa $DOCKER add-apt-repository -y ${qtppa}
   - run $isUbuntu $DOCKER apt-get update
@@ -125,7 +126,7 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - run $isUbuntu $DOCKER ./build.sh
+  - run $isUbuntu $DOCKER build.sh
   - run $isOsX ./build.sh
 
 before_deploy:
@@ -139,7 +140,7 @@ before_deploy:
   - run $isUbuntu echo "cd /build" >> deploy.sh
   - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
-  - run $isUbuntu $DOCKER ./deploy.sh
+  - run $isUbuntu $DOCKER deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX macdeployqt RedTimer.app -dmg
