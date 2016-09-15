@@ -148,7 +148,7 @@ MainWindow::addRecentIssue( qtredmine::Issue issue )
     // Add the issue to the top of the list
     recentIssues_.push_front( issue );
 
-    // Crop the list after ten entries (keep 0..9)
+    // Crop the list after numRecentIssues entries
     int numRecentIssues = settings_->data.numRecentIssues;
     if( numRecentIssues != -1 )
         recentIssues_.removeRowsFrom( numRecentIssues );
@@ -330,17 +330,7 @@ MainWindow::exit()
     }
 
     // Save settings
-
-    settings_->data.position = position();
-    settings_->data.recentIssues = recentIssues_.data().toVector();
-
-    // If currently there is no issue selected, use the first one from the recently opened issues list
-    if( issue_.id == NULL_ID && recentIssues_.rowCount() )
-        settings_->data.issueId = recentIssues_.at(0).id;
-    else
-        settings_->data.issueId = issue_.id;
-
-    settings_->save();
+    saveSettings();
 
     if( trayIcon_ )
         trayIcon_->hide();
@@ -518,6 +508,8 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
         if( startTimer )
             start();
+
+        saveSettings();
 
         CBRETURN();
     },
@@ -767,6 +759,25 @@ MainWindow::refreshCounter()
         if( ret == QMessageBox::Yes )
             counter_ += diff;
     }
+}
+
+void
+MainWindow::saveSettings()
+{
+    ENTER();
+
+    settings_->data.position = position();
+    settings_->data.recentIssues = recentIssues_.data().toVector();
+
+    // If currently there is no issue selected, use the first one from the recently opened issues list
+    if( issue_.id == NULL_ID && recentIssues_.rowCount() )
+        settings_->data.issueId = recentIssues_.at(0).id;
+    else
+        settings_->data.issueId = issue_.id;
+
+    settings_->save();
+
+    RETURN();
 }
 
 void

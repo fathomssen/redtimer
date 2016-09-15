@@ -121,6 +121,11 @@ public:
     void initTrayIcon();
 
     /**
+     * @brief Save the current configuration
+     */
+    void saveSettings();
+
+    /**
      * @brief Get the system tray icon
      *
      * @return Tray icon object
