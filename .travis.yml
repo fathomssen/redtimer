@@ -126,7 +126,8 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - run $isUbuntu $DOCKER build.sh
+  - run $isUbuntu docker cp build.sh $CONTAINER:build.sh
+  - run $isUbuntu $DOCKER ./build.sh
   - run $isOsX ./build.sh
 
 before_deploy:
