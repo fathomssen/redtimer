@@ -122,12 +122,11 @@ script:
   #- run $isOsX echo "echo \"CONFIG+=staticlib\" >> libredtimer/libredtimer.pro" >> build.sh
   #- run $isOsX echo "sed -i \"\" -e \"s#-lqtredmine#libqtredmine/libqtredmine.a#\" libqtredmine/qtredmine.pri" >> build.sh
   #- run $isOsX echo "sed -i \"\" -e \"s#-lredtimer#libredtimer/libredtimer.a#\" libredtimer/libredtimer.pri" >> build.sh
+  - run $isUbuntu echo "cd /build" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - run $isUbuntu $DOCKER pwd
-  - run $isUbuntu docker run -v .:.
-  - run $isUbuntu $DOCKER ./build.sh
+  - run $isUbuntu $DOCKER /build/build.sh
   - run $isOsX ./build.sh
 
 before_deploy:
