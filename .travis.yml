@@ -40,14 +40,14 @@ matrix:
         - deployscript: build/deploy.ubuntu.sh
     ####################### OS X #######################
     ###
-    ### OS X 10.9
+    ### OS X 10.9 (not built for now)
     ###
-    - os: osx
-      osx_image: beta-xcode6.2
-      env:
-        - deploy: true
-        - distver: "10.9"
-        - distname: "mavericks"
+    #- os: osx
+    #  osx_image: beta-xcode6.2
+    #  env:
+    #    - deploy: true
+    #    - distver: "10.9"
+    #    - distname: "mavericks"
     ###
     ### OS X 10.10
     ###
@@ -102,6 +102,7 @@ install:
   # Install dependencies
   - run $hasQtPkg $DOCKER apt-get install -y ${qtpkg}
   - run $isUbuntu $DOCKER apt-get install -y lsb-release
+  - run $isUbuntu $DOCKER apt-get install -y build-essential
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
