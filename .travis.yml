@@ -18,7 +18,7 @@ matrix:
         - distver: "14.04"
         - arch: x86_64
         - init: /sbin/init
-        - qtenv: /opt/qt56/bin/qt57-env.sh
+        - qtenv: /opt/qt57/bin/qt57-env.sh
         - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt57-trusty
         - deploy: true
@@ -35,7 +35,6 @@ matrix:
         - arch: x86_64
         - init: /sbin/init
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
-        - qmakeopt: "-qt5"
         - deploy: true
         - deployscript: build/deploy.ubuntu.sh
     ####################### OS X #######################
@@ -94,7 +93,6 @@ before_install:
   - run $hasQtPpa $DOCKER apt-get install -y software-properties-common
   - run $hasQtPpa $DOCKER add-apt-repository -y ${qtppa}
   - run $isUbuntu $DOCKER apt-get update
-  - run $isUbuntu $DOCKER apt-get dist-upgrade -y
   ### OS X
   - run $isOsX brew update
 
