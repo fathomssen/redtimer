@@ -35,6 +35,7 @@ matrix:
         - arch: x86_64
         - init: /sbin/init
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
+        - qmakeopt: "-qt5"
         - deploy: true
         - deployscript: build/deploy.ubuntu.sh
     ####################### OS X #######################
@@ -124,7 +125,8 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - run $isUbuntu docker cp build.sh $CONTAINER:build.sh
+  - run $isUbuntu $DOCKER pwd
+  - run $isUbuntu docker run -v .:.
   - run $isUbuntu $DOCKER ./build.sh
   - run $isOsX ./build.sh
 
