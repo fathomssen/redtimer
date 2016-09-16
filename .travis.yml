@@ -139,7 +139,7 @@ before_deploy:
   - run $isUbuntu echo "cd /build" >> deploy.sh
   - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
-  - run $isUbuntu $DOCKER deploy.sh
+  - run $isUbuntu $DOCKER /build/deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX macdeployqt client/RedTimerClient.app -dmg
