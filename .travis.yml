@@ -119,10 +119,8 @@ script:
   - echo "set -x" >> build.sh
   - run $hasQtEnv echo "source ${qtenv}" >> build.sh
   - echo "set -ex" >> build.sh
-  #- run $isOsX echo "echo \"CONFIG+=staticlib\" >> libqtredmine/qtredmine.pro" >> build.sh
-  #- run $isOsX echo "echo \"CONFIG+=staticlib\" >> libredtimer/libredtimer.pro" >> build.sh
-  #- run $isOsX echo "sed -i \"\" -e \"s#-lqtredmine#libqtredmine/libqtredmine.a#\" libqtredmine/qtredmine.pri" >> build.sh
-  #- run $isOsX echo "sed -i \"\" -e \"s#-lredtimer#libredtimer/libredtimer.a#\" libredtimer/libredtimer.pri" >> build.sh
+  - run $isOsX echo "echo \"CONFIG += staticlib\" >> libqtredmine/qtredmine.pro" >> build.sh
+  - run $isOsX echo "echo \"CONFIG += staticlib\" >> libredtimer/libredtimer.pro" >> build.sh
   - run $isUbuntu echo "cd /build" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
@@ -144,8 +142,8 @@ before_deploy:
   - run $isUbuntu $DOCKER deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
-  - run $isOsX macdeployqt RedTimer.app -dmg
-  - run $isOsX mv RedTimer.dmg $DEPLOYFILE
+  - run $isOsX macdeployqt client/RedTimerClient.app -dmg
+  - run $isOsX mv client/RedTimerClient.dmg $DEPLOYFILE
 
 deploy:
   provider: releases
