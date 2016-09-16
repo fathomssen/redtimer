@@ -112,8 +112,6 @@ install:
 script:
   - export USER_ID=$(id -u)
   - export GROUP_ID=$(id -g)
-  - touch build.sh
-  - chmod 755 build.sh
   - echo "#!/bin/bash" >> build.sh
   - echo >> build.sh
   - echo "set -x" >> build.sh
@@ -125,6 +123,7 @@ script:
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
   - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
+  - chmod 755 build.sh
   - run $isUbuntu $DOCKER /build/build.sh
   - run $isOsX ./build.sh
 
@@ -139,6 +138,7 @@ before_deploy:
   - run $isUbuntu echo "cd /build" >> deploy.sh
   - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
   - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
+  - run $isUbuntu chmod 755 deploy.sh
   - run $isUbuntu $DOCKER /build/deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
