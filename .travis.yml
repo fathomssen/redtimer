@@ -8,7 +8,7 @@ matrix:
   include:
     ####################### Ubuntu #######################
     ###
-    ### Ubuntu 14.04 x86_64, Qt 5.7
+    ### Ubuntu 14.04 x86_64, Qt 5.6
     ###
     - os: linux
       dist: trusty
@@ -18,9 +18,9 @@ matrix:
         - distver: "14.04"
         - arch: x86_64
         - init: /sbin/init
-        - qtenv: /opt/qt57/bin/qt57-env.sh
-        - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt57-trusty
+        - qtenv: /opt/qt56/bin/qt56-env.sh
+        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt561-trusty
         - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
     ###
