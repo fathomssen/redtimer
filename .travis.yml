@@ -42,12 +42,12 @@ matrix:
     ###
     ### OS X 10.9 (not built for now)
     ###
-    #- os: osx
-    #  osx_image: beta-xcode6.2
-    #  env:
-    #    - deploy: true
-    #    - distver: "10.9"
-    #    - distname: "mavericks"
+    - os: osx
+      osx_image: beta-xcode6.2
+      env:
+        - deploy: true
+        - distver: "10.9"
+        - distname: "mavericks"
     ###
     ### OS X 10.10
     ###
@@ -95,7 +95,11 @@ before_install:
   - run $hasQtPpa $DOCKER add-apt-repository -y ${qtppa}
   - run $isUbuntu $DOCKER apt-get update
   ### OS X
+  - run $isOsX brew untap caskroom/homebrew-cask
+  - run $isOsX brew uninstall --force brew-cask
   - run $isOsX brew update
+  - run $isOsX brew cleanup
+  - run $isOsX brew cask cleanup
 
 install:
   ### Ubuntu
