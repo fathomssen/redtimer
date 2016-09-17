@@ -147,7 +147,7 @@ before_deploy:
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX cd client
-  - run $isOsX macdeployqt RedTimerClient.app -appstore-compliant -always-overwrite
+  - run $isOsX macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
   - run $isOsX export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
   - run $isOsX python ../build/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
   # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
