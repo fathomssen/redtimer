@@ -153,7 +153,7 @@ before_deploy:
   - run $isOsX python ../build/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
   # Thanks to https://medium.com/juan-cruz-viotti/how-to-code-sign-os-x-electron-apps-in-travis-ci-6b6a0756c04a#.x84x807hk
   - run $isOsX export CERTIFICATE_P12=Certificate.p12
-  - run $isOsX echo $CERTIFICATE_OSX_P12 | base64 — decode > $CERTIFICATE_P12
+  - run $isOsX echo $(echo $CERTIFICATE_OSX_P12 | base64 — decode) > $CERTIFICATE_P12
   - run $isOsX export KEYCHAIN=build.keychain
   - run $isOsX security create-keychain -p mysecretpassword $KEYCHAIN
   - run $isOsX security default-keychain -s $KEYCHAIN
