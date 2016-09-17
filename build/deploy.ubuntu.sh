@@ -114,7 +114,7 @@ if [ $deploy_qt ]; then
   }
   
   # Get all Qt libraries required by RedTimer
-  qtlibs=$(ldd -v RedTimer | grep libQt | grep "=>" | sed 's/.*=> *//' | sed 's/\.so.*/.so/' | sort -u)
+  qtlibs=$(ldd -v client/RedTimerClient | grep libQt | grep "=>" | sed 's/.*=> *//' | sed 's/\.so.*/.so/' | sort -u)
   for lib in $qtlibs; do
     qtlibsarr+=($lib)
   done

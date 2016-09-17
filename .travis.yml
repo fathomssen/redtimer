@@ -142,8 +142,20 @@ before_deploy:
   - run $isUbuntu $DOCKER /build/deploy.sh
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
-  - run $isOsX macdeployqt client/RedTimerClient.app -dmg
-  - run $isOsX mv client/RedTimerClient.dmg $DEPLOYFILE
+  - run $isOsX cd client
+  - run $isOsX macdeployqt RedTimerClient.app -appstore-compliant -always-overwrite
+  - run $isOsX export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
+  - run $isOsX python ../build/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
+  # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
+  - run $isOsX hdiutil create -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder RedTimerClient.app -volname RedTimerClient tmp.dmg
+  - run $isOsX export DECIDE=$(hdiutil attach -readwrite -noverify tmp.dmg | egrep '^/dev/' | sed 1q | awk '{print $1}')
+  - run $isOsX pushd /Volumes/RedTimerClient
+  - run $isOsX ln -s /Applications
+  - run $isOsX popd
+  - run $isOsX sync
+  - run $isOsX hdiutil detach "${DEVICE}"
+  - run $isOsX hdiutil convert tmp.dmg -format UDZO -imagekey zlib-level=9 -o RedTimerClient.dmg
+  - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE
 
 deploy:
   provider: releases
