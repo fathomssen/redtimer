@@ -32,7 +32,7 @@ Window::event( QEvent* event )
     // Show warning on close and if timer is running
     if( emitClosedSignal_ && event->type() == QEvent::Close )
     {
-        DEBUG("Received close signal")(this)(event->type());
+        DEBUG("Received close signal")(this);
         emitClosedSignal_ = false;
         closed();
     }

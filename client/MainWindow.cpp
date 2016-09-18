@@ -33,7 +33,6 @@ MainWindow::MainWindow( QApplication* parent )
 
     // Main window initialisation
     installEventFilter( this );
-    setModality( Qt::ApplicationModal );
     setTitle( "RedTimer" );
 
     QPoint position = settings_->data.position;
@@ -256,9 +255,23 @@ MainWindow::display()
 {
     ENTER();
 
-    showNormal();
-    requestActivate();
     raise();
+    requestActivate();
+    showNormal();
+
+    RETURN();
+}
+
+void
+MainWindow::hide()
+{
+    ENTER();
+
+#ifdef Q_OS_OSX
+    showMinimized();
+#else
+    Window::hide();
+#endif
 
     RETURN();
 }
@@ -269,11 +282,13 @@ MainWindow::eventFilter( QObject* obj, QEvent* event )
     // Control closing behaviour depending on tray icon usage
     if( event->type() == QEvent::Close )
     {
+        DEBUG("Received close signal");
         if( trayIcon_ )
             hide();
         else
             exit();
 
+        event->ignore();
         return true;
     }
 
@@ -957,7 +972,7 @@ MainWindow::toggle()
 {
     ENTER();
 
-    if( isVisible() )
+    if( isExposed() )
         hide();
     else
         display();
@@ -970,8 +985,10 @@ MainWindow::trayEvent( QSystemTrayIcon::ActivationReason reason )
 {
     ENTER()(reason);
 
+#ifndef Q_OS_OSX
     if( reason == QSystemTrayIcon::ActivationReason::Trigger )
         toggle();
+#endif
 
     RETURN();
 }

@@ -177,6 +177,11 @@ private slots:
     void createIssue();
 
     /**
+     * @brief Hide the main window
+     */
+    void hide();
+
+    /**
      * @brief Slot to a selected issue status
      */
     void issueStatusSelected( int index );
