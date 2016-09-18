@@ -56,6 +56,9 @@ public:
         /// Use system tray icon
         bool useSystemTrayIcon;
 
+        /// Close to tray
+        bool closeToTray;
+
         /// Issue status to switch after tracking time
         int workedOnId;
 

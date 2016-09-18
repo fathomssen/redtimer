@@ -97,6 +97,7 @@ Settings::apply()
 
         // Interface
         data.useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
+        data.closeToTray = qml("closeToTray")->property("checked").toBool();
 
         if( oldUrl == data.url )
         {
@@ -117,7 +118,8 @@ Settings::apply()
 
         DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
                                     (data.useCustomFields)
-                                    (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)(data.workedOnId);
+                                    (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)
+                                    (data.closeToTray)(data.workedOnId);
 
         save();
 
@@ -232,6 +234,7 @@ Settings::display( bool loadData )
 
     qml("apikey")->setProperty( "text", temp.apiKey );
     qml("checkConnection")->setProperty( "checked", temp.checkConnection );
+    qml("closeToTray")->setProperty( "checked", temp.closeToTray );
     qml("ignoreSslErrors")->setProperty( "checked", temp.ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", temp.numRecentIssues );
     qml("url")->setProperty( "text", temp.url );
@@ -342,12 +345,15 @@ Settings::load()
     temp.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
                              ? settings_.value("useSystemTrayIcon").toBool()
                              : true;
+    temp.closeToTray = settings_.value("closeToTray").isValid()
+                             ? settings_.value("closeToTray").toBool()
+                             : true;
 
     loadProfileData();
 
     DEBUG("Loaded settings from file:")
             (temp.apiKey)(temp.checkConnection)(temp.ignoreSslErrors)(temp.numRecentIssues)(temp.url)
-            (temp.useCustomFields)(temp.useSystemTrayIcon)(temp.workedOnId)
+            (temp.useCustomFields)(temp.useSystemTrayIcon)(temp.closeToTray)(temp.workedOnId)
             (temp.activityId)(temp.issueId)(temp.position)(temp.projectId)(temp.recentIssues);
 
     data = temp;
@@ -458,6 +464,7 @@ Settings::save()
         settings_.setValue( "position", data.position );
         settings_.setValue( "profileId", profileId_ );
         settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
+        settings_.setValue( "closeToTray", data.closeToTray );
 
         // Shortcuts
         settings_.setValue("shortcutCreateIssue", data.shortcutCreateIssue );

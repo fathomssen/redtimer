@@ -283,7 +283,7 @@ MainWindow::eventFilter( QObject* obj, QEvent* event )
     if( event->type() == QEvent::Close )
     {
         DEBUG("Received close signal");
-        if( trayIcon_ )
+        if( trayIcon_ && settings_->data.closeToTray )
             hide();
         else
             exit();

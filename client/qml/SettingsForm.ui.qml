@@ -209,6 +209,12 @@ ColumnLayout {
                     objectName: "useSystemTrayIcon"
                     text: qsTr("Use system tray icon")
                 }
+
+                CheckBox {
+                    id: closeToTray
+                    objectName: "closeToTray"
+                    text: qsTr("Hide window instead of closing it")
+                }
             }
         }
     }
