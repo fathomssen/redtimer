@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -ex
-
 macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
 export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimerClient.app/Contents/PlugIns
