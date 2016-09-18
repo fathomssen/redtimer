@@ -15,8 +15,12 @@ security unlock-keychain -p mysecretpassword $KEYCHAIN
 security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
 
 # Use first ID
-export ID=$(find-identity -v $KEYCHAIN | grep "1)" | sed "s/.*) \([^ ]*\).*/\1/")
+set -x
+find-identity -v $KEYCHAIN
+export ID=$(find-identity -v $KEYCHAIN | grep "1)" | sed "s/.*) *\([^ ]*\).*/\1/")
+echo $ID
 codesign --deep --force --verbose --sign $ID --keychain $KEYCHAIN RedTimerClient.app
+set +x
 
 # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
 hdiutil create -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder RedTimerClient.app -volname RedTimerClient tmp.dmg
