@@ -147,28 +147,7 @@ before_deploy:
   # OS X
   - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
   - run $isOsX cd client
-  - run $isOsX macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
-  - run $isOsX export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
-  - run $isOsX cp -a $QTDIR/plugins/{bearer,iconengines} RedTimerClient.app/Contents/PlugIns
-  - run $isOsX python ../build/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
-  # Thanks to https://medium.com/juan-cruz-viotti/how-to-code-sign-os-x-electron-apps-in-travis-ci-6b6a0756c04a#.x84x807hk
-  - run $isOsX export CERTIFICATE_P12="Certificate.p12"
-  - run $isOsX echo $(echo $CERTIFICATE_OSX_P12 | base64 -D) > $CERTIFICATE_P12
-  - run $isOsX export KEYCHAIN=build.keychain
-  - run $isOsX security create-keychain -p mysecretpassword $KEYCHAIN
-  - run $isOsX security default-keychain -s $KEYCHAIN
-  - run $isOsX security unlock-keychain -p mysecretpassword $KEYCHAIN
-  - run $isOsX security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
-  - run $isOsX codesign --deep --force --verbose --sign $CERTIFICATE_P12 RedTimerClient.app
-  # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
-  - run $isOsX hdiutil create -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder RedTimerClient.app -volname RedTimerClient tmp.dmg
-  - run $isOsX export DEVICE=$(hdiutil attach -readwrite -noverify tmp.dmg | egrep '^/dev/' | sed 1q | awk '{print $1}')
-  - run $isOsX pushd /Volumes/RedTimerClient
-  - run $isOsX ln -s /Applications
-  - run $isOsX popd
-  - run $isOsX sync
-  - run $isOsX hdiutil detach "${DEVICE}"
-  - run $isOsX hdiutil convert tmp.dmg -format UDZO -imagekey zlib-level=9 -o RedTimerClient.dmg
+  - run $isOsX ../build/deploy.osx.sh
   - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE
 
 deploy:

@@ -11,6 +11,7 @@ libqtredmine.file = libqtredmine/qtredmine.pro
 client.depends = libqtredmine libredtimer
 
 DISTFILES += \
+    build/deploy.osx.sh \
     build/deploy.ubuntu.sh \
     build/redtimer.sh \
     .travis.yml \
