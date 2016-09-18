@@ -16,8 +16,8 @@ security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/b
 
 # Use first ID
 set -x
-find-identity -v $KEYCHAIN
-export ID=$(find-identity -v $KEYCHAIN | grep "1)" | sed "s/.*) *\([^ ]*\).*/\1/")
+security find-identity -v $KEYCHAIN
+export ID=$(security find-identity -v $KEYCHAIN | grep "1)" | sed "s/^ *1) *\([^ ]*\).*/\1/")
 echo $ID
 codesign --deep --force --verbose --sign $ID --keychain $KEYCHAIN RedTimerClient.app
 set +x
