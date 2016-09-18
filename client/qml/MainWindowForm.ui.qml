@@ -101,10 +101,12 @@ Item {
                 id: columnLayout2
                 anchors.fill: parent
 
-                Label {
+                TextField {
                     id: issueId
-                    text: qsTr("")
                     objectName: "issueId"
+                    Layout.fillWidth: true
+                    readOnly: true
+                    placeholderText: qsTr("ID")
                 }
 
                 TextField {
@@ -112,7 +114,7 @@ Item {
                     readOnly: true
                     Layout.fillWidth: true
                     objectName: "subject"
-                    placeholderText: qsTr("")
+                    placeholderText: qsTr("Subject")
                 }
 
                 TextArea {
@@ -124,6 +126,16 @@ Item {
                     objectName: "description"
                     readOnly: true
                 }
+
+                TextField {
+                    id: version
+                    objectName: "version"
+                    Layout.fillWidth: true
+                    readOnly: true
+                    placeholderText: qsTr("Target version")
+                }
+
+
 
             }
 

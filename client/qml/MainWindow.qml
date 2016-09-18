@@ -2,7 +2,7 @@ import QtQuick 2.5
 
 Item {
     width: 270
-    height: 400
+    height: 420
 
     signal counterEntered()
 

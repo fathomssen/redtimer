@@ -517,6 +517,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         qml("issueId")->setProperty( "text", QString("Issue #%1").arg(issue.id) );
         qml("subject")->setProperty( "text", issue.subject );
         qml("description")->setProperty( "text", issue.description );
+        qml("version")->setProperty( "text", QString("Target version: %1").arg(issue.version.name) );
 
         loadLatestActivity();
         loadIssueStatuses();
