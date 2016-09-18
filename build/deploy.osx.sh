@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
 export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimerClient.app/Contents/PlugIns
@@ -13,7 +15,7 @@ security create-keychain -p mysecretpassword $KEYCHAIN
 security default-keychain -s $KEYCHAIN
 security unlock-keychain -p mysecretpassword $KEYCHAIN
 security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
-codesign --deep --force --verbose --sign $CERTIFICATE_P12 RedTimerClient.app
+codesign --deep --force --verbose --sign 6659Y3CEQN --keychain $KEYCHAIN RedTimerClient.app
 
 # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
 hdiutil create -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder RedTimerClient.app -volname RedTimerClient tmp.dmg
