@@ -4,15 +4,16 @@ import QtQuick.Layouts 1.2
 
 Item {
     id: mainForm
-    width: 250
+    width: 270
     height: 400
+
     Layout.minimumWidth: 250
     Layout.minimumHeight: 400
 
     property alias activity: activity
     property alias counter: counter
     property alias counterMouseArea: counterMouseArea
-    property alias issueData: issueData
+    property alias description: description
     property alias issueStatus: issueStatus
     property alias quickPick: quickPick
     property alias selectIssue: selectIssue
@@ -90,13 +91,44 @@ Item {
             }
         }
 
-        TextArea {
-            id: issueData
+        GroupBox {
+            id: groupBox1
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignLeft | Qt.AlignTop
             Layout.fillWidth: true
-            objectName: "issueData"
-            readOnly: true
+            title: qsTr("Issue data")
+
+            ColumnLayout {
+                id: columnLayout2
+                anchors.fill: parent
+
+                Label {
+                    id: issueId
+                    text: qsTr("")
+                    objectName: "issueId"
+                }
+
+                TextField {
+                    id: subject
+                    readOnly: true
+                    Layout.fillWidth: true
+                    objectName: "subject"
+                    placeholderText: qsTr("")
+                }
+
+                TextArea {
+                    id: description
+                    text: ""
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+                    Layout.fillWidth: true
+                    objectName: "description"
+                    readOnly: true
+                }
+
+            }
+
+
+
         }
 
         RowLayout {
@@ -141,6 +173,11 @@ Item {
             model: issueStatusModel
             textRole: "name"
         }
+
+
+
+
+
     }
 }
 

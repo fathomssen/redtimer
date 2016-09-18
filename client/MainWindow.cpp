@@ -228,7 +228,7 @@ MainWindow::createIssue()
     issueCreator->display();
 
     // Empty the issue information and set ID to NULL_ID
-    qml("issueData")->setProperty( "text", "<new issue>" );
+    qml("description")->setProperty( "text", "<new issue>" );
     issue_.id = NULL_ID;
 
     // Connect the issue selected signal to the setIssue slot
@@ -237,7 +237,7 @@ MainWindow::createIssue()
         if( recentIssues_.rowCount() )
             loadIssue( recentIssues_.at(0).id );
         else
-            qml("issueData")->setProperty( "text", "" );
+            qml("description")->setProperty( "text", "" );
     } );
 
     // Connect the issue selected signal to the setIssue slot
@@ -487,7 +487,9 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
     if( issueId == NULL_ID )
     {
-        qml("issueData")->setProperty( "text", "" );
+        qml("issueId")->setProperty( "text", "" );
+        qml("subject")->setProperty( "text", "" );
+        qml("description")->setProperty( "text", "" );
         RETURN();
     }
 
@@ -512,11 +514,9 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
         addRecentIssue( issue );
 
-        QString issueData = QString( "Issue #%1\n\nSubject: %2\n\n%3" )
-                .arg(issue.id)
-                .arg(issue.subject)
-                .arg(issue.description);
-        qml("issueData")->setProperty( "text", issueData );
+        qml("issueId")->setProperty( "text", QString("Issue #%1").arg(issue.id) );
+        qml("subject")->setProperty( "text", issue.subject );
+        qml("description")->setProperty( "text", issue.description );
 
         loadLatestActivity();
         loadIssueStatuses();
