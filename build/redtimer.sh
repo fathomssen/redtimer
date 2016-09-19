@@ -3,7 +3,7 @@
 dir=$(dirname $0)
 export LD_LIBRARY_PATH=$dir
 
-missing="$(ldd $dir/RedTimer | grep 'not found')"
+missing="$(ldd $dir/RedTimerClient | grep 'not found')"
 if [ -n "$missing" ]; then
   echo "Missing dependencies"
   echo
@@ -23,4 +23,4 @@ if [ "${XDG_CURRENT_DESKTOP}" == "XFCE" ]; then
   export QT_STYLE_OVERRIDE="gtk2"
 fi
 
-$dir/RedTimer $@
+$dir/RedTimerClient $@
