@@ -101,7 +101,7 @@ before_install:
   - run $isOsX brew update
   - run $isOsX brew cleanup
   - run $isOsX brew cask cleanup
-  - run $isNewOsX /usr/bin/xcodebuild
+  - run $isNewOsX xcodebuild -license accept
 
 install:
   ### Ubuntu
