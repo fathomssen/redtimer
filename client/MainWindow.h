@@ -301,6 +301,11 @@ private slots:
      */
     void updateIssueStatus( int statusId );
 
+    /**
+     * @brief Update the title and tray icon tool tip
+     */
+    void updateTitle();
+
 public slots:
 
     /**

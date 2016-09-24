@@ -522,6 +522,8 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         loadLatestActivity();
         loadIssueStatuses();
 
+        updateTitle();
+
         if( startTimer )
             start();
 
@@ -735,15 +737,7 @@ MainWindow::refreshGui()
     loadLatestActivity();
     loadIssueStatuses();
 
-    QString title = "RedTimer";
-    QString url = redmine_->getUrl();
-
-    if( !url.isEmpty() )
-        title.append(" - ").append( url );
-
-    setTitle( title );
-    if( trayIcon_ )
-        trayIcon_->setToolTip( title );
+    updateTitle();
 
     RETURN();
 }
@@ -1037,6 +1031,30 @@ MainWindow::updateIssueStatus( int statusId )
         CBRETURN();
     },
     issue_.id );
+
+    RETURN();
+}
+
+void
+MainWindow::updateTitle()
+{
+    ENTER();
+
+    QString title = "RedTimer";
+    QString url = redmine_->getUrl();
+
+    if( !url.isEmpty() )
+        title.append(" - ").append( url );
+
+    setTitle( title );
+
+    if( trayIcon_ )
+    {
+        title.append( QString("\n\nIssue ID: %1").arg(issue_.id) );
+        if( !issue_.description.isEmpty() )
+            title.append( QString("\n\n%2").arg(issue_.description) );
+        trayIcon_->setToolTip( title );
+    }
 
     RETURN();
 }
