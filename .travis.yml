@@ -81,7 +81,7 @@ before_install:
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - export isNewOsX=$( [[ $isOsX && "${distver}" > "10.10" ]] && echo true || echo false )
+  - export isNewOsX=$( [[ $isOsX && "${distver}" == "10.11" ]] && echo true || echo false )
   - export isUbuntu=$( [[ $isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
   - export hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
   - export hasQtPpa=$( [[ $isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
@@ -101,7 +101,6 @@ before_install:
   - run $isOsX brew update
   - run $isOsX brew cleanup
   - run $isOsX brew cask cleanup
-  - run $isNewOsX build/fixQtForXcode8.sh
 
 install:
   ### Ubuntu
@@ -114,6 +113,7 @@ install:
   - run $isOsX brew install qt5
   - run $isOsX brew linkapps qt5
   - run $isOsX brew link --force qt5
+  - run $isNewOsX build/fixQtForXcode8.sh
 
 script:
   - export USER_ID=$(id -u)
