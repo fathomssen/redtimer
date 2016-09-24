@@ -101,9 +101,7 @@ before_install:
   - run $isOsX brew update
   - run $isOsX brew cleanup
   - run $isOsX brew cask cleanup
-  - run $isNewOsX sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
-  - run $isNewOsX cd /Applications/Xcode.app/Contents/Developer/usr/bin/
-  - run $isNewOsX sudo ln -s xcodebuild xcrun
+  - run $isNewOsX /usr/bin/xcodebuild
 
 install:
   ### Ubuntu
