@@ -75,6 +75,15 @@ protected:
      */
     bool event( QEvent* event );
 
+    /**
+     * @brief Filter Qt key events
+     *
+     * Close window with Esc key.
+     *
+     * @param event Received key event
+     */
+    void keyPressEvent( QKeyEvent* event );
+
 public slots:
     /**
      * @brief Delete the object after all callbacks have finished

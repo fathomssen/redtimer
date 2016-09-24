@@ -26,6 +26,19 @@ Window::Window( QString qml, MainWindow* mainWindow )
     RETURN();
 }
 
+void
+Window::keyPressEvent( QKeyEvent* event )
+{
+    // Close window with Esc key
+    if( event->key() == Qt::Key_Escape )
+    {
+        DEBUG("Closing window with Esc key");
+        close();
+    }
+
+    QQuickView::keyPressEvent( event );
+}
+
 bool
 Window::event( QEvent* event )
 {
