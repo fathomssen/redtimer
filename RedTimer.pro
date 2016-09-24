@@ -13,6 +13,7 @@ client.depends = libqtredmine libredtimer
 DISTFILES += \
     build/deploy.osx.sh \
     build/deploy.ubuntu.sh \
+    build/fixQtForXcode8.sh \
     build/redtimer.sh \
     .travis.yml \
     appveyor.yml \

@@ -101,7 +101,7 @@ before_install:
   - run $isOsX brew update
   - run $isOsX brew cleanup
   - run $isOsX brew cask cleanup
-  - run $isNewOsX xcodebuild -license accept
+  - run $isNewOsX build/fixQtForXcode8.sh
 
 install:
   ### Ubuntu
