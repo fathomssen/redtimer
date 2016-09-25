@@ -35,9 +35,7 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     installEventFilter( this );
     setTitle( "RedTimer" );
 
-    QPoint position = settings_->data.position;
-    if( !position.isNull() )
-        setPosition( position );
+    setWindowData( settings_->data.mainWindow );
 
     display();
 
@@ -823,7 +821,7 @@ MainWindow::saveSettings()
 {
     ENTER();
 
-    settings_->data.position = position();
+    settings_->data.mainWindow = getWindowData();
     settings_->data.recentIssues = recentIssues_.data().toVector();
 
     // If currently there is no issue selected, use the first one from the recently opened issues list

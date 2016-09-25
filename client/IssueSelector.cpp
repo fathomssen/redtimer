@@ -1,4 +1,5 @@
 #include "IssueSelector.h"
+#include "Settings.h"
 #include "logging.h"
 
 using namespace qtredmine;
@@ -68,6 +69,9 @@ IssueSelector::close()
 {
     ENTER();
 
+    mainWindow_->settings_->data.issueSelector = getWindowData();
+    mainWindow_->settings_->save();
+
     Window::close();
     this->deleteLater();
 
@@ -78,6 +82,8 @@ void
 IssueSelector::display()
 {
     ENTER();
+
+    setWindowData( mainWindow_->settings_->data.issueSelector );
 
     show();
 

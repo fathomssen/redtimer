@@ -116,11 +116,6 @@ Settings::apply()
                 data.recentIssues.removeLast();
         }
 
-        DEBUG("Changed settings to")(data.apiKey)(data.checkConnection)(data.ignoreSslErrors)
-                                    (data.useCustomFields)
-                                    (data.numRecentIssues)(data.url)(data.useSystemTrayIcon)
-                                    (data.closeToTray)(data.workedOnId);
-
         save();
 
         DEBUG() << "Emitting applied() signal";
@@ -152,6 +147,17 @@ Settings::cancel()
 {
     ENTER();
     close();
+    RETURN();
+}
+
+void
+Settings::close()
+{
+    ENTER();
+
+    data.settings = getWindowData();
+    Window::close();
+
     RETURN();
 }
 
@@ -248,6 +254,8 @@ Settings::display( bool loadData )
 
     updateIssueStatuses();
 
+    setWindowData( data.settings );
+
     showNormal();
     raise();
 
@@ -283,7 +291,6 @@ Settings::getProfileName( QString& name, QString title, QString initText )
     RETURN( true );
 }
 
-
 void
 Settings::load( const QString profile )
 {
@@ -291,7 +298,25 @@ Settings::load( const QString profile )
 
     // General settings
     {
-        temp.position = settings_.value("position").toPoint();
+        if( !settings_.value("issueCreator/geometry").isNull() )
+            temp.issueCreator.geometry = settings_.value("issueCreator/geometry").toRect();
+        if( !settings_.value("issueCreator/position").isNull() )
+            temp.issueCreator.position = settings_.value("issueCreator/position").toPoint();
+
+        if( !settings_.value("issueSelector/geometry").isNull() )
+            temp.issueSelector.geometry = settings_.value("issueSelector/geometry").toRect();
+        if( !settings_.value("issueSelector/position").isNull() )
+            temp.issueSelector.position = settings_.value("issueSelector/position").toPoint();
+
+        if( !settings_.value("mainWindow/geometry").isNull() )
+            temp.mainWindow.geometry = settings_.value("mainWindow/geometry").toRect();
+        if( !settings_.value("mainWindow/position").isNull() )
+            temp.mainWindow.position = settings_.value("mainWindow/position").toPoint();
+
+        if( !settings_.value("settings/geometry").isNull() )
+            temp.settings.geometry = settings_.value("settings/geometry").toRect();
+        if( !settings_.value("settings/position").isNull() )
+            temp.settings.position = settings_.value("settings/position").toPoint();
 
         if( !settings_.value("profileId").isNull() )
             profileId_ = settings_.value("profileId").toInt();
@@ -355,11 +380,6 @@ Settings::load( const QString profile )
                              : true;
 
     loadProfileData();
-
-    DEBUG("Loaded settings from file:")
-            (temp.apiKey)(temp.checkConnection)(temp.ignoreSslErrors)(temp.numRecentIssues)(temp.url)
-            (temp.useCustomFields)(temp.useSystemTrayIcon)(temp.closeToTray)(temp.workedOnId)
-            (temp.activityId)(temp.issueId)(temp.position)(temp.projectId)(temp.recentIssues);
 
     data = temp;
     applied();
@@ -466,7 +486,18 @@ Settings::save()
 
     // General settings
     {
-        settings_.setValue( "position", data.position );
+        settings_.setValue( "issueCreator/geometry", data.issueCreator.geometry );
+        settings_.setValue( "issueCreator/position", data.issueCreator.position );
+
+        settings_.setValue( "issueSelector/geometry", data.issueSelector.geometry );
+        settings_.setValue( "issueSelector/position", data.issueSelector.position );
+
+        settings_.setValue( "mainWindow/geometry", data.mainWindow.geometry );
+        settings_.setValue( "mainWindow/position", data.mainWindow.position );
+
+        settings_.setValue( "settings/geometry", data.settings.geometry );
+        settings_.setValue( "settings/position", data.settings.position );
+
         settings_.setValue( "profileId", profileId_ );
         settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
         settings_.setValue( "closeToTray", data.closeToTray );

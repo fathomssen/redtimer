@@ -21,7 +21,6 @@ matrix:
         - qtenv: /opt/qt56/bin/qt56-env.sh
         - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt561-trusty
-        - deploy: true
         - deployscript: "'build/deploy.ubuntu.sh -qt'"
     ###
     ### Ubuntu 16.04 x86_64, Qt 5.5
@@ -36,7 +35,6 @@ matrix:
         - init: /sbin/init
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
         - qmakeopt: "-qt5"
-        - deploy: true
         - deployscript: build/deploy.ubuntu.sh
     ####################### OS X #######################
     ###
@@ -45,7 +43,6 @@ matrix:
     - os: osx
       osx_image: beta-xcode6.2
       env:
-        - deploy: true
         - distver: "10.9"
         - distname: "mavericks"
     ###
@@ -54,7 +51,6 @@ matrix:
     - os: osx
       osx_image: xcode6.4
       env:
-        - deploy: true
         - distver: "10.10"
         - distname: "yosemite"
     ###
@@ -63,7 +59,6 @@ matrix:
     - os: osx
       osx_image: xcode8
       env:
-        - deploy: true
         - distver: "10.11"
         - distname: "el-capitan"
 
@@ -161,5 +156,4 @@ deploy:
   skip_cleanup: true
   on:
     repo: fathomssen/redtimer
-    condition: -n "${deploy}"
     tags: true

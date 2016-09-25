@@ -145,6 +145,34 @@ Window::message( QString text, QtMsgType type, int timeout )
     RETURN( message(text, timer, type) );
 }
 
+WindowData
+Window::getWindowData()
+{
+    ENTER();
+
+    WindowData windowData;
+    windowData.geometry = geometry();
+    windowData.position = position();
+
+    RETURN( windowData );
+}
+
+void
+Window::setWindowData( WindowData windowData )
+{
+    ENTER()(windowData.geometry)(windowData.position);
+
+    QRect geometry = windowData.geometry;
+    if( !geometry.isNull() )
+        setGeometry( geometry );
+
+    QPoint position = windowData.position;
+    if( !position.isNull() )
+        setPosition( position );
+
+    RETURN();
+}
+
 QQuickItem*
 Window::qml( QString qmlItem )
 {

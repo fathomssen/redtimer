@@ -73,14 +73,28 @@ public:
         /// Last opened issue
         int issueId;
 
-        /// Last window position
-        QPoint position;
-
         /// Last opened project
         int projectId;
 
         /// Recently opened issues
         qtredmine::Issues recentIssues;
+
+        /// @}
+
+        /// @name Window data
+        /// @{
+
+        /// Window data of the Issue Creator
+        WindowData issueCreator;
+
+        /// Window data of the Issue Selector
+        WindowData issueSelector;
+
+        /// Window data of the main window
+        WindowData mainWindow;
+
+        /// Window data of the settings dialog
+        WindowData settings;
 
         /// @}
     };
@@ -161,6 +175,11 @@ public slots:
      * @brief Store the settings and close
      */
     void applyAndClose();
+
+    /**
+     * @brief Close the settings dialog
+     */
+    void close();
 
     /**
      * @brief Create a new profile

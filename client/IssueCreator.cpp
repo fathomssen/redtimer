@@ -1,5 +1,6 @@
 #include "IssueCreator.h"
 #include "IssueSelector.h"
+#include "Settings.h"
 #include "logging.h"
 
 #include <QSortFilterProxyModel>
@@ -89,6 +90,9 @@ IssueCreator::close()
     if( cancelOnClose_ )
         cancelled();
 
+    mainWindow_->settings_->data.issueCreator = getWindowData();
+    mainWindow_->settings_->save();
+
     Window::close();
     this->deleteLater();
 
@@ -99,6 +103,8 @@ void
 IssueCreator::display()
 {
     ENTER();
+
+    setWindowData( mainWindow_->settings_->data.issueCreator );
 
     show();
     refreshGui();

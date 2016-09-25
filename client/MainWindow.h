@@ -37,9 +37,6 @@ private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_ = nullptr;
 
-    /// Redmine connection dialog object
-    Settings* settings_ = nullptr;
-
     /// Main application
     QApplication* app_ = nullptr;
 
@@ -132,6 +129,9 @@ public:
      * @return Tray icon object
      */
     QSystemTrayIcon* trayIcon();
+
+    /// Redmine connection dialog object
+    Settings* settings_ = nullptr;
 
 protected:
     /**

@@ -12,6 +12,16 @@ namespace redtimer {
 // forward declaration
 class MainWindow;
 
+/// Position and size of windows
+struct WindowData
+{
+    /// Last window size
+    QRect geometry;
+
+    /// Last window position
+    QPoint position;
+};
+
 class Window : public QQuickView
 {
     Q_OBJECT
@@ -83,6 +93,20 @@ protected:
      * @param event Received key event
      */
     void keyPressEvent( QKeyEvent* event );
+
+    /**
+     * @brief Get window data
+     *
+     * @param windowData Window data
+     */
+    WindowData getWindowData();
+
+    /**
+     * @brief Set window data
+     *
+     * @param windowData Window data
+     */
+    void setWindowData( WindowData windowData );
 
 public slots:
     /**
