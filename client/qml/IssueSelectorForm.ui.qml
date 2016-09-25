@@ -39,6 +39,7 @@ ColumnLayout {
         objectName: "search"
         Layout.fillWidth: true
         placeholderText: qsTr("Search in issue list")
+        focus: true
     }
 
     ListView {

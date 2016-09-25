@@ -81,6 +81,7 @@ Item {
                 editable: true
                 model: recentIssuesModel
                 textRole: "text"
+                focus: true
             }
 
             ToolButton {

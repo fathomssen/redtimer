@@ -44,6 +44,7 @@ GridLayout {
         Layout.fillWidth: true
         objectName: "subject"
         enabled: false
+        focus: true
     }
 
     Label {
