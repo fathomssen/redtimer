@@ -120,28 +120,25 @@ Item {
 
                 TextArea {
                     id: description
-                    text: ""
+                    implicitHeight: 80
                     Layout.fillHeight: true
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignTop
                     Layout.fillWidth: true
                     objectName: "description"
                     readOnly: true
                 }
 
-                TextField {
-                    id: version
-                    objectName: "version"
+                TextArea {
+                    id: more
+                    implicitHeight: 40
+                    visible: false
+                    objectName: "more"
                     Layout.fillWidth: true
                     readOnly: true
-                    placeholderText: qsTr("Target version")
+                    textFormat: TextEdit.RichText
+                    verticalScrollBarPolicy: Qt.ScrollBarAlwaysOn
                 }
 
-
-
             }
-
-
-
         }
 
         RowLayout {

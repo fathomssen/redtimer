@@ -514,10 +514,57 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
         addRecentIssue( issue );
 
-        qml("issueId")->setProperty( "text", QString("Issue #%1").arg(issue.id) );
+        qml("issueId")->setProperty( "text", QString("Issue ID: %1").arg(issue.id) );
+        qml("issueId")->setProperty( "cursorPosition", 0 );
         qml("subject")->setProperty( "text", issue.subject );
+        qml("subject")->setProperty( "cursorPosition", 0 );
         qml("description")->setProperty( "text", issue.description );
-        qml("version")->setProperty( "text", QString("Target version: %1").arg(issue.version.name) );
+
+        QString more;
+        if( issue.tracker.id != NULL_ID )
+            more.append( QString("<b>Tracker:</b> %1<br>").arg(issue.tracker.name) );
+        if( issue.category.id != NULL_ID )
+            more.append( QString("<b>Category:</b> %1<br>").arg(issue.category.name) );
+        if( issue.version.id != NULL_ID )
+            more.append( QString("<b>Target version:</b> %1<br>").arg(issue.version.name) );
+        if( issue.parentId != NULL_ID )
+            more.append( QString("<b>Parent issue ID:</b> %1<br>").arg(issue.parentId) );
+
+        QString customFields;
+        bool displayCustomFields = false;
+        for( const auto& customField : issue.customFields )
+        {
+            if( customField.values.size() == 0 )
+                continue;
+
+            displayCustomFields = true;
+
+            QString value;
+
+            for( const auto& val : customField.values )
+            {
+                if( !value.isEmpty() )
+                    value.append( ", " );
+
+                value.append( val );
+            }
+
+            customFields.append( QString("<b>%1:</b> %2<br>").arg(customField.name).arg(value) );
+        }
+        if( displayCustomFields )
+            more.append( customFields );
+
+        if( more.isEmpty() )
+        {
+            qml("more")->setProperty( "visible", false );
+        }
+        else
+        {
+            // Remove the last <br>
+            more.chop(4);
+            qml("more")->setProperty( "text", more );
+            qml("more")->setProperty( "visible", true );
+        }
 
         loadLatestActivity();
         loadIssueStatuses();
