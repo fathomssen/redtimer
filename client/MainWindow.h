@@ -112,8 +112,9 @@ public:
      * @brief RedTimer constructor
      *
      * @param parent Parent QObject
+     * @param profile Load this profile on startup
      */
-    explicit MainWindow( QApplication* parent = nullptr );
+    explicit MainWindow( QApplication* parent = nullptr, const QString profile = QString() );
 
     /**
      * @brief Initialise the tray icon

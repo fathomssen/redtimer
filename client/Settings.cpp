@@ -285,7 +285,7 @@ Settings::getProfileName( QString& name, QString title, QString initText )
 
 
 void
-Settings::load()
+Settings::load( const QString profile )
 {
     ENTER();
 
@@ -309,6 +309,11 @@ Settings::load()
             settings_.setArrayIndex( i );
             profilesModel_.push_back( SimpleItem(settings_.value("id").toInt(),
                                                  settings_.value("name").toString()) );
+
+            // If a profile was specified, try to load that one
+            if( !profile.isEmpty() && settings_.value("name").toString() == profile )
+                profileId_ = settings_.value("id").toInt();
+
             if( settings_.value("id").toInt() == profileId_ )
                 foundProfileId = true;
         }

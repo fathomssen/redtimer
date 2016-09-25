@@ -21,12 +21,14 @@ int main(int argc, char* argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
+    parser.addOption( {{"p", "profile"}, "Open specified profile on start", "profile"} );
+
     // Process command line options
     parser.process( app );
 
     app.setWindowIcon( QIcon(":/icons/clock_red.svg") );
 
-    new MainWindow( &app );
+    new MainWindow( &app, parser.value("profile") );
 
     return app.exec();
 }

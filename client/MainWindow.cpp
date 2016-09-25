@@ -15,7 +15,7 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
-MainWindow::MainWindow( QApplication* parent )
+MainWindow::MainWindow( QApplication* parent, const QString profile )
     : Window( "MainWindow", this ),
       app_( parent )
 {
@@ -26,7 +26,7 @@ MainWindow::MainWindow( QApplication* parent )
 
     // Settings initialisation
     settings_ = new Settings( this );
-    settings_->load();
+    settings_->load( profile );
 
     if( settings_->data.apiKey.isEmpty() || settings_->data.url.isEmpty() )
         settings_->display( false );

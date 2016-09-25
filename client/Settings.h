@@ -136,8 +136,10 @@ public:
 
     /**
      * @brief Load settings from settings file
+     *
+     * @param profile Load this profile instead of the last loaded
      */
-    void load();
+    void load( const QString profile = QString() );
 
     /**
      * @brief Load profile-dependent settings from settings file
