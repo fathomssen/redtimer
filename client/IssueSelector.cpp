@@ -196,7 +196,7 @@ IssueSelector::loadAssignees()
 
         // Sort assignees by name
         sort( assignees.begin(), assignees.end(),
-              [](Membership& l, Membership& r)
+              []( const Membership& l, const Membership& r )
               {
                 QString lname, rname;
 
@@ -366,7 +366,8 @@ IssueSelector::loadVersions()
         versionModel_.push_back( SimpleItem(NULL_ID, "Choose version") );
 
         // Sort versions by due date
-        sort( versions.begin(), versions.end(), [](Version& l, Version& r){ return l.dueDate < r.dueDate; } );
+        sort( versions.begin(), versions.end(),
+              [](const Version& l, const Version& r){ return l.dueDate < r.dueDate; } );
 
         for( const auto& version : versions )
         {
