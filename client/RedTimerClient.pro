@@ -33,10 +33,6 @@ SOURCES += \
 
 RESOURCES += RedTimerClient.qrc
 
-# No debug statements in release
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
-CONFIG(debug, debug|release):DEFINES += DEBUG_OUTPUT
-
 # External projects
 include($$PWD/qxtglobalshortcut5/qxt.pri)
 include($$PWD/../libqtredmine/qtredmine.pri)

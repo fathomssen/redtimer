@@ -2,8 +2,8 @@ import QtQuick 2.5
 import QtQuick.Layouts 1.2
 
 Item {
-    height: 400
-    width: 200
+    height: 500
+    width: 300
 
     Component{
         id: issueDelegate

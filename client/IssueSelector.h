@@ -30,6 +30,18 @@ private:
     /// List of projects in the GUI
     SimpleModel projectModel_;
 
+    /// Current assignee
+    int assigneeId_ = NULL_ID;
+
+    /// List of assignees in the GUI
+    SimpleModel assigneeModel_;
+
+    /// Current version
+    int versionId_ = NULL_ID;
+
+    /// List of versions in the GUI
+    SimpleModel versionModel_;
+
 public:
     /**
      * @brief Constructor for an IssueSelector object
@@ -43,16 +55,38 @@ public:
     /// @{
 
     /**
+     * @brief Get the currently selected assignee ID
+     *
+     * @return Assignee ID
+     */
+    int getAssigneeId() const;
+
+    /**
      * @brief Get the currently selected project ID
      *
      * @return Project ID
      */
     int getProjectId() const;
 
+    /**
+     * @brief Get the currently selected version ID
+     *
+     * @return Version ID
+     */
+    int getVersionId() const;
+
     /// @}
 
     /// @name Setters
     /// @{
+
+    /**
+     * @brief Set the currently selected assignee ID
+     *
+     * @param id Assignee ID
+     * @param fixed The assignee may not be changed
+     */
+    void setAssigneeId( int id, bool fixed = false );
 
     /**
      * @brief Set the currently selected project ID
@@ -61,6 +95,14 @@ public:
      * @param fixed The project may not be changed
      */
     void setProjectId( int id, bool fixed = false );
+
+    /**
+     * @brief Set the currently selected version ID
+     *
+     * @param id Version ID
+     * @param fixed The version may not be changed
+     */
+    void setVersionId( int id, bool fixed = false );
 
     /// @}
 
@@ -77,6 +119,11 @@ public slots:
 
 private slots:    
     /**
+     * @brief Slot to a selected assignee
+     */
+    void assigneeSelected( int index );
+
+    /**
      * @brief Filter issues using the filter text field
      */
     void filterIssues();
@@ -92,6 +139,16 @@ private slots:
     void projectSelected( int index );
 
     /**
+     * @brief Slot to a selected version
+     */
+    void versionSelected( int index );
+
+    /**
+     * @brief Update assignees and refresh assignee list
+     */
+    void loadAssignees();
+
+    /**
      * @brief Update issues and refresh issues list
      */
     void loadIssues();
@@ -100,6 +157,11 @@ private slots:
      * @brief Update projects and refresh project list
      */
     void loadProjects();
+
+    /**
+     * @brief Update versions and refresh version list
+     */
+    void loadVersions();
 
 signals:
     /**

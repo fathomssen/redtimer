@@ -8,12 +8,29 @@ ColumnLayout {
     property alias issues: issues
     property alias project: project
     property alias search: search
+    property alias assignee: assignee
 
     ComboBox {
         id: project
         Layout.fillWidth: true
         objectName: "project"
         model: projectModel
+        textRole: "name"
+    }
+
+    ComboBox {
+        id: assignee
+        Layout.fillWidth: true
+        objectName: "assignee"
+        model: assigneeModel
+        textRole: "name"
+    }
+
+    ComboBox {
+        id: version
+        Layout.fillWidth: true
+        objectName: "version"
+        model: versionModel
         textRole: "name"
     }
 
@@ -44,5 +61,8 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.fillHeight: true
     }
+
+
+
 }
 
