@@ -64,6 +64,9 @@ private:
     /// Currently tracked time in seconds
     int counter_ = 0;
 
+    /// Displayed tracked time when the counter was paused to edit the time
+    int counterBeforeEdit_ = 0;
+
     /// Counter QML element for quick access
     QQuickItem* qmlCounter_ = nullptr;
 
@@ -83,7 +86,7 @@ private:
     IssueModel recentIssues_;
 
     /// Last time the counter was increased
-    QDateTime lastTime_;
+    QDateTime lastCounterIncrease_;
 
     /**
      * @brief Add an issue to the list of recent issues

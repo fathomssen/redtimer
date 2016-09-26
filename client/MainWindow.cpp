@@ -353,6 +353,41 @@ MainWindow::exit()
     RETURN();
 }
 
+QTime
+getTime( const QString stime )
+{
+    ENTER();
+
+    // Try to find valid time string format
+    QTime time = QTime::fromString( stime, "hh:mm:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:mm:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:mm:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m:ss" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m:s" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:mm" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh:m" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:mm" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h:m" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "hh" );
+    if( !time.isValid() )
+        time = QTime::fromString( stime, "h" );
+
+    RETURN( time );
+}
+
 void
 MainWindow::initTrayIcon()
 {
@@ -687,7 +722,14 @@ void
 MainWindow::pauseCounterGui()
 {
     ENTER();
+
     updateCounterGui_ = false;
+
+    // Save the currently displayed time
+    QTime time = getTime( qml("counter")->property("text").toString() );
+    if( time.isValid() )
+        counterBeforeEdit_ = time.hour()*3600 + time.minute()*60 + time.second();
+
     RETURN();
 }
 
@@ -696,36 +738,15 @@ MainWindow::resumeCounterGui()
 {
     ENTER();
 
-    QString stime = qml("counter")->property( "text" ).toString();
-    // Try to find valid time string format
-    QTime time = QTime::fromString( stime, "hh:mm:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:mm:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:mm:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:mm" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:mm" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h" );
+    QTime time = getTime( qml("counter")->property("text").toString() );
 
     if( time.isValid() )
-        counter_ = time.hour()*3600 + time.minute()*60 + time.second();
+    {
+        int secs = time.hour()*3600 + time.minute()*60 + time.second();
+
+        if( secs != counterBeforeEdit_ )
+            counter_ = secs;
+    }
     else
         message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
 
@@ -801,8 +822,8 @@ MainWindow::refreshCounter()
     int minDiff = 60; // minimum difference in seconds
     QDateTime curTime = QDateTime::currentDateTimeUtc();
 
-    int diff = lastTime_.secsTo(curTime);
-    lastTime_ = curTime;
+    int diff = lastCounterIncrease_.secsTo(curTime);
+    lastCounterIncrease_ = curTime;
 
     if( diff > minDiff )
     {
@@ -889,7 +910,7 @@ MainWindow::startTimer()
 {
     ENTER();
 
-    lastTime_ = QDateTime::currentDateTimeUtc();
+    lastCounterIncrease_ = QDateTime::currentDateTimeUtc();
 
     timer_->start();
 
