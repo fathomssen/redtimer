@@ -235,11 +235,6 @@ IssueCreator::loadCustomFields()
         customFieldItems_.clear();
         customFieldModels_.clear();
 
-        if( customFields.size() )
-            qml("customFields")->setVisible( true );
-        else
-            qml("customFields")->setVisible( false );
-
         // Create loaded custom fields
         for( const auto& customField : customFields )
         {
@@ -345,8 +340,7 @@ IssueCreator::loadCustomFields()
 #ifdef Q_OS_OSX
         itemHeight = 40;
 #endif
-        // Include the custom fields label
-        setHeight( initHeight_ + itemHeight + customFieldItems_.size() * itemHeight);
+        setHeight( initHeight_ + customFieldItems_.size() * itemHeight);
         setMinimumHeight( height() );
 
         CBRETURN();
