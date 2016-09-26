@@ -1,7 +1,7 @@
 import QtQuick 2.5
 
 Item {
-    height: 300
+    height: 320
     width: 400
 
     IssueCreatorForm {

@@ -340,9 +340,13 @@ IssueCreator::loadCustomFields()
             customFieldItems_[customField.id] = qMakePair( labelItem, entryFieldItem );
         }
 
-        // @todo Rough estimation that a custom field is 30 pixels in height
-        int cfHeight = 30;
-        setHeight( initHeight_ + customFieldItems_.size() * cfHeight);
+        // @todo Rough estimation that a custom field is 30 pixels in height and 40 pixel on OS X
+        int itemHeight = 30;
+#ifdef Q_OS_OSX
+        itemHeight = 40;
+#endif
+        // Include the custom fields label
+        setHeight( initHeight_ + itemHeight + customFieldItems_.size() * itemHeight);
         setMinimumHeight( height() );
 
         CBRETURN();
