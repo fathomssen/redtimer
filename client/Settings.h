@@ -62,6 +62,12 @@ public:
         /// Issue status to switch after tracking time
         int workedOnId;
 
+        /// ID of the time entry custom field for the start time
+        int startTimeFieldId;
+
+        /// ID of the time entry custom field for the end time
+        int endTimeFieldId;
+
         /// @}
 
         /// @name Internal settings
@@ -114,6 +120,12 @@ private:
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
+
+    /// Time entry custom fields for the start time
+    SimpleModel startTimeModel_;
+
+    /// Time entry custom fields for the end time
+    SimpleModel endTimeModel_;
 
     /// GUI profiles
     SimpleModel profilesModel_;
@@ -221,6 +233,16 @@ public slots:
      * @brief Update issue statuses
      */
     void updateIssueStatuses();
+
+    /**
+     * @brief Update time entry custom fields
+     */
+    void updateTimeEntryCustomFields();
+
+    /**
+     * @brief Toggle custom fields
+     */
+    void toggleCustomFields();
 
 signals:
     /**

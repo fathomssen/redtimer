@@ -88,6 +88,9 @@ private:
     /// Last time the counter was increased
     QDateTime lastCounterIncrease_;
 
+    /// Last time that the timer has been started, in UTC
+    QDateTime lastStarted_;
+
     /**
      * @brief Add an issue to the list of recent issues
      *

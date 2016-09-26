@@ -914,6 +914,8 @@ MainWindow::startTimer()
 
     timer_->start();
 
+    lastStarted_ = QDateTime::currentDateTimeUtc();
+
     // Set the start/stop button icon to stop
     qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
     qml("startStop")->setProperty( "tooltip", tr("Stop time tracking") );
@@ -960,6 +962,31 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     timeEntry.activity.id = activityId_;
     timeEntry.hours       = (double)counter_ / 3600; // Seconds to hours conversion
     timeEntry.issue.id    = issue_.id;
+
+    // Possibly save start and end time as well
+    if( settings_->data.useCustomFields )
+    {
+        auto addCustomField = [&timeEntry]( int fieldId, QString stime )
+        {
+            ENTER();
+
+            if( fieldId == NULL_ID )
+                RETURN();
+
+            CustomField cf;
+            cf.id = fieldId;
+            cf.values.push_back( stime );
+
+            timeEntry.customFields.push_back( cf );
+
+            RETURN();
+        };
+
+        QString timeFormat = "yyyy-MM-ddTHH:mm:ss";
+        addCustomField( settings_->data.startTimeFieldId, lastStarted_.toString(timeFormat) );
+        addCustomField( settings_->data.endTimeFieldId,
+                        QDateTime::currentDateTimeUtc().toString(timeFormat) );
+    }
 
     // Stop the timer for now - might be started again later
     stopTimer();

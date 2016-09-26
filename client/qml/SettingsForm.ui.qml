@@ -22,6 +22,12 @@ ColumnLayout {
                 anchors.fill: parent
                 columns: 2
 
+                Item {
+                    // Spacer
+                    height: 15
+                    Layout.columnSpan: 2
+                }
+
                 RowLayout {
                     Layout.columnSpan: 2
                     Layout.fillWidth: true
@@ -117,6 +123,34 @@ ColumnLayout {
                     Layout.columnSpan: 2
                 }
 
+                Label {
+                    id: label5
+                    text: qsTr("Start time field")
+                }
+
+                ComboBox {
+                    id: startTime
+                    enabled: false
+                    Layout.fillWidth: true
+                    objectName: "startTime"
+                    model: startTimeModel
+                    textRole: "name"
+                }
+
+                Label {
+                    id: label6
+                    text: qsTr("End time field")
+                }
+
+                ComboBox {
+                    id: endTime
+                    enabled: false
+                    Layout.fillWidth: true
+                    objectName: "endTime"
+                    model: endTimeModel
+                    textRole: "name"
+                }
+
                 CheckBox {
                     id: ignoreSslErrors
                     objectName: "ignoreSslErrors"
@@ -131,7 +165,10 @@ ColumnLayout {
                     Layout.columnSpan: 2
                 }
 
-
+                Item {
+                    // Spacer
+                    Layout.fillHeight: true
+                }
             }
         }
 
@@ -145,8 +182,14 @@ ColumnLayout {
                 anchors.fill: parent
                 columns: 2
 
+                Item {
+                    // Spacer
+                    height: 15
+                    Layout.columnSpan: 2
+                }
+
                 Label {
-                    id: label5
+                    id: label10
                     text: qsTr("Shortcut to show/hide RedTimer")
                 }
 
@@ -158,7 +201,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label6
+                    id: label11
                     text: qsTr("Shortcut to start/stop RedTimer")
                 }
 
@@ -192,6 +235,11 @@ ColumnLayout {
                     objectName: "shortcutSelectIssue"
                     placeholderText: qsTr("Ctrl+Alt+L")
                 }
+
+                Item {
+                    // Spacer
+                    Layout.fillHeight: true
+                }
             }
         }
 
@@ -204,6 +252,11 @@ ColumnLayout {
                 id: columnLayout2
                 anchors.fill: parent
 
+                Item {
+                    // Spacer
+                    height: 15
+                }
+
                 CheckBox {
                     id: useSystemTrayIcon
                     objectName: "useSystemTrayIcon"
@@ -214,6 +267,11 @@ ColumnLayout {
                     id: closeToTray
                     objectName: "closeToTray"
                     text: qsTr("Hide window instead of closing it")
+                }
+
+                Item {
+                    // Spacer
+                    Layout.fillHeight: true
                 }
             }
         }

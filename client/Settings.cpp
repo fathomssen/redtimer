@@ -28,6 +28,8 @@ Settings::Settings( MainWindow* mainWindow )
 
     // Set the models
     ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+    ctx_->setContextProperty( "startTimeModel", &startTimeModel_ );
+    ctx_->setContextProperty( "endTimeModel", &endTimeModel_ );
 
     profilesProxyModel_.setSourceModel( &profilesModel_ );
     profilesProxyModel_.setSortRole( SimpleModel::NameRole );
@@ -45,6 +47,9 @@ Settings::Settings( MainWindow* mainWindow )
 
     // Connect the rename profile button
     connect( qml("renameProfile"), SIGNAL(clicked()), this, SLOT(renameProfile()) );
+
+    // Connect the rename profile button
+    connect( qml("useCustomFields"), SIGNAL(clicked()), this, SLOT(toggleCustomFields()) );
 
     // Connect the cancel button
     connect( qml("cancel"), SIGNAL(clicked()), this, SLOT(cancel()) );
@@ -102,8 +107,13 @@ Settings::apply()
         if( oldUrl == data.url )
         {
             int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
-            if( issueStatusModel_.rowCount() && workedOnIndex )
-                data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
+            data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
+
+            int startTimeFieldId = qml("startTime")->property("currentIndex").toInt();
+            data.startTimeFieldId = startTimeModel_.at(startTimeFieldId).id();
+
+            int endTimeFieldId = qml("endTime")->property("currentIndex").toInt();
+            data.endTimeFieldId = endTimeModel_.at(endTimeFieldId).id();
         }
         else
         {
@@ -111,6 +121,8 @@ Settings::apply()
             data.issueId    = NULL_ID;
             data.projectId  = NULL_ID;
             data.workedOnId = NULL_ID;
+            data.startTimeFieldId = NULL_ID;
+            data.endTimeFieldId   = NULL_ID;
 
             while( !data.recentIssues.isEmpty() )
                 data.recentIssues.removeLast();
@@ -239,11 +251,13 @@ Settings::display( bool loadData )
     }
 
     qml("apikey")->setProperty( "text", temp.apiKey );
+    qml("apikey")->setProperty( "cursorPosition", 0 );
     qml("checkConnection")->setProperty( "checked", temp.checkConnection );
     qml("closeToTray")->setProperty( "checked", temp.closeToTray );
     qml("ignoreSslErrors")->setProperty( "checked", temp.ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", temp.numRecentIssues );
     qml("url")->setProperty( "text", temp.url );
+    qml("url")->setProperty( "cursorPosition", 0 );
     qml("useCustomFields")->setProperty( "checked", temp.useCustomFields );
     qml("useSystemTrayIcon")->setProperty( "checked", temp.useSystemTrayIcon );
 
@@ -253,6 +267,7 @@ Settings::display( bool loadData )
     qml("shortcutToggle")->setProperty( "text", temp.shortcutToggle );
 
     updateIssueStatuses();
+    updateTimeEntryCustomFields();
 
     setWindowData( data.settings );
 
@@ -423,6 +438,13 @@ Settings::loadProfileData()
         temp.workedOnId = settings_.value("workedOnId").isValid()
                           ? settings_.value("workedOnId").toInt()
                           : NULL_ID;
+
+        temp.startTimeFieldId = settings_.value("startTimeFieldId").isValid()
+                                ? settings_.value("startTimeFieldId").toInt()
+                                : NULL_ID;
+        temp.endTimeFieldId = settings_.value("endTimeFieldId").isValid()
+                              ? settings_.value("endTimeFieldId").toInt()
+                              : NULL_ID;
     }
 
     // Recently used issues
@@ -537,6 +559,8 @@ Settings::save()
         settings_.setValue( "url",               data.url );
         settings_.setValue( "useCustomFields",   data.useCustomFields );
         settings_.setValue( "workedOnId",        data.workedOnId );
+        settings_.setValue( "startTimeFieldId",  data.startTimeFieldId );
+        settings_.setValue( "endTimeFieldId",    data.endTimeFieldId );
 
         settings_.setValue( "activity", data.activityId );
         settings_.setValue( "issue",    data.issueId );
@@ -571,6 +595,16 @@ Settings::save()
 }
 
 void
+Settings::toggleCustomFields()
+{
+    ENTER();
+
+    updateTimeEntryCustomFields();
+
+    RETURN();
+}
+
+void
 Settings::updateIssueStatuses()
 {
     ENTER();
@@ -589,6 +623,10 @@ Settings::updateIssueStatuses()
 
     redmine_->setUrl( temp.url );
     redmine_->setAuthenticator( temp.apiKey );
+    if( temp.ignoreSslErrors )
+        redmine_->setCheckSsl( false );
+    else
+        redmine_->setCheckSsl( true );
 
     ++callbackCounter_;
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
@@ -630,6 +668,96 @@ Settings::updateIssueStatuses()
 
         CBRETURN();
     } );
+
+    RETURN();
+}
+
+void
+Settings::updateTimeEntryCustomFields()
+{
+    ENTER();
+
+    CustomFieldFilter filter;
+    filter.format = "string";
+    filter.type   = "time_entry";
+
+    redmine_->setUrl( temp.url );
+    redmine_->setAuthenticator( temp.apiKey );
+    if( temp.ignoreSslErrors )
+        redmine_->setCheckSsl( false );
+    else
+        redmine_->setCheckSsl( true );
+
+
+    ++callbackCounter_;
+    redmine_->retrieveCustomFields( [&]( CustomFields customFields, RedmineError redmineError,
+                                         QStringList errors )
+    {
+        CBENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load custom fields.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            CBRETURN();
+        }
+
+        bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
+        QString firstEntry;
+
+        if( useCustomFields )
+        {
+            if( customFields.size() )
+                firstEntry = "Choose time entry field";
+            else
+            {
+                firstEntry = "No time entry fields found";
+                useCustomFields = false;
+            }
+        }
+        else
+            firstEntry = "Custom fields not enabled";
+
+        startTimeModel_.clear();
+        endTimeModel_.clear();
+
+        int startTimeCurrentIndex = 0;
+        int endTimeCurrentIndex = 0;
+
+        startTimeModel_.push_back( SimpleItem(NULL_ID, firstEntry) );
+        endTimeModel_.push_back( SimpleItem(NULL_ID, firstEntry) );
+
+        if( useCustomFields )
+        {
+            sort( customFields.begin(), customFields.end(),
+                  [](CustomField l, CustomField r){ return l.name < r.name;} );
+
+            // Create loaded custom fields
+            for( const auto& customField : customFields )
+            {
+                if( customField.id == temp.startTimeFieldId )
+                    startTimeCurrentIndex = startTimeModel_.rowCount();
+                startTimeModel_.push_back( SimpleItem(customField) );
+
+                if( customField.id == temp.endTimeFieldId )
+                    endTimeCurrentIndex = endTimeModel_.rowCount();
+                endTimeModel_.push_back( SimpleItem(customField) );
+            }
+        }
+
+        qml("startTime")->setProperty( "currentIndex", -1 );
+        qml("startTime")->setProperty( "currentIndex", startTimeCurrentIndex );
+        qml("startTime")->setProperty( "enabled", useCustomFields );
+        qml("endTime")->setProperty( "currentIndex", -1 );
+        qml("endTime")->setProperty( "currentIndex", endTimeCurrentIndex );
+        qml("endTime")->setProperty( "enabled", useCustomFields );
+
+        CBRETURN();
+    },
+    filter );
 
     RETURN();
 }
