@@ -567,7 +567,8 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         bool displayCustomFields = false;
         for( const auto& customField : issue.customFields )
         {
-            if( customField.values.size() == 0 )
+            if( !customField.values.size()
+                || (customField.values.size() == 1 && customField.values[0].isEmpty()) )
                 continue;
 
             displayCustomFields = true;
