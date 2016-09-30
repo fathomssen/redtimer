@@ -28,6 +28,7 @@ Settings::Settings( MainWindow* mainWindow )
 
     // Set the models
     ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
+    ctx_->setContextProperty( "trackerModel", &trackerModel_ );
     ctx_->setContextProperty( "startTimeModel", &startTimeModel_ );
     ctx_->setContextProperty( "endTimeModel", &endTimeModel_ );
 
@@ -109,6 +110,9 @@ Settings::apply()
             int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
             data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
 
+            int defaultTrackerIndex = qml("defaultTracker")->property("currentIndex").toInt();
+            data.defaultTrackerId = trackerModel_.at(defaultTrackerIndex).id();
+
             int startTimeFieldId = qml("startTime")->property("currentIndex").toInt();
             data.startTimeFieldId = startTimeModel_.at(startTimeFieldId).id();
 
@@ -121,6 +125,7 @@ Settings::apply()
             data.issueId    = NULL_ID;
             data.projectId  = NULL_ID;
             data.workedOnId = NULL_ID;
+            data.defaultTrackerId = NULL_ID;
             data.startTimeFieldId = NULL_ID;
             data.endTimeFieldId   = NULL_ID;
 
@@ -267,6 +272,7 @@ Settings::display( bool loadData )
     qml("shortcutToggle")->setProperty( "text", temp.shortcutToggle );
 
     updateIssueStatuses();
+    updateTrackers();
     updateTimeEntryCustomFields();
 
     setWindowData( data.settings );
@@ -438,6 +444,9 @@ Settings::loadProfileData()
         temp.workedOnId = settings_.value("workedOnId").isValid()
                           ? settings_.value("workedOnId").toInt()
                           : NULL_ID;
+        temp.defaultTrackerId = settings_.value("defaultTrackerId").isValid()
+                                ? settings_.value("defaultTrackerId").toInt()
+                                : NULL_ID;
 
         temp.startTimeFieldId = settings_.value("startTimeFieldId").isValid()
                                 ? settings_.value("startTimeFieldId").toInt()
@@ -559,6 +568,7 @@ Settings::save()
         settings_.setValue( "url",               data.url );
         settings_.setValue( "useCustomFields",   data.useCustomFields );
         settings_.setValue( "workedOnId",        data.workedOnId );
+        settings_.setValue( "defaultTrackerId",  data.defaultTrackerId );
         settings_.setValue( "startTimeFieldId",  data.startTimeFieldId );
         settings_.setValue( "endTimeFieldId",    data.endTimeFieldId );
 
@@ -758,6 +768,73 @@ Settings::updateTimeEntryCustomFields()
         CBRETURN();
     },
     filter );
+
+    RETURN();
+}
+
+void
+Settings::updateTrackers()
+{
+    ENTER();
+
+    if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
+    {
+        trackerModel_.clear();
+        trackerModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
+
+        qml("defaultTracker")->setProperty( "enabled", false );
+        qml("defaultTracker")->setProperty( "currentIndex", -1 );
+        qml("defaultTracker")->setProperty( "currentIndex", 0 );
+
+        RETURN();
+    }
+
+    redmine_->setUrl( temp.url );
+    redmine_->setAuthenticator( temp.apiKey );
+    if( temp.ignoreSslErrors )
+        redmine_->setCheckSsl( false );
+    else
+        redmine_->setCheckSsl( true );
+
+    ++callbackCounter_;
+    redmine_->retrieveTrackers( [&]( Trackers trackers, RedmineError redmineError, QStringList errors )
+    {
+        CBENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load trackers.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            CBRETURN();
+        }
+
+        int currentIndex = 0;
+
+        // Sort issues ascending by ID
+        qSort( trackers.begin(), trackers.end(),
+               []( const Tracker& a, const Tracker& b ){ return a.id < b.id; } );
+
+        trackerModel_.clear();
+        trackerModel_.push_back( SimpleItem(NULL_ID, "Choose tracker") );
+        for( const auto& tracker : trackers )
+        {
+            if( tracker.id == temp.defaultTrackerId )
+                currentIndex = trackerModel_.rowCount();
+
+            trackerModel_.push_back( SimpleItem(tracker) );
+        }
+
+        DEBUG()(trackerModel_)(temp.defaultTrackerId)(currentIndex);
+
+        qml("defaultTracker")->setProperty( "enabled", true );
+        qml("defaultTracker")->setProperty( "currentIndex", -1 );
+        qml("defaultTracker")->setProperty( "currentIndex", currentIndex );
+
+        CBRETURN();
+    } );
 
     RETURN();
 }

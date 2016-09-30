@@ -420,15 +420,27 @@ IssueCreator::loadTrackers()
             CBRETURN();
         }
 
+        int currentIndex = 0;
+
         trackerModel_.clear();
         trackerModel_.push_back( SimpleItem(NULL_ID, "Choose tracker") );
         for( const auto& tracker : project.trackers )
+        {
+            if( mainWindow_->settings_->data.defaultTrackerId == tracker.id )
+            {
+                currentIndex = trackerModel_.rowCount();
+                trackerId_ = tracker.id;
+            }
+
             trackerModel_.push_back( SimpleItem(tracker) );
+        }
 
         qml("tracker")->setProperty( "currentIndex", -1 );
-        qml("tracker")->setProperty( "currentIndex", 0 );
-
+        qml("tracker")->setProperty( "currentIndex", currentIndex );
         qml("tracker")->setProperty( "enabled", true );
+
+        if( trackerId_ )
+            refreshGui();
 
         CBRETURN();
     },

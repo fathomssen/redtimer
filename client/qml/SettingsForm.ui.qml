@@ -33,7 +33,6 @@ ColumnLayout {
                     Layout.fillWidth: true
 
                     Label {
-                        id: label9
                         text: qsTr("Profile")
                     }
 
@@ -67,7 +66,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label1
                     text: qsTr("Redmine connection URL")
                 }
 
@@ -79,7 +77,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label2
                     text: qsTr("Redmine API key")
                 }
 
@@ -91,7 +88,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label4
                     text: qsTr("Maximum recent issues")
                 }
 
@@ -103,7 +99,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label3
                     text: qsTr("Worked on issue status")
                 }
 
@@ -116,6 +111,19 @@ ColumnLayout {
                     textRole: "name"
                 }
 
+                Label {
+                    text: qsTr("Default tracker")
+                }
+
+                ComboBox {
+                    id: defaultTracker
+                    enabled: false
+                    Layout.fillWidth: true
+                    objectName: "defaultTracker"
+                    model: trackerModel
+                    textRole: "name"
+                }
+
                 CheckBox {
                     id: useCustomFields
                     objectName: "useCustomFields"
@@ -124,7 +132,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label5
                     text: qsTr("Start time field")
                 }
 
@@ -138,7 +145,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label6
                     text: qsTr("End time field")
                 }
 
@@ -189,7 +195,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label10
                     text: qsTr("Shortcut to show/hide RedTimer")
                 }
 
@@ -201,7 +206,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label11
                     text: qsTr("Shortcut to start/stop RedTimer")
                 }
 
@@ -213,7 +217,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label7
                     text: qsTr("Shortcut to create an issue")
                 }
 
@@ -225,7 +228,6 @@ ColumnLayout {
                 }
 
                 Label {
-                    id: label8
                     text: qsTr("Shortcut to load an issue")
                 }
 

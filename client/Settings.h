@@ -62,6 +62,9 @@ public:
         /// Issue status to switch after tracking time
         int workedOnId;
 
+        /// Default tracker to use in the Issue Creator
+        int defaultTrackerId;
+
         /// ID of the time entry custom field for the start time
         int startTimeFieldId;
 
@@ -120,6 +123,9 @@ private:
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
+
+    /// Cached trackers
+    SimpleModel trackerModel_;
 
     /// Time entry custom fields for the start time
     SimpleModel startTimeModel_;
@@ -233,6 +239,11 @@ public slots:
      * @brief Update issue statuses
      */
     void updateIssueStatuses();
+
+    /**
+     * @brief Update trackers
+     */
+    void updateTrackers();
 
     /**
      * @brief Update time entry custom fields

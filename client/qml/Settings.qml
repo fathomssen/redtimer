@@ -1,7 +1,7 @@
 import QtQuick 2.5
 
 Item {
-    height: 350
+    height: 370
     width: 400
 
     SettingsForm {
