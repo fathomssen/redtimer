@@ -81,7 +81,6 @@ Item {
                 editable: true
                 model: recentIssuesModel
                 textRole: "text"
-                focus: true
             }
 
             ToolButton {
@@ -151,6 +150,7 @@ Item {
                 isDefault: true
                 iconSource: "/open-iconic/svg/media-play.svg"
                 tooltip: "Start time tracking"
+                focus: true
                 activeFocusOnPress: true
             }
 
@@ -183,11 +183,6 @@ Item {
             model: issueStatusModel
             textRole: "name"
         }
-
-
-
-
-
     }
 }
 
