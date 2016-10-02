@@ -36,6 +36,9 @@ private:
     /// User ID which was used to login into Redmine
     int currentUserId_ = NULL_ID;
 
+    /// Currently tracked issue
+    qtredmine::Issue issue_;
+
     /// Current project
     int projectId_ = NULL_ID;
 
@@ -122,11 +125,11 @@ public:
     /// @{
 
     /**
-     * @brief Set the parent issue ID
+     * @brief Set the currently tracked issue
      *
-     * @param id Parent issue ID
+     * @param issue Currently tracked issue
      */
-    void setParentIssueId( int id );
+    void setCurrentIssue( qtredmine::Issue issue );
 
     /**
      * @brief Set the currently selected project ID
@@ -180,6 +183,16 @@ private slots:
      * @brief Slot to a selected tracker
      */
     void trackerSelected( int index );
+
+    /**
+     * @brief Use the currently tracked issue as parent issue
+     */
+    void useCurrentIssue();
+
+    /**
+     * @brief Use the currently tracked issue's parent as parent issue
+     */
+    void useCurrentIssueParent();
 
 signals:
     /**

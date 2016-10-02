@@ -50,6 +50,12 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     // Connect the category selected signal to the categorySelected slot
     connect( qml("category"), SIGNAL(activated(int)), this, SLOT(categorySelected(int)) );
 
+    // Connect the use current issue as parent button
+    connect( qml("useCurrentIssue"), SIGNAL(clicked()), this, SLOT(useCurrentIssue()) );
+
+    // Connect the use parent issue as parent button
+    connect( qml("useCurrentIssueParent"), SIGNAL(clicked()), this, SLOT(useCurrentIssueParent()) );
+
     // Connect the issue selector button
     connect( qml("selectParentIssue"), SIGNAL(clicked()), this, SLOT(selectParentIssue()) );
 
@@ -490,6 +496,8 @@ IssueCreator::refreshGui()
     // 3. When tracker has been selected, enable the other fields
     qml("subject")->setProperty( "enabled", true );
     qml("parentIssue")->setProperty( "enabled", true );
+    qml("useCurrentIssue")->setProperty( "enabled", true );
+    qml("useCurrentIssueParent")->setProperty( "enabled", true );
     qml("selectParentIssue")->setProperty( "enabled", true );
     qml("estimatedTime")->setProperty( "enabled", true );
     qml("description")->setProperty( "enabled", true );
@@ -641,12 +649,15 @@ IssueCreator::selectParentIssue()
 }
 
 void
-IssueCreator::setParentIssueId( int id )
+IssueCreator::setCurrentIssue( Issue issue )
 {
     ENTER();
 
-    if( id != NULL_ID )
-        qml("parentIssue")->setProperty( "text", id );
+    if( issue.id != NULL_ID )
+    {
+        issue_ = issue;
+        useCurrentIssueParent();
+    }
 
     RETURN();
 }
@@ -682,6 +693,28 @@ IssueCreator::trackerSelected( int index )
     DEBUG()(index)(trackerId_);
 
     refreshGui();
+
+    RETURN();
+}
+
+void
+IssueCreator::useCurrentIssue()
+{
+    ENTER();
+
+    if( issue_.id != NULL_ID )
+        qml("parentIssue")->setProperty( "text", issue_.id );
+
+    RETURN();
+}
+
+void
+IssueCreator::useCurrentIssueParent()
+{
+    ENTER();
+
+    if( issue_.parentId != NULL_ID )
+        qml("parentIssue")->setProperty( "text", issue_.parentId );
 
     RETURN();
 }

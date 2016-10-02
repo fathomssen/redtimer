@@ -244,6 +244,13 @@ private slots:
     void refreshGui();
 
     /**
+     * @brief Reset all GUI fields
+     *
+     * @param value Value to reset GUI fields to, empty by default
+     */
+    void resetGui( const QString value = QString() );
+
+    /**
      * @brief Refresh activities
      */
     void loadActivities();

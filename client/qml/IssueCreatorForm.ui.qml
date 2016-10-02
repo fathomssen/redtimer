@@ -63,9 +63,25 @@ GridLayout {
         }
 
         Button {
+            id: useCurrentIssue
+            objectName: "useCurrentIssue"
+            iconSource: "qrc:/open-iconic/svg/vertical-align-bottom.svg"
+            tooltip: "Use the last tracked issue as parent issue"
+            enabled: false
+        }
+
+        Button {
+            id: useCurrentIssueParent
+            objectName: "useCurrentIssueParent"
+            iconSource: "qrc:/open-iconic/svg/vertical-align-top.svg"
+            tooltip: "Use the last tracked issue's parent as parent issue (default)"
+            enabled: false
+        }
+
+        Button {
             id: selectParentIssue
             objectName: "selectParentIssue"
-            iconSource: "/open-iconic/svg/list.svg"
+            iconSource: "qrc:/open-iconic/svg/list.svg"
             tooltip: "Select parent issue from list"
             enabled: false
         }

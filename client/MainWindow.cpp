@@ -220,13 +220,13 @@ MainWindow::createIssue()
     // Display the issue creator with the current issue as parent
     IssueCreator* issueCreator = new IssueCreator( redmine_, this );
     issueCreator->setTransientParent( this );
-    issueCreator->setParentIssueId( issue_.id );
+    issueCreator->setCurrentIssue( issue_ );
     issueCreator->setProjectId( settings_->data.projectId );
     issueCreator->setUseCustomFields( settings_->data.useCustomFields );
     issueCreator->display();
 
     // Empty the issue information and set ID to NULL_ID
-    qml("description")->setProperty( "text", "<new issue>" );
+    resetGui( "<New issue>" );
     issue_.id = NULL_ID;
 
     // Connect the issue selected signal to the setIssue slot
@@ -235,7 +235,7 @@ MainWindow::createIssue()
         if( recentIssues_.rowCount() )
             loadIssue( recentIssues_.at(0).id );
         else
-            qml("description")->setProperty( "text", "" );
+            resetGui();
     } );
 
     // Connect the issue selected signal to the setIssue slot
@@ -520,9 +520,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
     if( issueId == NULL_ID )
     {
-        qml("issueId")->setProperty( "text", "" );
-        qml("subject")->setProperty( "text", "" );
-        qml("description")->setProperty( "text", "" );
+        resetGui();
         RETURN();
     }
 
@@ -836,6 +834,21 @@ MainWindow::refreshCounter()
         if( ret == QMessageBox::Yes )
             counter_ += diff;
     }
+}
+
+void
+MainWindow::resetGui( const QString value )
+{
+    ENTER();
+
+    qml("description")->setProperty( "text", value );
+    qml("issueId")->setProperty( "text", value );
+    qml("more")->setProperty( "text", value );
+    qml("subject")->setProperty( "text", value );
+
+    qml("more")->setProperty( "visible", false );
+
+    RETURN();
 }
 
 void

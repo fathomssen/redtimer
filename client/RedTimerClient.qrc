@@ -24,5 +24,7 @@
         <file>open-iconic/svg/minus.svg</file>
         <file>open-iconic/svg/trash.svg</file>
         <file>open-iconic/svg/pencil.svg</file>
+        <file>open-iconic/svg/vertical-align-bottom.svg</file>
+        <file>open-iconic/svg/vertical-align-top.svg</file>
     </qresource>
 </RCC>
