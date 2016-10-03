@@ -1,16 +1,40 @@
-[![Travis CI build](https://travis-ci.org/fathomssen/redtimer.svg?branch=master)](https://travis-ci.org/fathomssen/redtimer)
-[![AppVeyor CI build](https://ci.appveyor.com/api/projects/status/github/fathomssen/redtimer)](https://ci.appveyor.com/project/fathomssen/redtimer)
+[![Travis CI build](https://travis-ci.org/fathomssen/redtimer.svg?branch=master "Travis CI build")](https://travis-ci.org/fathomssen/redtimer)
+[![AppVeyor CI build](https://ci.appveyor.com/api/projects/status/github/fathomssen/redtimer "AppVeyor CI build")](https://ci.appveyor.com/project/fathomssen/redtimer)
 
 Redmine Time Tracker
 ====================
 
 RedTimer is an easy-to-use platform-independent time tracker which allows the user to track time while working
-on an issue.
+on an issue. Futhermore, a user can create new issues using RedTimer during which the time tracking will
+already start.
 
 Usage
 -----
 
-You can start the RedTimer executable from your file manager.
+After starting RedTimer for the first time, you are asked to create a new profile for the connection to the
+Redmine instance.
+
+![Profile creation](images/profile_creation.png?raw=true "Profile creation")
+
+In the settings window, you can specify the URL of the Redmine instance and the API key which can be found in
+the Redmine account settings.
+
+![Settings window](images/settings.png?raw=true "Settings window")
+
+In the main window, you can enter or select an issue. After issue selection, the issue data will be displayed
+and the timer can be started.
+
+![Main window](images/main_window.png?raw=true "Main window")
+
+To select an issue, you can use the Issue Selector which lists available issues according to the selected
+project, assignee and version.
+
+![Issue Selector](images/issue_selector.png?raw=true "Issue Selector")
+
+To create a new issue, you can use the Issue Creator which will start tracking time while you type the new
+issue data.
+
+![Issue Creator](images/issue_creator.png?raw=true "Issue Creator")
 
 Installation instructions
 -------------------------
