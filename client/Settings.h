@@ -111,10 +111,10 @@ public:
     /// Settings data
     Data data;
 
-    /// Not applied settings data
-    Data temp;
-
 private:
+    /// Not applied settings data
+    Data temp_;
+
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
 
@@ -170,8 +170,21 @@ public:
      * @brief Load settings from settings file
      *
      * @param profile Load this profile instead of the last loaded
+     * @param apply Apply the loaded settings
      */
-    void load( const QString profile = QString() );
+    void load( const QString profile, const bool apply = true );
+
+    /**
+     * @brief Load settings from settings file for current profile
+     *
+     * @param apply Apply the loaded settings
+     */
+    void load( const bool apply );
+
+    /**
+     * @brief Load settings from settings file for current profile and apply settings
+     */
+    void load();
 
     /**
      * @brief Load profile-dependent settings from settings file

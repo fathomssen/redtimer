@@ -73,6 +73,8 @@ Settings::apply()
     {
         CBENTER();
 
+        DEBUG()(id)(errorCode);
+
         if( !success )
         {
             QString errorMsg = tr( "Could not save the time entry." );
@@ -83,7 +85,7 @@ Settings::apply()
             CBRETURN();
         }
 
-        data = temp;
+        data = temp_;
 
         QString oldUrl = data.url;
 
@@ -256,7 +258,7 @@ Settings::display( bool loadData )
     ENTER();
 
     if( loadData )
-        load();
+        load( false );
 
     // Select current profile
     {
@@ -269,21 +271,21 @@ Settings::display( bool loadData )
         }
     }
 
-    qml("apikey")->setProperty( "text", temp.apiKey );
+    qml("apikey")->setProperty( "text", temp_.apiKey );
     qml("apikey")->setProperty( "cursorPosition", 0 );
-    qml("checkConnection")->setProperty( "checked", temp.checkConnection );
-    qml("closeToTray")->setProperty( "checked", temp.closeToTray );
-    qml("ignoreSslErrors")->setProperty( "checked", temp.ignoreSslErrors );
-    qml("numRecentIssues")->setProperty( "text", temp.numRecentIssues );
-    qml("url")->setProperty( "text", temp.url );
+    qml("checkConnection")->setProperty( "checked", temp_.checkConnection );
+    qml("closeToTray")->setProperty( "checked", temp_.closeToTray );
+    qml("ignoreSslErrors")->setProperty( "checked", temp_.ignoreSslErrors );
+    qml("numRecentIssues")->setProperty( "text", temp_.numRecentIssues );
+    qml("url")->setProperty( "text", temp_.url );
     qml("url")->setProperty( "cursorPosition", 0 );
-    qml("useCustomFields")->setProperty( "checked", temp.useCustomFields );
-    qml("useSystemTrayIcon")->setProperty( "checked", temp.useSystemTrayIcon );
+    qml("useCustomFields")->setProperty( "checked", temp_.useCustomFields );
+    qml("useSystemTrayIcon")->setProperty( "checked", temp_.useSystemTrayIcon );
 
-    qml("shortcutCreateIssue")->setProperty( "text", temp.shortcutCreateIssue );
-    qml("shortcutSelectIssue")->setProperty( "text", temp.shortcutSelectIssue );
-    qml("shortcutStartStop")->setProperty( "text", temp.shortcutStartStop );
-    qml("shortcutToggle")->setProperty( "text", temp.shortcutToggle );
+    qml("shortcutCreateIssue")->setProperty( "text", temp_.shortcutCreateIssue );
+    qml("shortcutSelectIssue")->setProperty( "text", temp_.shortcutSelectIssue );
+    qml("shortcutStartStop")->setProperty( "text", temp_.shortcutStartStop );
+    qml("shortcutToggle")->setProperty( "text", temp_.shortcutToggle );
 
     updateIssueStatuses();
     updateTrackers();
@@ -327,31 +329,31 @@ Settings::getProfileName( QString& name, QString title, QString initText )
 }
 
 void
-Settings::load( const QString profile )
+Settings::load( const QString profile, const bool apply )
 {
     ENTER();
 
     // General settings
     {
         if( !settings_.value("issueCreator/geometry").isNull() )
-            temp.issueCreator.geometry = settings_.value("issueCreator/geometry").toRect();
+            temp_.issueCreator.geometry = settings_.value("issueCreator/geometry").toRect();
         if( !settings_.value("issueCreator/position").isNull() )
-            temp.issueCreator.position = settings_.value("issueCreator/position").toPoint();
+            temp_.issueCreator.position = settings_.value("issueCreator/position").toPoint();
 
         if( !settings_.value("issueSelector/geometry").isNull() )
-            temp.issueSelector.geometry = settings_.value("issueSelector/geometry").toRect();
+            temp_.issueSelector.geometry = settings_.value("issueSelector/geometry").toRect();
         if( !settings_.value("issueSelector/position").isNull() )
-            temp.issueSelector.position = settings_.value("issueSelector/position").toPoint();
+            temp_.issueSelector.position = settings_.value("issueSelector/position").toPoint();
 
         if( !settings_.value("mainWindow/geometry").isNull() )
-            temp.mainWindow.geometry = settings_.value("mainWindow/geometry").toRect();
+            temp_.mainWindow.geometry = settings_.value("mainWindow/geometry").toRect();
         if( !settings_.value("mainWindow/position").isNull() )
-            temp.mainWindow.position = settings_.value("mainWindow/position").toPoint();
+            temp_.mainWindow.position = settings_.value("mainWindow/position").toPoint();
 
         if( !settings_.value("settings/geometry").isNull() )
-            temp.settings.geometry = settings_.value("settings/geometry").toRect();
+            temp_.settings.geometry = settings_.value("settings/geometry").toRect();
         if( !settings_.value("settings/position").isNull() )
-            temp.settings.position = settings_.value("settings/position").toPoint();
+            temp_.settings.position = settings_.value("settings/position").toPoint();
 
         if( !settings_.value("profileId").isNull() )
             profileId_ = settings_.value("profileId").toInt();
@@ -393,31 +395,54 @@ Settings::load( const QString profile )
     }
 
     // Shortcuts
-    temp.shortcutCreateIssue = settings_.value("shortcutCreateIssue").isValid()
+    temp_.shortcutCreateIssue = settings_.value("shortcutCreateIssue").isValid()
                                ? settings_.value("shortcutCreateIssue").toString()
                                : "Ctrl+Alt+C";
-    temp.shortcutSelectIssue = settings_.value("shortcutSelectIssue").isValid()
+    temp_.shortcutSelectIssue = settings_.value("shortcutSelectIssue").isValid()
                                ? settings_.value("shortcutSelectIssue").toString()
                                : "Ctrl+Alt+L";
-    temp.shortcutStartStop = settings_.value("shortcutStartStop").isValid()
+    temp_.shortcutStartStop = settings_.value("shortcutStartStop").isValid()
                              ? settings_.value("shortcutStartStop").toString()
                              : "Ctrl+Alt+S";
-    temp.shortcutToggle = settings_.value("shortcutToggle").isValid()
+    temp_.shortcutToggle = settings_.value("shortcutToggle").isValid()
                           ? settings_.value("shortcutToggle").toString()
                           : "Ctrl+Alt+R";
 
     // Interface
-    temp.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
+    temp_.useSystemTrayIcon = settings_.value("useSystemTrayIcon").isValid()
                              ? settings_.value("useSystemTrayIcon").toBool()
                              : true;
-    temp.closeToTray = settings_.value("closeToTray").isValid()
+    temp_.closeToTray = settings_.value("closeToTray").isValid()
                              ? settings_.value("closeToTray").toBool()
                              : true;
 
     loadProfileData();
 
-    data = temp;
-    applied();
+    if( apply )
+    {
+        data = temp_;
+        applied();
+    }
+
+    RETURN();
+}
+
+void
+Settings::load( const bool apply )
+{
+    ENTER();
+
+    load( QString(), apply );
+
+    RETURN();
+}
+
+void
+Settings::load()
+{
+    ENTER();
+
+    load( QString() );
 
     RETURN();
 }
@@ -433,46 +458,46 @@ Settings::loadProfileData()
     settings_.beginGroup( profileHash_ );
 
     {
-        temp.apiKey = settings_.value("apikey").toString();
-        temp.checkConnection = settings_.value("checkConnection").toBool();
-        temp.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
-        temp.url = settings_.value("url").toString();
+        temp_.apiKey = settings_.value("apikey").toString();
+        temp_.checkConnection = settings_.value("checkConnection").toBool();
+        temp_.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
+        temp_.url = settings_.value("url").toString();
 
-        temp.numRecentIssues = settings_.value("numRecentIssues").isValid()
+        temp_.numRecentIssues = settings_.value("numRecentIssues").isValid()
                                ? settings_.value("numRecentIssues").toInt()
                                : 10;
 
-        temp.useCustomFields = settings_.value("useCustomFields").isValid()
+        temp_.useCustomFields = settings_.value("useCustomFields").isValid()
                                ? settings_.value("useCustomFields").toBool()
                                : true;
 
-        temp.activityId  = settings_.value("activity").isValid()
+        temp_.activityId  = settings_.value("activity").isValid()
                            ? settings_.value("activity").toInt()
                            : NULL_ID;
-        temp.issueId = settings_.value("issue").isValid()
+        temp_.issueId = settings_.value("issue").isValid()
                        ? settings_.value("issue").toInt()
                        : NULL_ID;
-        temp.projectId = settings_.value("project").isValid()
+        temp_.projectId = settings_.value("project").isValid()
                          ? settings_.value("project").toInt()
                          : NULL_ID;
-        temp.workedOnId = settings_.value("workedOnId").isValid()
+        temp_.workedOnId = settings_.value("workedOnId").isValid()
                           ? settings_.value("workedOnId").toInt()
                           : NULL_ID;
-        temp.defaultTrackerId = settings_.value("defaultTrackerId").isValid()
+        temp_.defaultTrackerId = settings_.value("defaultTrackerId").isValid()
                                 ? settings_.value("defaultTrackerId").toInt()
                                 : NULL_ID;
 
-        temp.startTimeFieldId = settings_.value("startTimeFieldId").isValid()
+        temp_.startTimeFieldId = settings_.value("startTimeFieldId").isValid()
                                 ? settings_.value("startTimeFieldId").toInt()
                                 : NULL_ID;
-        temp.endTimeFieldId = settings_.value("endTimeFieldId").isValid()
+        temp_.endTimeFieldId = settings_.value("endTimeFieldId").isValid()
                               ? settings_.value("endTimeFieldId").toInt()
                               : NULL_ID;
     }
 
     // Recently used issues
     {
-        temp.recentIssues.clear();
+        temp_.recentIssues.clear();
         int size = settings_.beginReadArray( "recentIssues" );
         for( int i = 0; i < size; ++i )
         {
@@ -481,7 +506,7 @@ Settings::loadProfileData()
             Issue issue;
             issue.id      = settings_.value("id").toInt();
             issue.subject = settings_.value("subject").toString();
-            temp.recentIssues.append( issue );
+            temp_.recentIssues.append( issue );
         }
         settings_.endArray();
     }
@@ -633,7 +658,7 @@ Settings::updateIssueStatuses()
 {
     ENTER();
 
-    if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
+    if( temp_.apiKey.isEmpty() || temp_.url.isEmpty() )
     {
         issueStatusModel_.clear();
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
@@ -645,9 +670,9 @@ Settings::updateIssueStatuses()
         RETURN();
     }
 
-    redmine_->setUrl( temp.url );
-    redmine_->setAuthenticator( temp.apiKey );
-    if( temp.ignoreSslErrors )
+    redmine_->setUrl( temp_.url );
+    redmine_->setAuthenticator( temp_.apiKey );
+    if( temp_.ignoreSslErrors )
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
@@ -678,13 +703,13 @@ Settings::updateIssueStatuses()
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "Choose issue status") );
         for( const auto& issueStatus : issueStatuses )
         {
-            if( issueStatus.id == temp.workedOnId )
+            if( issueStatus.id == temp_.workedOnId )
                 currentIndex = issueStatusModel_.rowCount();
 
             issueStatusModel_.push_back( SimpleItem(issueStatus) );
         }
 
-        DEBUG()(issueStatusModel_)(temp.workedOnId)(currentIndex);
+        DEBUG()(issueStatusModel_)(temp_.workedOnId)(currentIndex);
 
         qml("workedOn")->setProperty( "enabled", true );
         qml("workedOn")->setProperty( "currentIndex", -1 );
@@ -703,7 +728,7 @@ Settings::updateTimeEntryCustomFields()
 
     bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
 
-    if( temp.apiKey.isEmpty() || temp.url.isEmpty() || !useCustomFields )
+    if( temp_.apiKey.isEmpty() || temp_.url.isEmpty() || !useCustomFields )
     {
         QString err;
 
@@ -731,9 +756,9 @@ Settings::updateTimeEntryCustomFields()
     filter.format = "string";
     filter.type   = "time_entry";
 
-    redmine_->setUrl( temp.url );
-    redmine_->setAuthenticator( temp.apiKey );
-    if( temp.ignoreSslErrors )
+    redmine_->setUrl( temp_.url );
+    redmine_->setAuthenticator( temp_.apiKey );
+    if( temp_.ignoreSslErrors )
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
@@ -777,11 +802,11 @@ Settings::updateTimeEntryCustomFields()
         // Create loaded custom fields
         for( const auto& customField : customFields )
         {
-            if( customField.id == temp.startTimeFieldId )
+            if( customField.id == temp_.startTimeFieldId )
                 startTimeCurrentIndex = startTimeModel_.rowCount();
             startTimeModel_.push_back( SimpleItem(customField) );
 
-            if( customField.id == temp.endTimeFieldId )
+            if( customField.id == temp_.endTimeFieldId )
                 endTimeCurrentIndex = endTimeModel_.rowCount();
             endTimeModel_.push_back( SimpleItem(customField) );
         }
@@ -805,7 +830,7 @@ Settings::updateTrackers()
 {
     ENTER();
 
-    if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
+    if( temp_.apiKey.isEmpty() || temp_.url.isEmpty() )
     {
         trackerModel_.clear();
         trackerModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
@@ -817,9 +842,9 @@ Settings::updateTrackers()
         RETURN();
     }
 
-    redmine_->setUrl( temp.url );
-    redmine_->setAuthenticator( temp.apiKey );
-    if( temp.ignoreSslErrors )
+    redmine_->setUrl( temp_.url );
+    redmine_->setAuthenticator( temp_.apiKey );
+    if( temp_.ignoreSslErrors )
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
@@ -849,13 +874,13 @@ Settings::updateTrackers()
         trackerModel_.push_back( SimpleItem(NULL_ID, "Choose tracker") );
         for( const auto& tracker : trackers )
         {
-            if( tracker.id == temp.defaultTrackerId )
+            if( tracker.id == temp_.defaultTrackerId )
                 currentIndex = trackerModel_.rowCount();
 
             trackerModel_.push_back( SimpleItem(tracker) );
         }
 
-        DEBUG()(trackerModel_)(temp.defaultTrackerId)(currentIndex);
+        DEBUG()(trackerModel_)(temp_.defaultTrackerId)(currentIndex);
 
         qml("defaultTracker")->setProperty( "enabled", true );
         qml("defaultTracker")->setProperty( "currentIndex", -1 );
