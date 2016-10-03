@@ -181,5 +181,14 @@ Window::qml( QString qmlItem )
     if( qmlItem.isEmpty() )
         RETURN( item_ );
     else
-        RETURN( item_->findChild<QQuickItem*>(qmlItem) );
+    {
+        QQuickItem* child = item_->findChild<QQuickItem*>( qmlItem );
+        if( !child )
+        {
+            DEBUG() << "QML item not found";
+            throw( "QML item not found" );
+        }
+
+        RETURN( child );
+    }
 }

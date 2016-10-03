@@ -107,17 +107,29 @@ Settings::apply()
 
         if( oldUrl == data.url )
         {
-            int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
-            data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
+            if( issueStatusModel_.rowCount() )
+            {
+                int workedOnIndex = qml("workedOn")->property("currentIndex").toInt();
+                data.workedOnId = issueStatusModel_.at(workedOnIndex).id();
+            }
 
-            int defaultTrackerIndex = qml("defaultTracker")->property("currentIndex").toInt();
-            data.defaultTrackerId = trackerModel_.at(defaultTrackerIndex).id();
+            if( trackerModel_.rowCount() )
+            {
+                int defaultTrackerIndex = qml("defaultTracker")->property("currentIndex").toInt();
+                data.defaultTrackerId = trackerModel_.at(defaultTrackerIndex).id();
+            }
 
-            int startTimeFieldId = qml("startTime")->property("currentIndex").toInt();
-            data.startTimeFieldId = startTimeModel_.at(startTimeFieldId).id();
+            if( startTimeModel_.rowCount() )
+            {
+                int startTimeFieldId = qml("startTime")->property("currentIndex").toInt();
+                data.startTimeFieldId = startTimeModel_.at(startTimeFieldId).id();
+            }
 
-            int endTimeFieldId = qml("endTime")->property("currentIndex").toInt();
-            data.endTimeFieldId = endTimeModel_.at(endTimeFieldId).id();
+            if( endTimeModel_.rowCount() )
+            {
+                int endTimeFieldId = qml("endTime")->property("currentIndex").toInt();
+                data.endTimeFieldId = endTimeModel_.at(endTimeFieldId).id();
+            }
         }
         else
         {
@@ -252,7 +264,9 @@ Settings::display( bool loadData )
                                                              SimpleModel::IdRole, profileId_ );
         qml("profiles")->setProperty( "currentIndex", -1 );
         if( indices.size() )
+        {
             qml("profiles")->setProperty( "currentIndex", indices[0].row() );
+        }
     }
 
     qml("apikey")->setProperty( "text", temp.apiKey );
@@ -622,7 +636,7 @@ Settings::updateIssueStatuses()
     if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
     {
         issueStatusModel_.clear();
-        issueStatusModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
+        issueStatusModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
 
         qml("workedOn")->setProperty( "enabled", false );
         qml("workedOn")->setProperty( "currentIndex", -1 );
@@ -687,6 +701,32 @@ Settings::updateTimeEntryCustomFields()
 {
     ENTER();
 
+    bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
+
+    if( temp.apiKey.isEmpty() || temp.url.isEmpty() || !useCustomFields )
+    {
+        QString err;
+
+        if( useCustomFields )
+            err = "URL and API key required";
+        else
+            err = "Custom fields not enabled";
+
+        startTimeModel_.clear();
+        startTimeModel_.push_back( SimpleItem(NULL_ID, err) );
+        qml("startTime")->setProperty( "enabled", false );
+        qml("startTime")->setProperty( "currentIndex", -1 );
+        qml("startTime")->setProperty( "currentIndex", 0 );
+
+        endTimeModel_.clear();
+        endTimeModel_.push_back( SimpleItem(NULL_ID, err) );
+        qml("endTime")->setProperty( "enabled", false );
+        qml("endTime")->setProperty( "currentIndex", -1 );
+        qml("endTime")->setProperty( "currentIndex", 0 );
+
+        RETURN();
+    }
+
     CustomFieldFilter filter;
     filter.format = "string";
     filter.type   = "time_entry";
@@ -715,21 +755,12 @@ Settings::updateTimeEntryCustomFields()
             CBRETURN();
         }
 
-        bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
         QString firstEntry;
 
-        if( useCustomFields )
-        {
-            if( customFields.size() )
-                firstEntry = "Choose time entry field";
-            else
-            {
-                firstEntry = "No time entry fields found";
-                useCustomFields = false;
-            }
-        }
+        if( customFields.size() )
+            firstEntry = "Choose time entry field";
         else
-            firstEntry = "Custom fields not enabled";
+            firstEntry = "No time entry fields found";
 
         startTimeModel_.clear();
         endTimeModel_.clear();
@@ -740,30 +771,27 @@ Settings::updateTimeEntryCustomFields()
         startTimeModel_.push_back( SimpleItem(NULL_ID, firstEntry) );
         endTimeModel_.push_back( SimpleItem(NULL_ID, firstEntry) );
 
-        if( useCustomFields )
+        sort( customFields.begin(), customFields.end(),
+              [](CustomField l, CustomField r){ return l.name < r.name;} );
+
+        // Create loaded custom fields
+        for( const auto& customField : customFields )
         {
-            sort( customFields.begin(), customFields.end(),
-                  [](CustomField l, CustomField r){ return l.name < r.name;} );
+            if( customField.id == temp.startTimeFieldId )
+                startTimeCurrentIndex = startTimeModel_.rowCount();
+            startTimeModel_.push_back( SimpleItem(customField) );
 
-            // Create loaded custom fields
-            for( const auto& customField : customFields )
-            {
-                if( customField.id == temp.startTimeFieldId )
-                    startTimeCurrentIndex = startTimeModel_.rowCount();
-                startTimeModel_.push_back( SimpleItem(customField) );
-
-                if( customField.id == temp.endTimeFieldId )
-                    endTimeCurrentIndex = endTimeModel_.rowCount();
-                endTimeModel_.push_back( SimpleItem(customField) );
-            }
+            if( customField.id == temp.endTimeFieldId )
+                endTimeCurrentIndex = endTimeModel_.rowCount();
+            endTimeModel_.push_back( SimpleItem(customField) );
         }
 
         qml("startTime")->setProperty( "currentIndex", -1 );
         qml("startTime")->setProperty( "currentIndex", startTimeCurrentIndex );
-        qml("startTime")->setProperty( "enabled", useCustomFields );
+        qml("startTime")->setProperty( "enabled", true );
         qml("endTime")->setProperty( "currentIndex", -1 );
         qml("endTime")->setProperty( "currentIndex", endTimeCurrentIndex );
-        qml("endTime")->setProperty( "enabled", useCustomFields );
+        qml("endTime")->setProperty( "enabled", true );
 
         CBRETURN();
     },
@@ -780,7 +808,7 @@ Settings::updateTrackers()
     if( temp.apiKey.isEmpty() || temp.url.isEmpty() )
     {
         trackerModel_.clear();
-        trackerModel_.push_back( SimpleItem(NULL_ID, "Currently not available") );
+        trackerModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
 
         qml("defaultTracker")->setProperty( "enabled", false );
         qml("defaultTracker")->setProperty( "currentIndex", -1 );

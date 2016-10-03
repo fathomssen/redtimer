@@ -132,7 +132,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: qsTr("Start time field")
+                    text: qsTr("        Start time field")
                 }
 
                 ComboBox {
@@ -145,7 +145,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: qsTr("End time field")
+                    text: qsTr("        End time field")
                 }
 
                 ComboBox {
