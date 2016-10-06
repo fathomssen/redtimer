@@ -276,6 +276,11 @@ private slots:
     void selectIssue();
 
     /**
+     * @brief The settings have been applied
+     */
+    void settingsApplied();
+
+    /**
      * @brief Start time tracking
      *
      * Starts time tracking using the timer. If the timer is already active, the previously tracked time will

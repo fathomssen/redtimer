@@ -8,7 +8,7 @@
 using namespace redtimer;
 using namespace std;
 
-Window::Window( QString qml, MainWindow* mainWindow )
+Window::Window( QString qml, MainWindow* mainWindow, std::function<void()> closeCb )
     : QQuickView( QUrl(QString("qrc:/qml/").append(qml).append(".qml")) )
 {
     ENTER();
@@ -23,6 +23,11 @@ Window::Window( QString qml, MainWindow* mainWindow )
     setMinimumHeight( height() );
     setMinimumWidth( width() );
 
+    if( closeCb )
+        closeCb_ = closeCb;
+    else
+        closeCb_ = [&](){ close(); };
+
     RETURN();
 }
 
@@ -33,7 +38,7 @@ Window::keyPressEvent( QKeyEvent* event )
     if( event->key() == Qt::Key_Escape )
     {
         DEBUG("Closing window with Esc key");
-        close();
+        closeCb_();
     }
 
     QQuickView::keyPressEvent( event );
@@ -145,28 +150,28 @@ Window::message( QString text, QtMsgType type, int timeout )
     RETURN( message(text, timer, type) );
 }
 
-WindowData
+Window::Data
 Window::getWindowData()
 {
     ENTER();
 
-    WindowData windowData;
-    windowData.geometry = geometry();
-    windowData.position = position();
+    Data data;
+    data.geometry = geometry();
+    data.position = position();
 
-    RETURN( windowData );
+    RETURN( data );
 }
 
 void
-Window::setWindowData( WindowData windowData )
+Window::setWindowData( Window::Data data )
 {
-    ENTER()(windowData.geometry)(windowData.position);
+    ENTER()(data.geometry)(data.position);
 
-    QRect geometry = windowData.geometry;
+    QRect geometry = data.geometry;
     if( !geometry.isNull() )
         setGeometry( geometry );
 
-    QPoint position = windowData.position;
+    QPoint position = data.position;
     if( !position.isNull() )
         setPosition( position );
 

@@ -10,6 +10,7 @@
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QQuickView>
+#include <QSet>
 #include <QSettings>
 #include <QSortFilterProxyModel>
 
@@ -24,8 +25,19 @@ class Settings : public Window
 
 public:
     /// Settings data structure for the currently loaded profile
-    struct Data
+    struct ProfileData
     {
+        /// @name Profile settings
+        /// @{
+
+        /// Profile ID
+        int id = NULL_ID;
+
+        /// Profile name
+        QString name;
+
+        /// @}
+
         /// @name GUI settings
         /// @{
 
@@ -89,32 +101,31 @@ public:
         qtredmine::Issues recentIssues;
 
         /// @}
-
-        /// @name Window data
-        /// @{
-
-        /// Window data of the Issue Creator
-        WindowData issueCreator;
-
-        /// Window data of the Issue Selector
-        WindowData issueSelector;
-
-        /// Window data of the main window
-        WindowData mainWindow;
-
-        /// Window data of the settings dialog
-        WindowData settings;
-
-        /// @}
     };
 
-    /// Settings data
-    Data data;
+    /// Settings data structure for the currently loaded profile
+    struct WindowData
+    {
+        /// Window data of the Issue Creator
+        Window::Data issueCreator;
+
+        /// Window data of the Issue Selector
+        Window::Data issueSelector;
+
+        /// Window data of the main window
+        Window::Data mainWindow;
+
+        /// Window data of the settings dialog
+        Window::Data settings;
+    };
+
+    /// Currently applied settings
+    ProfileData data_;
+
+    /// Window data
+    WindowData win_;
 
 private:
-    /// Not applied settings data
-    Data temp_;
-
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
 
@@ -138,13 +149,10 @@ private:
     QSortFilterProxyModel profilesProxyModel_;
 
     /// Current profile ID
-    int profileId_;
+    int profileId_ = NULL_ID;
 
-    /// Current profile hash
-    QString profileHash_;
-
-    /// List of initially loaded profiles
-    QSet<int> loadedProfiles_;
+    /// Internal representation of the profiles
+    QMap<int, ProfileData> profiles_;
 
 private:
     /**
@@ -158,6 +166,22 @@ private:
      */
     bool getProfileName( QString& name, QString title, QString initText );
 
+    /**
+     * @brief Get the current profile data
+     *
+     * @return Pointer to the profile data
+     */
+    ProfileData* profileData();
+
+    /**
+     * @brief Get the current profile hash
+     *
+     * @param id Profile ID to get the hash for
+     *
+     * @return Profile hash
+     */
+    QString profileHash( int id = NULL_ID );
+
 public:
     /**
      * @brief Constructor for a Settings object
@@ -167,12 +191,21 @@ public:
     explicit Settings( MainWindow* mainWindow );
 
     /**
+     * @brief Determines whether the currently loaded settings are valid
+     *
+     * To be valid, a set of settings must at least contain a URL and an API key.
+     *
+     * @return true if settings are valid, false otherwise
+     */
+    bool isValid( bool displayError = false );
+
+    /**
      * @brief Load settings from settings file
      *
      * @param profile Load this profile instead of the last loaded
      * @param apply Apply the loaded settings
      */
-    void load( const QString profile, const bool apply = true );
+    void load( const QString data_, const bool apply = true );
 
     /**
      * @brief Load settings from settings file for current profile
@@ -182,25 +215,40 @@ public:
     void load( const bool apply );
 
     /**
-     * @brief Load settings from settings file for current profile and apply settings
+     * @brief Load settings from settings file
      */
     void load();
 
     /**
      * @brief Load profile-dependent settings from settings file
+     *
+     * @param profileId Profile to load data for
+     * @param initData Inital data
      */
-    void loadProfileData();
+    void loadProfileData( const int profileId, const ProfileData* initData = nullptr );
 
     /**
      * @brief Save settings to settings file
      */
     void save();
 
+    /**
+     * @brief Save profile-dependent settings to settings file
+     *
+     * @param profileId Profile to save data for
+     */
+    void saveProfileData( int profileId );
+
 public slots:
     /**
      * @brief Store the settings from the settings dialog in this class
      */
     void apply();
+
+    /**
+     * @brief Store the profile data from the settings dialog in this class
+     */
+    void applyProfileData();
 
     /**
      * @brief Store the settings and close
@@ -231,10 +279,8 @@ public slots:
 
     /**
      * @brief Display the settings dialog
-     *
-     * @param loadData Load data from settings file before displaying
      */
-    void display( bool loadData = true );
+    void display();
 
     /**
      * @brief A profile has been selected

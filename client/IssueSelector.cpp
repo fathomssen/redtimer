@@ -69,7 +69,7 @@ IssueSelector::close()
 {
     ENTER();
 
-    mainWindow_->settings_->data.issueSelector = getWindowData();
+    mainWindow_->settings_->win_.issueSelector = getWindowData();
     mainWindow_->settings_->save();
 
     Window::close();
@@ -83,7 +83,7 @@ IssueSelector::display()
 {
     ENTER();
 
-    setWindowData( mainWindow_->settings_->data.issueSelector );
+    setWindowData( mainWindow_->settings_->win_.issueSelector );
 
     show();
 

@@ -5,6 +5,42 @@ import QtQuick.Layouts 1.2
 ColumnLayout {
     id: columnLayout1
 
+    RowLayout {
+        Layout.fillWidth: true
+
+        Label {
+            text: qsTr("Profile")
+        }
+
+        ComboBox {
+            id: profiles
+            objectName: "profiles"
+            model: profilesModel
+            textRole: "name"
+        }
+
+        Button {
+            id: createProfile
+            objectName: "createProfile"
+            tooltip: "Create new profile"
+            iconSource: "/open-iconic/svg/plus.svg"
+        }
+
+        Button {
+            id: deleteProfile
+            objectName: "deleteProfile"
+            tooltip: "Delete profile"
+            iconSource: "/open-iconic/svg/trash.svg"
+        }
+
+        Button {
+            id: renameProfile
+            objectName: "renameProfile"
+            tooltip: "Rename profile"
+            iconSource: "/open-iconic/svg/pencil.svg"
+        }
+    }
+
     TabView {
         id: tabView1
         currentIndex: 0
@@ -26,43 +62,6 @@ ColumnLayout {
                     // Spacer
                     height: 15
                     Layout.columnSpan: 2
-                }
-
-                RowLayout {
-                    Layout.columnSpan: 2
-                    Layout.fillWidth: true
-
-                    Label {
-                        text: qsTr("Profile")
-                    }
-
-                    ComboBox {
-                        id: profiles
-                        objectName: "profiles"
-                        model: profilesModel
-                        textRole: "name"
-                    }
-
-                    Button {
-                        id: createProfile
-                        objectName: "createProfile"
-                        tooltip: "Create new profile"
-                        iconSource: "/open-iconic/svg/plus.svg"
-                    }
-
-                    Button {
-                        id: deleteProfile
-                        objectName: "deleteProfile"
-                        tooltip: "Delete profile"
-                        iconSource: "/open-iconic/svg/trash.svg"
-                    }
-
-                    Button {
-                        id: renameProfile
-                        objectName: "renameProfile"
-                        tooltip: "Rename profile"
-                        iconSource: "/open-iconic/svg/pencil.svg"
-                    }
                 }
 
                 Label {
@@ -132,7 +131,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: qsTr("        Start time field")
+                    text: "\t"+qsTr("Start time field")
                 }
 
                 ComboBox {
@@ -145,7 +144,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: qsTr("        End time field")
+                    text: "\t"+qsTr("End time field")
                 }
 
                 ComboBox {

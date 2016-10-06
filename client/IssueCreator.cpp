@@ -96,7 +96,7 @@ IssueCreator::close()
     if( cancelOnClose_ )
         cancelled();
 
-    mainWindow_->settings_->data.issueCreator = getWindowData();
+    mainWindow_->settings_->win_.issueCreator = getWindowData();
     mainWindow_->settings_->save();
 
     Window::close();
@@ -110,7 +110,7 @@ IssueCreator::display()
 {
     ENTER();
 
-    setWindowData( mainWindow_->settings_->data.issueCreator );
+    setWindowData( mainWindow_->settings_->win_.issueCreator );
 
     show();
     refreshGui();
@@ -432,7 +432,7 @@ IssueCreator::loadTrackers()
         trackerModel_.push_back( SimpleItem(NULL_ID, "Choose tracker") );
         for( const auto& tracker : project.trackers )
         {
-            if( mainWindow_->settings_->data.defaultTrackerId == tracker.id )
+            if( mainWindow_->settings_->data_.defaultTrackerId == tracker.id )
             {
                 currentIndex = trackerModel_.rowCount();
                 trackerId_ = tracker.id;

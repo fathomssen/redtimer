@@ -28,14 +28,14 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     settings_ = new Settings( this );
     settings_->load( profile );
 
-    if( settings_->data.apiKey.isEmpty() || settings_->data.url.isEmpty() )
-        settings_->display( false );
+    if( !settings_->isValid() )
+        settings_->display();
 
     // Main window initialisation
     installEventFilter( this );
     setTitle( "RedTimer" );
 
-    setWindowData( settings_->data.mainWindow );
+    setWindowData( settings_->win_.mainWindow );
 
     display();
 
@@ -65,7 +65,6 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     // Timer initialisation
     timer_ = new QTimer( this );
-    timer_->setTimerType( Qt::VeryCoarseTimer );
     timer_->setInterval( 1000 );
 
     // Initially connect and update the GUI
@@ -110,7 +109,7 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     connect( qml("counter"), SIGNAL(editingFinished()), this, SLOT(resumeCounterGui()) );
 
     // Connect the settings saved signal to the reconnect slot
-    connect( settings_, &Settings::applied, this, &MainWindow::reconnect );
+    connect( settings_, &Settings::applied, this, &MainWindow::settingsApplied );
 
     // Connect the timer to the tracking counter
     connect( timer_, &QTimer::timeout, this, &MainWindow::refreshCounter );
@@ -146,7 +145,7 @@ MainWindow::addRecentIssue( qtredmine::Issue issue )
     recentIssues_.push_front( issue );
 
     // Crop the list after numRecentIssues entries
-    int numRecentIssues = settings_->data.numRecentIssues;
+    int numRecentIssues = settings_->data_.numRecentIssues;
     if( numRecentIssues != -1 )
         recentIssues_.removeRowsFrom( numRecentIssues );
 
@@ -221,8 +220,8 @@ MainWindow::createIssue()
     IssueCreator* issueCreator = new IssueCreator( redmine_, this );
     issueCreator->setTransientParent( this );
     issueCreator->setCurrentIssue( issue_ );
-    issueCreator->setProjectId( settings_->data.projectId );
-    issueCreator->setUseCustomFields( settings_->data.useCustomFields );
+    issueCreator->setProjectId( settings_->data_.projectId );
+    issueCreator->setUseCustomFields( settings_->data_.useCustomFields );
     issueCreator->display();
 
     // Empty the issue information and set ID to NULL_ID
@@ -242,7 +241,7 @@ MainWindow::createIssue()
     connect( issueCreator, &IssueCreator::created, [=]( int issueId )
     {
         loadIssue( issueId, true, true );
-        settings_->data.projectId = issueCreator->getProjectId();
+        settings_->data_.projectId = issueCreator->getProjectId();
     } );
 
     RETURN();
@@ -281,7 +280,7 @@ MainWindow::eventFilter( QObject* obj, QEvent* event )
     if( event->type() == QEvent::Close )
     {
         DEBUG("Received close signal");
-        if( trayIcon_ && settings_->data.closeToTray )
+        if( trayIcon_ && settings_->data_.closeToTray )
             hide();
         else
             exit();
@@ -394,7 +393,7 @@ MainWindow::initTrayIcon()
     ENTER();
 
     // Create tray icon if desired and not yet available
-    if( !trayIcon_ && settings_->data.useSystemTrayIcon
+    if( !trayIcon_ && settings_->data_.useSystemTrayIcon
             && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( this );
@@ -413,7 +412,7 @@ MainWindow::initTrayIcon()
     }
 
     // Hide tray icon if desired and currently shown
-    if( trayIcon_ && !settings_->data.useSystemTrayIcon )
+    if( trayIcon_ && !settings_->data_.useSystemTrayIcon )
     {
         trayIcon_->hide();
         delete trayIcon_;
@@ -759,8 +758,8 @@ MainWindow::reconnect()
 {
     ENTER();
 
-    redmine_->setUrl( settings_->data.url );
-    redmine_->setAuthenticator( settings_->data.apiKey );
+    redmine_->setUrl( settings_->data_.url );
+    redmine_->setAuthenticator( settings_->data_.apiKey );
 
     refreshGui();
 
@@ -775,28 +774,28 @@ MainWindow::refreshGui()
 {
     ENTER();
 
-    if( settings_->data.ignoreSslErrors )
+    if( settings_->data_.ignoreSslErrors )
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
 
-    if( settings_->data.checkConnection )
+    if( settings_->data_.checkConnection )
         checkConnectionTimer_->start();
     else
         checkConnectionTimer_->stop();
 
-    shortcutCreateIssue_->setShortcut( QKeySequence(settings_->data.shortcutCreateIssue) );
-    shortcutSelectIssue_->setShortcut( QKeySequence(settings_->data.shortcutSelectIssue) );
-    shortcutStartStop_->setShortcut( QKeySequence(settings_->data.shortcutStartStop) );
-    shortcutToggle_->setShortcut(  QKeySequence(settings_->data.shortcutToggle) );
+    shortcutCreateIssue_->setShortcut( QKeySequence(settings_->data_.shortcutCreateIssue) );
+    shortcutSelectIssue_->setShortcut( QKeySequence(settings_->data_.shortcutSelectIssue) );
+    shortcutStartStop_->setShortcut( QKeySequence(settings_->data_.shortcutStartStop) );
+    shortcutToggle_->setShortcut(  QKeySequence(settings_->data_.shortcutToggle) );
 
     initTrayIcon();
 
-    activityId_ = settings_->data.activityId;
-    loadIssue( settings_->data.issueId, false, true);
+    activityId_ = settings_->data_.activityId;
+    loadIssue( settings_->data_.issueId, false, true);
 
     recentIssues_.clear();
-    for( const auto& issue : settings_->data.recentIssues )
+    for( const auto& issue : settings_->data_.recentIssues )
         recentIssues_.push_back( issue );
 
     loadLatestActivity();
@@ -856,14 +855,14 @@ MainWindow::saveSettings()
 {
     ENTER();
 
-    settings_->data.mainWindow = getWindowData();
-    settings_->data.recentIssues = recentIssues_.data().toVector();
+    settings_->win_.mainWindow = getWindowData();
+    settings_->data_.recentIssues = recentIssues_.data().toVector();
 
     // If currently there is no issue selected, use the first one from the recently opened issues list
     if( issue_.id == NULL_ID && recentIssues_.rowCount() )
-        settings_->data.issueId = recentIssues_.at(0).id;
+        settings_->data_.issueId = recentIssues_.at(0).id;
     else
-        settings_->data.issueId = issue_.id;
+        settings_->data_.issueId = issue_.id;
 
     settings_->save();
 
@@ -876,13 +875,13 @@ MainWindow::selectIssue()
     // Issue selector initialisation
     IssueSelector* issueSelector = new IssueSelector( redmine_, this );
     issueSelector->setTransientParent( this );
-    issueSelector->setProjectId( settings_->data.projectId );
+    issueSelector->setProjectId( settings_->data_.projectId );
     issueSelector->display();
 
     // Connect the issue selected signal to the setIssue slot
     connect( issueSelector, &IssueSelector::selected, [=](int issueId)
     {
-        settings_->data.projectId = issueSelector->getProjectId();
+        settings_->data_.projectId = issueSelector->getProjectId();
         loadIssue( issueId );
     } );
 }
@@ -901,6 +900,19 @@ MainWindow::start()
 
     // Afterwards, start the timer
     startTimer();
+
+    RETURN();
+}
+
+void
+MainWindow::settingsApplied()
+{
+    ENTER();
+
+    if( !settings_->isValid() )
+        settings_->display();
+
+    reconnect();
 
     RETURN();
 }
@@ -931,14 +943,14 @@ MainWindow::startTimer()
     lastStarted_ = QDateTime::currentDateTimeUtc();
 
     // Set the start/stop button icon to stop
-    qml("startStop")->setProperty( "iconSource", "qrc:///open-iconic/svg/media-stop.svg" );
+    qml("startStop")->setProperty( "iconSource", "qrc:/open-iconic/svg/media-stop.svg" );
     qml("startStop")->setProperty( "tooltip", tr("Stop time tracking") );
 
     if( trayIcon_ )
-        trayIcon_->setIcon( QIcon(":/icons/clock_red_play.svg") );
+        trayIcon_->setIcon( QIcon("qrc:/icons/clock_red_play.svg") );
 
     // Set the issue status ID to the worked on ID if not already done
-    int workedOnId = settings_->data.workedOnId;
+    int workedOnId = settings_->data_.workedOnId;
     if( workedOnId != NULL_ID && workedOnId != issue_.status.id )
         updateIssueStatus( workedOnId );
 
@@ -978,7 +990,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     timeEntry.issue.id    = issue_.id;
 
     // Possibly save start and end time as well
-    if( settings_->data.useCustomFields )
+    if( settings_->data_.useCustomFields )
     {
         auto addCustomField = [&timeEntry]( int fieldId, QString stime )
         {
@@ -997,8 +1009,8 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         };
 
         QString timeFormat = "yyyy-MM-ddTHH:mm:ss";
-        addCustomField( settings_->data.startTimeFieldId, lastStarted_.toString(timeFormat) );
-        addCustomField( settings_->data.endTimeFieldId,
+        addCustomField( settings_->data_.startTimeFieldId, lastStarted_.toString(timeFormat) );
+        addCustomField( settings_->data_.endTimeFieldId,
                         QDateTime::currentDateTimeUtc().toString(timeFormat) );
     }
 

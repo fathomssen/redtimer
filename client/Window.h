@@ -12,16 +12,6 @@ namespace redtimer {
 // forward declaration
 class MainWindow;
 
-/// Position and size of windows
-struct WindowData
-{
-    /// Last window size
-    QRect geometry;
-
-    /// Last window position
-    QPoint position;
-};
-
 class Window : public QQuickView
 {
     Q_OBJECT
@@ -29,6 +19,9 @@ class Window : public QQuickView
 private:
     /// Emit the closed signal upon closing
     bool emitClosedSignal_ = true;
+
+    /// Close callback
+    std::function<void()> closeCb_;
 
 protected:
     /// Counter to ensure that there are no idle callbacks after deleting the object
@@ -47,13 +40,24 @@ protected:
     MainWindow* mainWindow_;
 
 public:
+    /// Position and size of windows
+    struct Data
+    {
+        /// Last window size
+        QRect geometry;
+
+        /// Last window position
+        QPoint position;
+    };
+
     /**
      * @brief Window constructor for a window from a QML file within a Qt resource file
      *
      * @param qml Path to the QML file within the Qt resouce file
      * @param mainWindow Main window object
+     * @param closeCb Close callback
      */
-    Window( QString qml, MainWindow* mainWindow );
+    Window( QString qml, MainWindow* mainWindow, std::function<void()> closeCb = nullptr );
 
     /**
      * @brief Get the main window
@@ -99,14 +103,14 @@ protected:
      *
      * @param windowData Window data
      */
-    WindowData getWindowData();
+    Data getWindowData();
 
     /**
      * @brief Set window data
      *
      * @param windowData Window data
      */
-    void setWindowData( WindowData windowData );
+    void setWindowData( Data windowData );
 
 public slots:
     /**
