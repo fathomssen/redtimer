@@ -88,6 +88,9 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
 {
     ENTER()(text)(timer)(type);
 
+    if( displayed_.contains(text) )
+        RETURN( nullptr );
+
     QString colour = "#006400";
     QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information;
 
@@ -128,6 +131,8 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
         if( timer )
             connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
     }
+
+    displayed_.insert( text, true );
 
     RETURN( item );
 }

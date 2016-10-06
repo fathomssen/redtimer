@@ -947,7 +947,7 @@ MainWindow::startTimer()
     qml("startStop")->setProperty( "tooltip", tr("Stop time tracking") );
 
     if( trayIcon_ )
-        trayIcon_->setIcon( QIcon("qrc:/icons/clock_red_play.svg") );
+        trayIcon_->setIcon( QIcon(":/icons/clock_red_play.svg") );
 
     // Set the issue status ID to the worked on ID if not already done
     int workedOnId = settings_->data_.workedOnId;

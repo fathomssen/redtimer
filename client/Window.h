@@ -3,6 +3,7 @@
 #include <functional>
 
 #include <QEvent>
+#include <QHash>
 #include <QObject>
 #include <QQmlContext>
 #include <QQuickItem>
@@ -24,6 +25,9 @@ private:
 
     /// Close callback
     std::function<void()> closeCb_;
+
+    /// Already displayed messages
+    QHash<QString, bool> displayed_;
 
 protected:
     /// Counter to ensure that there are no idle callbacks after deleting the object
