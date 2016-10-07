@@ -20,6 +20,11 @@ Item {
         mouse.accepted = false
     }
 
+    function quickPickToggle()
+    {
+        console.log( "Quick pick" )
+    }
+
     Component.onCompleted: {
         mainForm.counter.Keys.pressed.connect( counterKeyEvent )
     }
@@ -27,6 +32,18 @@ Item {
     Connections {
         target: mainForm.counterMouseArea
         onPressed: { counterMouseAreaEvent(mouse) }
+    }
+
+    Connections {
+        target: mainForm.quickPick
+        onFocusChanged: {
+            if( mainForm.quickPick.focus ) {
+                mainForm.quickPick.editText=""
+            }
+            else {
+                mainForm.quickPick.editText="<Enter or select issue>"
+            }
+        }
     }
 
     MainWindowForm {

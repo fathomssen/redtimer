@@ -117,6 +117,8 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     // Initially check the internet connection
     redmine_->checkConnectionStatus();
 
+    qml("quickPick")->setProperty( "editText", quickPick_ );
+
     RETURN();
 }
 
@@ -151,7 +153,9 @@ MainWindow::addRecentIssue( qtredmine::Issue issue )
 
     // Reset the quickPick text field
     qml("quickPick")->setProperty( "currentIndex", -1 );
-    qml("quickPick")->setProperty( "editText", "" );
+    qml("quickPick")->setProperty( "editText", quickPick_ );
+
+    saveSettings();
 
     RETURN();
 }
@@ -494,10 +498,15 @@ MainWindow::loadIssueFromTextField()
 {
     ENTER();
 
-    if( !qml("quickPick")->property("editText").toInt() )
-        RETURN();
-
     int issueId = qml("quickPick")->property("editText").toInt();
+
+    qml("startStop")->setProperty( "focus", true );
+
+    if( !issueId )
+    {
+        qml("quickPick")->setProperty( "editText", quickPick_ );
+        RETURN();
+    }
 
     loadIssue( issueId );
 

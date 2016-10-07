@@ -91,6 +91,9 @@ private:
     /// Last time that the timer has been started, in UTC
     QDateTime lastStarted_;
 
+    /// Quick pick placeholder text
+    const QString quickPick_ = "<Enter or select issue>";
+
     /**
      * @brief Add an issue to the list of recent issues
      *
