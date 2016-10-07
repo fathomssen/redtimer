@@ -61,6 +61,11 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
     // Connect the closed signal to the close slot
     connect( this, &Window::closed, [=](){ close(); } );
 
+    projectId_ = mainWindow_->settings_->data_.projectId;
+    loadProjects();
+    loadAssignees();
+    loadVersions();
+
     RETURN();
 }
 
@@ -73,7 +78,6 @@ IssueSelector::close()
     mainWindow_->settings_->save();
 
     Window::close();
-    this->deleteLater();
 
     RETURN();
 }
@@ -141,6 +145,8 @@ IssueSelector::projectSelected( int index )
     projectId_ = projectModel_.at(index).id();
     DEBUG()(index)(projectId_);
 
+    mainWindow_->settings_->data_.projectId = projectId_;
+
     // Ensure that no old issues are displayed
     issuesModel_.clear();
 
@@ -172,12 +178,15 @@ IssueSelector::loadAssignees()
     ENTER()(projectId_);
 
     if( projectId_ == NULL_ID )
+    {
+        // Clear and set first item at once and not wait for callback
+        assigneeId_ = NULL_ID;
+        assigneeModel_.clear();
+        assigneeModel_.push_back( SimpleItem(NULL_ID, "Choose assignee") );
+        qml("assignee")->setProperty( "currentIndex", -1 );
+        qml("assignee")->setProperty( "currentIndex", 0 );
         RETURN();
-
-    // Clear and set first item at once and not wait for callback
-    assigneeId_ = NULL_ID;
-    assigneeModel_.clear();
-    assigneeModel_.push_back( SimpleItem(NULL_ID, "Choose assignee") );
+    }
 
     ++callbackCounter_;
     redmine_->retrieveMemberships( [=]( Memberships assignees, RedmineError redmineError, QStringList errors )
@@ -289,11 +298,6 @@ IssueSelector::loadProjects()
 {
     ENTER();
 
-    // Clear and set first item at once and not wait for callback
-    projectModel_.clear();
-    projectModel_.push_back( SimpleItem(NULL_ID, "Choose project") );
-    qml("project")->setProperty( "currentIndex", -1 );
-
     ++callbackCounter_;
     redmine_->retrieveProjects( [=]( Projects projects, RedmineError redmineError, QStringList errors )
     {
@@ -343,12 +347,15 @@ IssueSelector::loadVersions()
     ENTER();
 
     if( projectId_ == NULL_ID )
+    {
+        // Clear and set first item at once and not wait for callback
+        versionId_ = NULL_ID;
+        versionModel_.clear();
+        versionModel_.push_back( SimpleItem(NULL_ID, "Choose version") );
+        qml("version")->setProperty( "currentIndex", -1 );
+        qml("version")->setProperty( "currentIndex", 0 );
         RETURN();
-
-    // Clear and set first item at once and not wait for callback
-    versionId_ = NULL_ID;
-    versionModel_.clear();
-    versionModel_.push_back( SimpleItem(NULL_ID, "Choose version") );
+    }
 
     ++callbackCounter_;
     redmine_->retrieveVersions( [=]( Versions versions, RedmineError redmineError, QStringList errors )
@@ -407,8 +414,8 @@ IssueSelector::setProjectId( int id, bool fixed )
     ENTER();
 
     projectId_ = id;
-    loadProjects();
 
+    loadProjects();
     loadAssignees();
     loadVersions();
 

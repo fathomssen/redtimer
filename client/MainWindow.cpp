@@ -119,6 +119,17 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     qml("quickPick")->setProperty( "editText", quickPick_ );
 
+    // Issue selector initialisation
+    issueSelector_ = new IssueSelector( redmine_, this );
+    issueSelector_->setTransientParent( this );
+
+    // Connect the issue selected signal to the setIssue slot
+    connect( issueSelector_, &IssueSelector::selected, [=](int issueId)
+    {
+        settings_->data_.projectId = issueSelector_->getProjectId();
+        loadIssue( issueId );
+    } );
+
     RETURN();
 }
 
@@ -881,18 +892,12 @@ MainWindow::saveSettings()
 void
 MainWindow::selectIssue()
 {
-    // Issue selector initialisation
-    IssueSelector* issueSelector = new IssueSelector( redmine_, this );
-    issueSelector->setTransientParent( this );
-    issueSelector->setProjectId( settings_->data_.projectId );
-    issueSelector->display();
+    ENTER();
 
-    // Connect the issue selected signal to the setIssue slot
-    connect( issueSelector, &IssueSelector::selected, [=](int issueId)
-    {
-        settings_->data_.projectId = issueSelector->getProjectId();
-        loadIssue( issueId );
-    } );
+    issueSelector_->setProjectId( settings_->data_.projectId );
+    issueSelector_->display();
+
+    RETURN();
 }
 
 void

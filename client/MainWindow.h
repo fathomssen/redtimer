@@ -24,6 +24,7 @@
 namespace redtimer {
 
 // forward declarations
+class IssueSelector;
 class Settings;
 
 /**
@@ -39,6 +40,9 @@ private:
 
     /// Main application
     QApplication* app_ = nullptr;
+
+    /// Issue Selector
+    IssueSelector* issueSelector_;
 
     /// Shortcuts
     QxtGlobalShortcut* shortcutCreateIssue_;
