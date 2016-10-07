@@ -652,6 +652,8 @@ Settings::save()
 
     settings_.clear();
 
+    profiles_[profileId_] = data_;
+
     // General settings
     {
         auto saveWindowData = [&]( Window::Data WindowData::*field, QString name )
