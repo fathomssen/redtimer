@@ -193,6 +193,8 @@ Settings::applyProfileData()
             data->recentIssues.removeLast();
     }
 
+    data_ = *data;
+
     RETURN();
 }
 
