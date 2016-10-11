@@ -129,18 +129,16 @@ public slots:
      *
      * @param text Message to display
      * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
-     * @param timer Timer to use to hide the message
+     * @param force Force displaying the message even if it has been displayed before (default: true)
      */
-    QQuickItem* message( QString text, QTimer* timer, QtMsgType type = QtInfoMsg );
+    QQuickItem* message( QString text, QtMsgType type = QtInfoMsg, bool force = true );
 
     /**
-     * @brief Display a message
+     * @brief Delete an already displayed message
      *
-     * @param text Message to display
-     * @param type Message type (one of \c QtInfoMsg, \c QtWarningMsg and \c QtCriticalMsg)
-     * @param timeout Duration in milliseconds that the message will be displayed
+     * @param text Message to delete
      */
-    QQuickItem* message( QString text, QtMsgType type = QtInfoMsg, int timeout = 5000 );
+    void deleteMessage( QString text );
 
 signals:
     /**

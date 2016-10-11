@@ -787,6 +787,9 @@ Settings::updateIssueStatuses()
     else
         redmine_->setCheckSsl( true );
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
@@ -873,6 +876,8 @@ Settings::updateTimeEntryCustomFields()
     else
         redmine_->setCheckSsl( true );
 
+    if( !mainWindow_->connected() )
+        RETURN();
 
     ++callbackCounter_;
     redmine_->retrieveCustomFields( [&]( CustomFields customFields, RedmineError redmineError,
@@ -958,6 +963,9 @@ Settings::updateTrackers()
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
+
+    if( !mainWindow_->connected() )
+        RETURN();
 
     ++callbackCounter_;
     redmine_->retrieveTrackers( [&]( Trackers trackers, RedmineError redmineError, QStringList errors )

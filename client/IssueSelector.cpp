@@ -189,6 +189,9 @@ IssueSelector::loadAssignees()
         RETURN();
     }
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveMemberships( [=]( Memberships assignees, RedmineError redmineError, QStringList errors )
     {
@@ -265,6 +268,9 @@ IssueSelector::loadIssues()
     if( versionId_ != NULL_ID )
         parameters.append( QString("&fixed_version_id=%1").arg(versionId_) );
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveIssues( [&]( Issues issues, RedmineError redmineError, QStringList errors )
     {
@@ -298,6 +304,9 @@ void
 IssueSelector::loadProjects()
 {
     ENTER();
+
+    if( !mainWindow_->connected() )
+        RETURN();
 
     ++callbackCounter_;
     redmine_->retrieveProjects( [=]( Projects projects, RedmineError redmineError, QStringList errors )
@@ -357,6 +366,9 @@ IssueSelector::loadVersions()
         qml("version")->setProperty( "currentIndex", 0 );
         RETURN();
     }
+
+    if( !mainWindow_->connected() )
+        RETURN();
 
     ++callbackCounter_;
     redmine_->retrieveVersions( [=]( Versions versions, RedmineError redmineError, QStringList errors )

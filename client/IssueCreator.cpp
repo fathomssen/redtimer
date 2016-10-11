@@ -134,6 +134,9 @@ IssueCreator::loadCategories()
     if( projectId_ == NULL_ID )
         RETURN();
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveProject( [&]( Project project, RedmineError redmineError, QStringList errors )
     {
@@ -178,6 +181,9 @@ IssueCreator::loadCurrentUser()
 {
     ENTER();
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveCurrentUser( [&]( User user, RedmineError redmineError, QStringList errors )
     {
@@ -214,6 +220,9 @@ IssueCreator::loadCustomFields()
     CustomFieldFilter filter;
     filter.projectId = projectId_;
     filter.type = "issue";
+
+    if( !mainWindow_->connected() )
+        RETURN();
 
     ++callbackCounter_;
     redmine_->retrieveCustomFields( [&]( CustomFields customFields, RedmineError redmineError,
@@ -362,6 +371,9 @@ IssueCreator::loadProjects()
 {
     ENTER();
 
+    if( !mainWindow_->connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveProjects( [&]( Projects projects, RedmineError redmineError, QStringList errors )
     {
@@ -410,6 +422,9 @@ IssueCreator::loadTrackers()
     ENTER()(projectId_);
 
     if( projectId_ == NULL_ID )
+        RETURN();
+
+    if( !mainWindow_->connected() )
         RETURN();
 
     ++callbackCounter_;

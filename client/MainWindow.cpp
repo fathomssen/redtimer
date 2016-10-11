@@ -16,6 +16,8 @@ using namespace qtredmine;
 using namespace redtimer;
 using namespace std;
 
+#define MSG_CANNOT_PROCEDE "Cannot procede without a connection"
+
 MainWindow::MainWindow( QApplication* parent, const QString profile )
     : Window( "MainWindow", this ),
       app_( parent )
@@ -30,7 +32,10 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     settings_->load( profile );
 
     if( !settings_->isValid() )
+    {
+        connected_ = false;
         settings_->display();
+    }
 
     // Main window initialisation
     installEventFilter( this );
@@ -218,6 +223,17 @@ MainWindow::checkNetworkConnection()
     redmine_->checkConnectionStatus( accessible );
 
     RETURN();
+}
+
+bool
+MainWindow::connected()
+{
+    ENTER();
+
+    if( connectedOnce_ && !connected_ )
+        message( MSG_CANNOT_PROCEDE, QtCriticalMsg, false );
+
+    RETURN( connected_ );
 }
 
 void
@@ -456,6 +472,9 @@ MainWindow::loadActivities()
 {
     ENTER();
 
+    if( !connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities, RedmineError redmineError,
                                                 QStringList errors )
@@ -529,6 +548,9 @@ void
 MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 {
     ENTER()(issueId)(startTimer)(saveNewIssue);
+
+    if( !connected() )
+        RETURN();
 
     // If the timer is currently active, save the currently logged time first
     // If there will be no new issue selected, stop the timer
@@ -640,6 +662,9 @@ MainWindow::loadIssueStatuses()
 {
     ENTER();
 
+    if( !connected() )
+        RETURN();
+
     ++callbackCounter_;
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
@@ -684,6 +709,9 @@ MainWindow::loadLatestActivity()
 {
     ENTER();
 
+    if( !connected() )
+        RETURN();
+
     if( issue_.id == NULL_ID )
     {
         loadActivities();
@@ -725,11 +753,24 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
 
     if( connected == QNetworkAccessManager::Accessible )
     {
+        if( !connected_ )
+        {
+            connected_ = true;            
+            connectedOnce_ = true;
+            deleteMessage( MSG_CANNOT_PROCEDE );
+            refreshGui();
+        }
+
         qml("connectionStatus")->setProperty("tooltip", "Connection established" );
         qml("connectionStatusStyle")->setProperty("color", "lightgreen" );
+
+        if( !timer_->isActive() && counter_ != 0 )
+            stop( false );
     }
-    else if( connected == QNetworkAccessManager::NotAccessible )
+    else
     {
+        connected_ = false;
+
         qml("connectionStatus")->setProperty("tooltip", "Connection not available" );
         qml("connectionStatusStyle")->setProperty("color", "red" );
     }
@@ -925,7 +966,10 @@ MainWindow::settingsApplied()
     ENTER();
 
     if( !settings_->isValid() )
+    {
+        connected_ = false;
         settings_->display();
+    }
 
     reconnect();
 
@@ -1035,9 +1079,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     ++callbackCounter_;
     redmine_->sendTimeEntry( timeEntry, [=](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        CBENTER();
-
-        DEBUG()(success)(id)(errorCode)(errors);
+        CBENTER()(success)(id)(errorCode)(errors);
 
         if( !success && errorCode != ERR_TIME_ENTRY_TOO_SHORT )
         {

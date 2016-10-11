@@ -77,6 +77,16 @@ Window::deleteLater()
     RETURN();
 }
 
+void
+Window::deleteMessage( QString text )
+{
+    ENTER()(text);
+
+    displayed_.remove( text );
+
+    RETURN();
+}
+
 MainWindow*
 Window::mainWindow()
 {
@@ -85,19 +95,21 @@ Window::mainWindow()
 }
 
 QQuickItem*
-Window::message( QString text, QTimer* timer, QtMsgType type )
+Window::message( QString text, QtMsgType type, bool force )
 {
-    ENTER()(text)(timer)(type);
+    ENTER()(text)(type)(force);
 
-    if( displayed_.contains(text) )
+    if( !force && displayed_.contains(text) )
         RETURN( nullptr );
 
-    QString colour = "#006400";
-    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::Information;
+    QString colour;
+    QSystemTrayIcon::MessageIcon icon;
 
     switch( type )
     {
     case QtInfoMsg:
+        colour = "#006400";
+        icon = QSystemTrayIcon::Information;
         break;
     case QtWarningMsg:
         colour = "#FF8C00";
@@ -122,6 +134,8 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
     }
     else
     {
+        int timeout = 5000;
+
         QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), this );
         item = view->rootObject();
         item->setParentItem( item_ );
@@ -129,31 +143,20 @@ Window::message( QString text, QTimer* timer, QtMsgType type )
         item->findChild<QQuickItem*>("message")->setProperty( "color", colour );
         item->findChild<QQuickItem*>("message")->setProperty( "text", text );
 
-        if( timer )
+        if( type != QtCriticalMsg )
+        {
+            QTimer* timer = new QTimer( this );
+            timer->setSingleShot( true );
+            timer->setInterval( timeout );
+            timer->start();
+
             connect( timer, &QTimer::timeout, this, [=](){ if(item) item->deleteLater(); } );
+        }
     }
 
     displayed_.insert( text, true );
 
     RETURN( item );
-}
-
-QQuickItem*
-Window::message( QString text, QtMsgType type, int timeout )
-{
-    ENTER()(text)(type)(timeout);
-
-    QTimer* timer = nullptr;
-
-    if( type != QtCriticalMsg && timeout > 0 )
-    {
-        timer = new QTimer();
-        timer->setSingleShot( true );
-        timer->setInterval( timeout );
-        timer->start();
-    }
-
-    RETURN( message(text, timer, type) );
 }
 
 Window::Data

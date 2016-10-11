@@ -62,6 +62,12 @@ private:
     /// Timer for manually checking the connection
     QTimer* checkConnectionTimer_ = nullptr;
 
+    /// Currently connected
+    bool connected_ = false;
+
+    /// Connection was established once
+    bool connectedOnce_ = false;
+
     /// Currently tracked time in seconds
     int counter_ = 0;
 
@@ -122,6 +128,13 @@ public:
      * @param profile Load this profile on startup
      */
     explicit MainWindow( QApplication* parent = nullptr, const QString profile = QString() );
+
+    /**
+     * @brief Determines whether a connection is currently available
+     *
+     * @return true if connection is available, false otherwise
+     */
+    bool connected();
 
     /**
      * @brief Initialise the tray icon
