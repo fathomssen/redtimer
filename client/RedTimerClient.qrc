@@ -26,5 +26,6 @@
         <file>open-iconic/svg/pencil.svg</file>
         <file>open-iconic/svg/vertical-align-bottom.svg</file>
         <file>open-iconic/svg/vertical-align-top.svg</file>
+        <file>open-iconic/svg/signal.svg</file>
     </qresource>
 </RCC>

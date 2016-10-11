@@ -1,4 +1,4 @@
-#include "logging.h"
+#include "qtredmine/Logging.h"
 
 #include "Models.h"
 

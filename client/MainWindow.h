@@ -62,9 +62,6 @@ private:
     /// Timer for manually checking the connection
     QTimer* checkConnectionTimer_ = nullptr;
 
-    /// Connection error message
-    QQuickItem* connectionError_ = nullptr;
-
     /// Currently tracked time in seconds
     int counter_ = 0;
 

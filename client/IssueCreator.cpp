@@ -1,7 +1,8 @@
+#include "qtredmine/Logging.h"
+
 #include "IssueCreator.h"
 #include "IssueSelector.h"
 #include "Settings.h"
-#include "logging.h"
 
 #include <QSortFilterProxyModel>
 #include <QTime>

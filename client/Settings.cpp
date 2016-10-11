@@ -1,5 +1,6 @@
+#include "qtredmine/Logging.h"
+
 #include "Settings.h"
-#include "logging.h"
 
 #include <QAbstractButton>
 #include <QInputDialog>
@@ -80,9 +81,7 @@ Settings::apply()
 
     auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
     {
-        CBENTER();
-
-        DEBUG()(success)(id)(errorCode)(errors);
+        CBENTER()(success)(id)(errorCode)(errors);
 
         if( !success )
         {
@@ -96,6 +95,7 @@ Settings::apply()
 
         save();
         data_ = *profileData();
+        DEBUG()(data_);
 
         DEBUG() << "Emitting applied() signal";
         applied();
@@ -126,7 +126,7 @@ Settings::applyAndClose()
 void
 Settings::applyProfileData()
 {
-    ENTER();
+    ENTER()(profileId_);
 
     if( profileId_ == NULL_ID )
         RETURN();
@@ -194,6 +194,7 @@ Settings::applyProfileData()
     }
 
     data_ = *data;
+    DEBUG()(data_);
 
     RETURN();
 }
@@ -235,7 +236,7 @@ Settings::createProfile()
     }
 
     QString name;
-    if( !getProfileName( name, tr("Create new profile"), "New profile" ) )
+    if( !profileNameDialog( name, tr("Create new profile"), "New profile" ) )
         RETURN( false );
 
     // Save to profiles map and model
@@ -291,7 +292,8 @@ Settings::deleteProfile()
 void
 Settings::display()
 {
-    ENTER()(profileId_);
+    ENTER();
+    DEBUG(profileId_);
 
     if( profileId_ == NULL_ID )
         load( false );
@@ -331,45 +333,6 @@ Settings::display()
     raise();
 
     RETURN();
-}
-
-bool
-Settings::getProfileName( QString& name, QString title, QString initText )
-{
-    ENTER();
-
-    bool ok;
-    name = QInputDialog::getText( qobject_cast<QWidget*>(this), title, tr("Profile name:"),
-                                  QLineEdit::Normal, initText, &ok );
-
-    if( !ok )
-        RETURN( false );
-
-    if( name.isEmpty() )
-    {
-        QMessageBox::critical( qobject_cast<QWidget*>(this), tr("Create new profile"),
-                               tr("No profile name specified. Aborting.") );
-        RETURN( false );
-    }
-
-    bool foundName = false;
-    for( const auto& profile : profiles_ )
-    {
-        if( profile.name == name )
-        {
-            foundName = true;
-            break;
-        }
-    }
-
-    if( foundName )
-    {
-        QMessageBox::critical( qobject_cast<QWidget*>(this), title,
-                               tr("Profile '%1' already exists. Aborting.").arg(name) );
-        RETURN( false );
-    }
-
-    RETURN( true );
 }
 
 bool
@@ -599,7 +562,10 @@ Settings::ProfileData*
 Settings::profileData()
 {
     ENTER()(profileId_);
-    RETURN( &profiles_[profileId_] );
+
+    ProfileData* data = &profiles_[profileId_];
+
+    RETURN( data, *data );
 }
 
 QString
@@ -611,6 +577,45 @@ Settings::profileHash( int id )
         id = profileId_;
 
     RETURN( QString("profile-%1").arg(id) );
+}
+
+bool
+Settings::profileNameDialog( QString& name, QString title, QString initText )
+{
+    ENTER();
+
+    bool ok;
+    name = QInputDialog::getText( qobject_cast<QWidget*>(this), title, tr("Profile name:"),
+                                  QLineEdit::Normal, initText, &ok );
+
+    if( !ok )
+        RETURN( false );
+
+    if( name.isEmpty() )
+    {
+        QMessageBox::critical( qobject_cast<QWidget*>(this), tr("Create new profile"),
+                               tr("No profile name specified. Aborting.") );
+        RETURN( false );
+    }
+
+    bool foundName = false;
+    for( const auto& profile : profiles_ )
+    {
+        if( profile.name == name )
+        {
+            foundName = true;
+            break;
+        }
+    }
+
+    if( foundName )
+    {
+        QMessageBox::critical( qobject_cast<QWidget*>(this), title,
+                               tr("Profile '%1' already exists. Aborting.").arg(name) );
+        RETURN( false );
+    }
+
+    RETURN( true );
 }
 
 void
@@ -637,7 +642,7 @@ Settings::renameProfile()
     QString profileName = proxyIndex.data(SimpleModel::NameRole).toString();
 
     QString newProfileName;
-    if( !getProfileName( newProfileName, tr("Rename profile"), profileName ) )
+    if( !profileNameDialog( newProfileName, tr("Rename profile"), profileName ) )
         RETURN();
 
     profileData()->name = newProfileName;

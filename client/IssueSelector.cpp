@@ -1,6 +1,7 @@
+#include "qtredmine/Logging.h"
+
 #include "IssueSelector.h"
 #include "Settings.h"
-#include "logging.h"
 
 using namespace qtredmine;
 using namespace redtimer;

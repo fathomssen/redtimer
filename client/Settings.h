@@ -1,5 +1,6 @@
 #pragma once
 
+#include "qtredmine/Logging.h"
 #include "MainWindow.h"
 #include "Models.h"
 #include "Window.h"
@@ -164,7 +165,7 @@ private:
      *
      * @return true if valid profile name was specified, false otherwise
      */
-    bool getProfileName( QString& name, QString title, QString initText );
+    bool profileNameDialog( QString& name, QString title, QString initText );
 
     /**
      * @brief Get the current profile data
@@ -322,3 +323,16 @@ signals:
 };
 
 } // redtimer
+
+inline QDebug
+operator<<( QDebug debug, const redtimer::Settings::ProfileData& data )
+{
+    QDebugStateSaver saver( debug );
+
+    DEBUGFIELDS(id)(name)(apiKey)(checkConnection)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
+    (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)(useSystemTrayIcon)
+    (closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)(activityId)
+    (issueId)(projectId)(recentIssues);
+
+    return debug;
+}

@@ -1,8 +1,9 @@
+#include "qtredmine/Logging.h"
+
 #include "IssueCreator.h"
 #include "IssueSelector.h"
 #include "MainWindow.h"
 #include "Settings.h"
-#include "logging.h"
 
 #include <QEventLoop>
 #include <QMessageBox>
@@ -720,18 +721,18 @@ MainWindow::loadLatestActivity()
 void
 MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected )
 {
-    ENTER();
-
-    if( connectionError_ )
-    {
-        connectionError_->deleteLater();
-        connectionError_ = nullptr;
-    }
+    ENTER()(connected);
 
     if( connected == QNetworkAccessManager::Accessible )
-        message( tr("Connection to Redmine established") );
+    {
+        qml("connectionStatus")->setProperty("tooltip", "Connection established" );
+        qml("connectionStatusStyle")->setProperty("color", "lightgreen" );
+    }
     else if( connected == QNetworkAccessManager::NotAccessible )
-        connectionError_ = message( tr("Connection to Redmine currently not available"), QtCriticalMsg );
+    {
+        qml("connectionStatus")->setProperty("tooltip", "Connection not available" );
+        qml("connectionStatusStyle")->setProperty("color", "red" );
+    }
 
     RETURN();
 }

@@ -14,29 +14,27 @@ QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
 QMAKE_TARGET_COPYRIGHT = "LGPL 3"
 
 HEADERS += \
-    Settings.h \
-    logging.h \
-    Models.h \
-    IssueSelector.h \
     IssueCreator.h \
+    IssueSelector.h \
+    Models.h \
+    MainWindow.h \
+    Settings.h \
     Window.h \
-    MainWindow.h
 
 SOURCES += \
     main.cpp \
-    Settings.cpp \
     Models.cpp \
     IssueSelector.cpp \
     IssueCreator.cpp \
+    MainWindow.cpp \
+    Settings.cpp \
     Window.cpp \
-    MainWindow.cpp
 
 RESOURCES += RedTimerClient.qrc
 
 # External projects
 include($$PWD/qxtglobalshortcut5/qxt.pri)
 include($$PWD/../libqtredmine/qtredmine.pri)
-include($$PWD/../libredtimer/libredtimer.pri)
 
 # Default rules for deployment.
 include($$PWD/RedTimerClient.pri)

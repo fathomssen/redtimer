@@ -1,5 +1,6 @@
 import QtQuick 2.5
 import QtQuick.Controls 1.4
+import QtQuick.Controls.Styles 1.4
 import QtQuick.Layouts 1.2
 
 Item {
@@ -22,6 +23,7 @@ Item {
 
     ToolBar {
         id: toolBar
+        height: 28
         objectName: "toolBar"
         anchors.right: parent.right
         anchors.left: parent.left
@@ -29,33 +31,55 @@ Item {
 
         ToolButton {
             id: createIssue
+            width: 24
+            height: 24
             objectName: "createIssue"
             text: "Create &new issue"
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 0
             anchors.left: parent.left
             tooltip: "Create new issue"
-            iconSource: "/open-iconic/svg/plus.svg"
+            iconSource: "qrc:/open-iconic/svg/plus.svg"
+        }
+
+        ToolButton {
+            id: connectionStatus
+            width: 24
+            height: 24
+            objectName: "connectionStatus"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: reload.left
+            tooltip: "Connection status"
+            iconSource: "qrc:/open-iconic/svg/signal.svg"
+            style: ButtonStyle{ background: Rectangle{
+                    id: connectionStatusStyle
+                    objectName: "connectionStatusStyle"
+                    color: "transparent"
+                } }
         }
 
         ToolButton {
             id: reload
+            width: 24
+            height: 24
             objectName: "reload"
             text: "&Reload"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: settings.left
             tooltip: "Reload"
-            iconSource: "/open-iconic/svg/reload.svg"
+            iconSource: "qrc:/open-iconic/svg/reload.svg"
         }
 
         ToolButton {
             id: settings
+            width: 24
+            height: 24
             objectName: "settings"
             text: "&Settings"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             tooltip: "Open Settings"
-            iconSource: "/open-iconic/svg/cog.svg"
+            iconSource: "qrc:/open-iconic/svg/cog.svg"
         }
     }
 
@@ -72,6 +96,7 @@ Item {
 
         RowLayout {
             id: rowLayout1
+            height: 28
             Layout.fillWidth: true
 
             ComboBox {
@@ -85,8 +110,12 @@ Item {
 
             ToolButton {
                 id: selectIssue
+                width: 24
+                height: 24
+                Layout.preferredHeight: 24
+                Layout.preferredWidth: 24
                 objectName: "selectIssue"
-                iconSource: "/open-iconic/svg/list.svg"
+                iconSource: "qrc:/open-iconic/svg/list.svg"
                 tooltip: "Select issue from list"
             }
         }
@@ -142,13 +171,18 @@ Item {
 
         RowLayout {
             id: rowLayout2
+            height: 26
             Layout.fillWidth: true
 
             ToolButton {
                 id: startStop
+                width: 24
+                height: 24
+                Layout.preferredHeight: 24
+                Layout.preferredWidth: 24
                 objectName: "startStop"
                 isDefault: true
-                iconSource: "/open-iconic/svg/media-play.svg"
+                iconSource: "qrc:/open-iconic/svg/media-play.svg"
                 tooltip: "Start time tracking"
                 focus: true
                 activeFocusOnPress: true

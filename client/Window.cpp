@@ -1,6 +1,7 @@
+#include "qtredmine/Logging.h"
+
 #include "MainWindow.h"
 #include "Window.h"
-#include "logging.h"
 
 #include <QTimer>
 #include <QUrl>

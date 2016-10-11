@@ -151,4 +151,21 @@ signals:
     void closed();
 };
 
+/**
+ * @brief QDebug stream operator for window data
+ *
+ * @param debug QDebug stream
+ * @param item Window data
+ *
+ * @return QDebug stream
+ */
+inline QDebug
+operator<<( QDebug debug, const Window::Data& item )
+{
+    QDebugStateSaver saver( debug );
+    debug.nospace() << "[position: " << item.position << ", geometry: \"" << item.geometry << "\"]";
+
+    return debug;
+}
+
 } // redtimer
