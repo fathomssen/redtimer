@@ -145,6 +145,7 @@ before_deploy:
   - run $isOsX cd client
   - run $isOsX ../build/deploy.osx.sh
   - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE
+  - run $isOsX echo rvm_autoupdate_flag=2 >> ~/.rvmrc
 
 deploy:
   provider: releases
