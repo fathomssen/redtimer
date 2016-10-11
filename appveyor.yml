@@ -34,7 +34,6 @@ after_build:
   # Copy RedTimer and qtredmine
   - xcopy %BUILD%\client\release\redtimerclient.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
-  - xcopy %BUILD%\libredtimer\release\redtimer.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%
   - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%

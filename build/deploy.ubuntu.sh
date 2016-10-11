@@ -56,7 +56,6 @@ cp -a $src/client/RedTimerClient $distdir
 cp -a $src/build/redtimer.sh $distdir
 
 cp -a $src/libqtredmine/libqtredmine.so* $distdir
-cp -a $src/libredtimer/libredtimer.so* $distdir
 
 if [ $deploy_qt ]; then
   # Get Qt libraries from RedTimer executable  
