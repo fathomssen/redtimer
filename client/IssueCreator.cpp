@@ -502,10 +502,10 @@ IssueCreator::refreshGui()
     }
 
     // 2. When project has been selected, load trackers, categories and custom fields
-    if( projectId_ != NULL_ID && trackerModel_.rowCount() == 0 )
+    if( projectId_ != NULL_ID )
         loadTrackers();
 
-    if( projectId_ != NULL_ID && categoryModel_.rowCount() == 0 )
+    if( projectId_ != NULL_ID )
         loadCategories();
 
     if( projectId_ != NULL_ID )
