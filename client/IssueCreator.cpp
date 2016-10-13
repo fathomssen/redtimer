@@ -474,10 +474,15 @@ IssueCreator::loadTrackers()
 void
 IssueCreator::projectSelected( int index )
 {
-    ENTER();
+    ENTER()(index);
+
+    int oldProjectId = projectId_;
 
     projectId_ = projectModel_.at(index).id();
-    DEBUG()(index)(projectId_);
+    DEBUG()(projectId_);
+
+    if( oldProjectId != projectId_ )
+        qml("parentIssue")->setProperty( "text", "" );
 
     refreshGui();
 
