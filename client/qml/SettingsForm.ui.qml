@@ -27,6 +27,13 @@ ColumnLayout {
         }
 
         Button {
+            id: copyProfile
+            objectName: "copyProfile"
+            tooltip: "Copy profile"
+            iconSource: "/open-iconic/svg/layers.svg"
+        }
+
+        Button {
             id: deleteProfile
             objectName: "deleteProfile"
             tooltip: "Delete profile"

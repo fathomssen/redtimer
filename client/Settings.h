@@ -262,11 +262,22 @@ public slots:
     void close();
 
     /**
+     * @brief Copy profile
+     *
+     * Create a new profile and copy data from current profile.
+     *
+     * @return true if profile was copied successfully, false otherwise
+     */
+    bool copyProfile();
+
+    /**
      * @brief Create a new profile
+     *
+     * @param copy Copy current profile
      *
      * @return true if profile was created successfully, false otherwise
      */
-    bool createProfile();
+    bool createProfile( bool copy = false );
 
     /**
      * @brief Cancel and close

@@ -49,6 +49,9 @@ Settings::Settings( MainWindow* mainWindow )
     // Connect the create profile button
     connect( qml("createProfile"), SIGNAL(clicked()), this, SLOT(createProfile()) );
 
+    // Connect the copy profile button
+    connect( qml("copyProfile"), SIGNAL(clicked()), this, SLOT(copyProfile()) );
+
     // Connect the delete profile button
     connect( qml("deleteProfile"), SIGNAL(clicked()), this, SLOT(deleteProfile()) );
 
@@ -224,9 +227,17 @@ Settings::close()
 }
 
 bool
-Settings::createProfile()
+Settings::copyProfile()
 {
-    ENTER();
+    ENTER()(profileId_);
+    bool ret = createProfile( true );
+    RETURN( ret );
+}
+
+bool
+Settings::createProfile( bool copy )
+{
+    ENTER()(copy);
 
     int maxId = 0;
     for( const auto& profile : profiles_ )
@@ -241,11 +252,26 @@ Settings::createProfile()
 
     // Save to profiles map and model
     ProfileData data;
-    data.id = maxId+1;
+
+    if( copy )
+        data = *profileData();
+
+    data.id = maxId + 1;
     data.name = name;
 
-    int id = maxId + 1;
-    loadProfileData( id, &data );
+    DEBUG()(data);
+
+    if( copy )
+    {
+        data.recentIssues.clear();
+        profiles_.insert( data.id, data );
+        profilesModel_.push_back( SimpleItem(data) );
+    }
+    else
+    {
+        loadProfileData( data.id, &data );
+    }
+
     profileId_ = NULL_ID;
 
     // Use the newly created profile
