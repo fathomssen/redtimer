@@ -71,6 +71,7 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     // Timer initialisation
     timer_ = new QTimer( this );
+    timer_->setTimerType( Qt::VeryCoarseTimer );
     timer_->setInterval( 1000 );
 
     // Initially connect and update the GUI
@@ -234,6 +235,26 @@ MainWindow::connected()
         message( MSG_CANNOT_PROCEDE, QtCriticalMsg, false );
 
     RETURN( connected_ );
+}
+
+int
+MainWindow::counter()
+{
+    ENTER()(counterDiff_);
+
+    int value = counterNoDiff() + counterDiff_;
+
+    RETURN( value );
+}
+
+int
+MainWindow::counterNoDiff()
+{
+    ENTER();
+
+    int value = lastStarted_.secsTo(QDateTime::currentDateTimeUtc());
+
+    RETURN( value );
 }
 
 void
@@ -764,7 +785,7 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
         qml("connectionStatus")->setProperty("tooltip", "Connection established" );
         qml("connectionStatusStyle")->setProperty("color", "lightgreen" );
 
-        if( !timer_->isActive() && counter_ != 0 )
+        if( !timer_->isActive() && counter() != 0 )
             stop( false );
     }
     else
@@ -805,7 +826,7 @@ MainWindow::resumeCounterGui()
         int secs = time.hour()*3600 + time.minute()*60 + time.second();
 
         if( secs != counterBeforeEdit_ )
-            counter_ = secs;
+            counterDiff_ = secs - counterNoDiff();
     }
     else
         message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
@@ -825,7 +846,7 @@ MainWindow::reconnect()
 
     refreshGui();
 
-    if( !timer_->isActive() && counter_ )
+    if( !timer_->isActive() && counter() != 0 )
         stop();
 
     RETURN();
@@ -871,30 +892,9 @@ MainWindow::refreshGui()
 void
 MainWindow::refreshCounter()
 {
-    // Internal counter update
-    ++counter_;
-
     // GUI counter update
     if( updateCounterGui_ )
-        qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss") );
-
-    // Time difference check
-    int minDiff = 60; // minimum difference in seconds
-    QDateTime curTime = QDateTime::currentDateTimeUtc();
-
-    int diff = lastCounterIncrease_.secsTo(curTime);
-    lastCounterIncrease_ = curTime;
-
-    if( diff > minDiff )
-    {
-        int ret = QMessageBox::question( qobject_cast<QWidget*>(this), tr("RedTimer"),
-                  tr("The timer was paused the last %n minute(s).\n"
-                     "Do you want to add this time to the currently tracked time?",
-                     "", diff/60) );
-
-        if( ret == QMessageBox::Yes )
-            counter_ += diff;
-    }
+        qmlCounter_->setProperty( "text", QTime(0, 0, 0).addSecs(counter()).toString("HH:mm:ss") );
 }
 
 void
@@ -995,8 +995,6 @@ MainWindow::startTimer()
 {
     ENTER();
 
-    lastCounterIncrease_ = QDateTime::currentDateTimeUtc();
-
     timer_->start();
 
     lastStarted_ = QDateTime::currentDateTimeUtc();
@@ -1021,7 +1019,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
 {
     ENTER();
 
-    if( !timer_->isActive() && counter_ == 0 )
+    if( !timer_->isActive() && counter() == 0 )
     {
         if( cb )
             cb( true, NULL_ID, (RedmineError)0, QStringList() );
@@ -1045,7 +1043,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     // Save the tracked time
     TimeEntry timeEntry;
     timeEntry.activity.id = activityId_;
-    timeEntry.hours       = (double)counter_ / 3600; // Seconds to hours conversion
+    timeEntry.hours       = (double)counter() / 3600; // Seconds to hours conversion
     timeEntry.issue.id    = issue_.id;
 
     // Possibly save start and end time as well
@@ -1101,11 +1099,11 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
             startTimer();
 
         if( success )
-            message( tr("Saved time %1").arg(QTime(0, 0, 0).addSecs(counter_).toString("HH:mm:ss")) );
+            message( tr("Saved time %1").arg(QTime(0, 0, 0).addSecs(counter()).toString("HH:mm:ss")) );
 
         if( success || (resetTimerOnError && errorCode != ERR_TIME_ENTRY_TOO_SHORT) )
         {
-            counter_ = 0;
+            counterDiff_ = 0;
             qmlCounter_->setProperty( "text", "00:00:00" );
         }
 

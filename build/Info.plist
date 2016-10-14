@@ -9,16 +9,12 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Thomssen IT</string>
+        <string>__VERSION__</string>
 	<key>CFBundleSignature</key>
 	<string>Thomssen IT</string>
 	<key>CFBundleExecutable</key>
 	<string>RedTimerClient</string>
 	<key>CFBundleIdentifier</key>
 	<string>de.thomssen-it.RedTimerClient</string>
-	<key>NSAppSleepDisabled</key>
-	<true/>
-        <key>LSAppNapIsDisabled</key>
-	<true/>
 </dict>
 </plist>

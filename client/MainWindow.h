@@ -68,8 +68,8 @@ private:
     /// Connection was established once
     bool connectedOnce_ = false;
 
-    /// Currently tracked time in seconds
-    int counter_ = 0;
+    /// Add this time in seconds to the tracked time (may be negative)
+    int counterDiff_ = 0;
 
     /// Displayed tracked time when the counter was paused to edit the time
     int counterBeforeEdit_ = 0;
@@ -92,9 +92,6 @@ private:
     /// Recently opened issues
     IssueModel recentIssues_;
 
-    /// Last time the counter was increased
-    QDateTime lastCounterIncrease_;
-
     /// Last time that the timer has been started, in UTC
     QDateTime lastStarted_;
 
@@ -109,6 +106,20 @@ private:
      * @param issue Issue to add to the list
      */
     void addRecentIssue( qtredmine::Issue issue );
+
+    /**
+     * @brief Get the currently tracked time including the difference
+     *
+     * @return Currently tracked time including the difference in seconds
+     */
+    int counter();
+
+    /**
+     * @brief Get the currently tracked time without the difference
+     *
+     * @return Currently tracked time in seconds
+     */
+    int counterNoDiff();
 
     /**
      * @brief Start the timer
