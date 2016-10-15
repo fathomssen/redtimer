@@ -36,15 +36,21 @@ matrix:
         - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
         - qmakeopt: "-qt5"
         - deployscript: build/deploy.ubuntu.sh
-    ####################### OS X #######################
     ###
-    ### OS X 10.9 (not built for now)
+    ### Ubuntu 16.10 x86_64, Qt 5.6
     ###
-    - os: osx
-      osx_image: beta-xcode6.2
+    - os: linux
+      dist: trusty
+      sudo: required
       env:
-        - distver: "10.9"
-        - distname: "mavericks"
+        - dist: ubuntu
+        - distver: "16.10"
+        - arch: x86_64
+        - init: /sbin/init
+        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
+        - qmakeopt: "-qt5"
+        - deployscript: build/deploy.ubuntu.sh
+    ####################### OS X #######################
     ###
     ### OS X 10.10
     ###
@@ -61,6 +67,14 @@ matrix:
       env:
         - distver: "10.11"
         - distname: "el-capitan"
+    ###
+    ### OS X 10.12
+    ###
+    - os: osx
+      osx_image: xcode8
+      env:
+        - distver: "10.12"
+        - distname: "sierra"
 
 services:
   - docker
@@ -76,7 +90,7 @@ before_install:
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - export isNewOsX=$( [[ $isOsX && "${distver}" == "10.11" ]] && echo true || echo false )
+  - export isNewOsX=$( [[ $isOsX && "${distver}" != "10.10" ]] && echo true || echo false )
   - export isUbuntu=$( [[ $isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
   - export hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
   - export hasQtPpa=$( [[ $isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
