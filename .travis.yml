@@ -90,11 +90,11 @@ before_install:
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - export isNewOsX=$( [[ $isOsX && "${distver}" != "10.10" ]] && echo true || echo false )
-  - export isUbuntu=$( [[ $isLinux && "${dist}" == "ubuntu" ]] && echo true || echo false )
+  - export isNewOsX=$( [[ "$isOsX" == "true" && "${distver}" != "10.10" ]] && echo true || echo false )
+  - export isUbuntu=$( [[ "$isLinux" == "true" && "${dist}" == "ubuntu" ]] && echo true || echo false )
   - export hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
-  - export hasQtPpa=$( [[ $isUbuntu && -n "${qtppa}" ]] && echo true || echo false )
-  - export hasQtPkg=$( [[ $isUbuntu && -n "${qtpkg}" ]] && echo true || echo false )
+  - export hasQtPpa=$( [[ "$isUbuntu" == "true" && -n "${qtppa}" ]] && echo true || echo false )
+  - export hasQtPkg=$( [[ "$isUbuntu" == "true" && -n "${qtpkg}" ]] && echo true || echo false )
   ### Linux
   - run $isLinux docker pull ${dist}:${distver}
   - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
