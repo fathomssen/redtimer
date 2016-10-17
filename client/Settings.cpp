@@ -210,7 +210,7 @@ Settings::cancel()
     close();
 
     // Revert edit changes
-    load();
+    load( false );
 
     RETURN();
 }

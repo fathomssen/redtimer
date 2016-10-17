@@ -540,7 +540,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
 
     // If the timer is currently active, save the currently logged time first
     // If there will be no new issue selected, stop the timer
-    if( timer_->isActive() )
+    if( startTimer && timer_->isActive() )
         stop( true, issueId == NULL_ID );
 
     if( saveNewIssue )
@@ -718,7 +718,7 @@ MainWindow::loadLatestActivity()
             CBRETURN();
         }
 
-        if( timeEntries.size() == 1 )
+        if( timeEntries.size() == 1 && timeEntries[0].activity.id != NULL_ID )
             activityId_ = timeEntries[0].activity.id;
 
         loadActivities();
@@ -837,8 +837,10 @@ MainWindow::refreshGui()
 
     initTrayIcon();
 
-    activityId_ = settings_->data_.activityId;
-    loadIssue( settings_->data_.issueId, false, true);
+    if( settings_->data_.activityId != NULL_ID)
+        activityId_ = settings_->data_.activityId;
+
+    loadIssue( settings_->data_.issueId, false, true );
 
     recentIssues_.clear();
     for( const auto& issue : settings_->data_.recentIssues )
