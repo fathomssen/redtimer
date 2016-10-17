@@ -984,6 +984,10 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
 {
     ENTER();
 
+    QDateTime cur = QDateTime::currentDateTimeUtc();
+    counterDiff_ += lastStarted_.secsTo( cur );
+    lastStarted_ = cur;
+
     if( !timer_->isActive() && counter() == 0 )
     {
         if( cb )
@@ -1180,18 +1184,14 @@ MainWindow::updateTitle()
     ENTER();
 
     QString title = "RedTimer";
-    QString url = redmine_->getUrl();
-
-    if( !url.isEmpty() )
-        title.append(" - ").append( url );
-
+    title.append(" - ").append( settings_->data_.name );
     setTitle( title );
 
     if( trayIcon_ )
     {
         title.append( QString("\n\nIssue ID: %1").arg(issue_.id) );
-        if( !issue_.description.isEmpty() )
-            title.append( QString("\n\n%2").arg(issue_.description) );
+        if( !issue_.subject.isEmpty() )
+            title.append( QString("\n%2").arg(issue_.subject) );
         trayIcon_->setToolTip( title );
     }
 
