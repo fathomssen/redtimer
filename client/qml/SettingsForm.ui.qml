@@ -14,6 +14,7 @@ ColumnLayout {
 
         ComboBox {
             id: profiles
+            Layout.fillWidth: true
             objectName: "profiles"
             model: profilesModel
             textRole: "name"
@@ -21,6 +22,8 @@ ColumnLayout {
 
         Button {
             id: createProfile
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "createProfile"
             tooltip: "Create new profile"
             iconSource: "/open-iconic/svg/plus.svg"
@@ -28,6 +31,8 @@ ColumnLayout {
 
         Button {
             id: copyProfile
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "copyProfile"
             tooltip: "Copy profile"
             iconSource: "/open-iconic/svg/layers.svg"
@@ -35,6 +40,8 @@ ColumnLayout {
 
         Button {
             id: deleteProfile
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "deleteProfile"
             tooltip: "Delete profile"
             iconSource: "/open-iconic/svg/trash.svg"
@@ -42,6 +49,8 @@ ColumnLayout {
 
         Button {
             id: renameProfile
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "renameProfile"
             tooltip: "Rename profile"
             iconSource: "/open-iconic/svg/pencil.svg"
