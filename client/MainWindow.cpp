@@ -143,10 +143,10 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 void
 MainWindow::activitySelected( int index )
 {
-    ENTER();
+    ENTER()(index);
 
     activityId_ = activityModel_.at(index).id();
-    DEBUG()(index)(activityId_);
+    DEBUG()(activityId_);
 
     RETURN();
 }
@@ -237,7 +237,7 @@ MainWindow::connected()
     RETURN( connected_ );
 }
 
-int
+double
 MainWindow::counter()
 {
     ENTER()(counterDiff_);
@@ -247,7 +247,7 @@ MainWindow::counter()
     RETURN( value );
 }
 
-int
+double
 MainWindow::counterNoDiff()
 {
     ENTER();
@@ -405,41 +405,6 @@ MainWindow::exit()
     RETURN();
 }
 
-QTime
-getTime( const QString stime )
-{
-    ENTER();
-
-    // Try to find valid time string format
-    QTime time = QTime::fromString( stime, "hh:mm:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:mm:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:mm:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m:ss" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m:s" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:mm" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh:m" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:mm" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h:m" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "hh" );
-    if( !time.isValid() )
-        time = QTime::fromString( stime, "h" );
-
-    RETURN( time );
-}
-
 void
 MainWindow::initTrayIcon()
 {
@@ -590,9 +555,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
     ++callbackCounter_;
     redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
     {
-        CBENTER();
-
-        DEBUG()(issue);
+        CBENTER()(issue);
 
         if( redmineError != NO_ERROR )
         {
@@ -807,7 +770,7 @@ MainWindow::pauseCounterGui()
     updateCounterGui_ = false;
 
     // Save the currently displayed time
-    QTime time = getTime( qml("counter")->property("text").toString() );
+    QTime time = SimpleRedmineClient::getTime( qml("counter")->property("text").toString() );
     if( time.isValid() )
         counterBeforeEdit_ = time.hour()*3600 + time.minute()*60 + time.second();
 
@@ -819,7 +782,7 @@ MainWindow::resumeCounterGui()
 {
     ENTER();
 
-    QTime time = getTime( qml("counter")->property("text").toString() );
+    QTime time = SimpleRedmineClient::getTime( qml("counter")->property("text").toString() );
 
     if( time.isValid() )
     {
@@ -1043,7 +1006,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     // Save the tracked time
     TimeEntry timeEntry;
     timeEntry.activity.id = activityId_;
-    timeEntry.hours       = (double)counter() / 3600; // Seconds to hours conversion
+    timeEntry.hours       = counter() / 3600; // Seconds to hours conversion
     timeEntry.issue.id    = issue_.id;
 
     // Possibly save start and end time as well

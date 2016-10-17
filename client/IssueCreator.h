@@ -21,11 +21,14 @@ private:
     /// Initial height
     int initHeight_;
 
-    /// Use custom fields
-    bool useCustomFields_ = false;
-
     /// Emit the cancelled signal upon closing
     bool cancelOnClose_ = true;
+
+    /// Parent issue was initialised once
+    bool parentIssueInit_ = false;
+
+    /// Use custom fields
+    bool useCustomFields_ = false;
 
     /// Current category
     int categoryId_ = NULL_ID;
@@ -35,6 +38,24 @@ private:
 
     /// User ID which was used to login into Redmine
     int currentUserId_ = NULL_ID;
+
+    /// Custom fields
+    qtredmine::CustomFields customFields_;
+
+    /// Custom field values
+    /// @param int Custom field ID
+    /// @param QVector Values
+    QMap<int, QVector<QString>> customFieldValues_;
+
+    /// Custom field items
+    /// @param int Custom field ID
+    /// @param QPair QQuickItem GUI items (label and entry field)
+    QMap<int, QPair<QQuickItem*, QQuickItem*>> customFieldItems_;
+
+    /// Custom field models
+    /// @param int Custom field ID
+    /// @param SimpleModel Model
+    QMap<int, SimpleModel*> customFieldModels_;
 
     /// Currently tracked issue
     qtredmine::Issue issue_;
@@ -51,18 +72,11 @@ private:
     /// Cached trackers
     SimpleModel trackerModel_;
 
-    /// Custom fields
-    qtredmine::CustomFields customFields_;
+    /// Current version
+    int versionId_ = NULL_ID;
 
-    /// Custom field items
-    /// @param int Custom field ID
-    /// @param Pair QQuickItem GUI items (label and entry field)
-    QMap<int, QPair<QQuickItem*, QQuickItem*>> customFieldItems_;
-
-    /// Custom field models
-    /// @param int Custom field ID
-    /// @param SimpleModel Model
-    QMap<int, SimpleModel*> customFieldModels_;
+    /// Cached categories
+    SimpleModel versionModel_;
 
 private:
     /**
@@ -89,6 +103,11 @@ private:
      * @brief Load and refresh trackers in the GUI
      */
     void loadTrackers();
+
+    /**
+     * @brief Load and refresh versions in the GUI
+     */
+    void loadVersions();
 
     /**
      * @brief Refresh the GUI dependent on the current selections
@@ -165,6 +184,11 @@ private slots:
     void categorySelected( int index );
 
     /**
+     * @brief Load data from parent issue
+     */
+    void loadParentIssueData();
+
+    /**
      * @brief Slot to a selected project
      */
     void projectSelected( int index );
@@ -193,6 +217,11 @@ private slots:
      * @brief Use the currently tracked issue's parent as parent issue
      */
     void useCurrentIssueParent();
+
+    /**
+     * @brief Slot to a selected version
+     */
+    void versionSelected( int index );
 
 signals:
     /**

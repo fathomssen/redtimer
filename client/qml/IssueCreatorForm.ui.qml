@@ -64,6 +64,8 @@ GridLayout {
 
         Button {
             id: useCurrentIssue
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "useCurrentIssue"
             iconSource: "qrc:/open-iconic/svg/vertical-align-bottom.svg"
             tooltip: "Use the last tracked issue as parent issue"
@@ -72,6 +74,8 @@ GridLayout {
 
         Button {
             id: useCurrentIssueParent
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "useCurrentIssueParent"
             iconSource: "qrc:/open-iconic/svg/vertical-align-top.svg"
             tooltip: "Use the last tracked issue's parent as parent issue (default)"
@@ -80,6 +84,8 @@ GridLayout {
 
         Button {
             id: selectParentIssue
+            Layout.preferredHeight: 24
+            Layout.preferredWidth: 24
             objectName: "selectParentIssue"
             iconSource: "qrc:/open-iconic/svg/list.svg"
             tooltip: "Select parent issue from list"
@@ -109,6 +115,20 @@ GridLayout {
         objectName: "category"
         Layout.fillWidth: true
         model: categoryModel
+        textRole: "name"
+        enabled: false
+    }
+
+    Label {
+        id: label8
+        text: qsTr("Target version")
+    }
+
+    ComboBox {
+        id: version
+        objectName: "version"
+        Layout.fillWidth: true
+        model: versionModel
         textRole: "name"
         enabled: false
     }

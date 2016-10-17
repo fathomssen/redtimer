@@ -110,8 +110,6 @@ Item {
 
             ToolButton {
                 id: selectIssue
-                width: 24
-                height: 24
                 Layout.preferredHeight: 24
                 Layout.preferredWidth: 24
                 objectName: "selectIssue"
@@ -176,8 +174,6 @@ Item {
 
             ToolButton {
                 id: startStop
-                width: 24
-                height: 24
                 Layout.preferredHeight: 24
                 Layout.preferredWidth: 24
                 objectName: "startStop"

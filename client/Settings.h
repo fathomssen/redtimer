@@ -339,11 +339,9 @@ inline QDebug
 operator<<( QDebug debug, const redtimer::Settings::ProfileData& data )
 {
     QDebugStateSaver saver( debug );
-
     DEBUGFIELDS(id)(name)(apiKey)(checkConnection)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
-    (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)(useSystemTrayIcon)
-    (closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)(activityId)
-    (issueId)(projectId)(recentIssues);
-
+            (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)
+            (useSystemTrayIcon)(closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)
+            (activityId)(issueId)(projectId)(recentIssues);
     return debug;
 }

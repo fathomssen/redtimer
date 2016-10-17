@@ -112,14 +112,14 @@ private:
      *
      * @return Currently tracked time including the difference in seconds
      */
-    int counter();
+    double counter();
 
     /**
      * @brief Get the currently tracked time without the difference
      *
      * @return Currently tracked time in seconds
      */
-    int counterNoDiff();
+    double counterNoDiff();
 
     /**
      * @brief Start the timer
