@@ -25,25 +25,11 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     initHeight_ = height();
 
     // Set models
-    QSortFilterProxyModel* categoryProxyModel = new QSortFilterProxyModel( this );
-    categoryProxyModel->setSourceModel( &categoryModel_ );
-    categoryProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    ctx_->setContextProperty( "categoryModel", categoryProxyModel );
-
-    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel( this );
-    projectProxyModel->setSourceModel( &projectModel_ );
-    projectProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    ctx_->setContextProperty( "projectModel", projectProxyModel );
-
-    QSortFilterProxyModel* trackerProxyModel = new QSortFilterProxyModel( this );
-    trackerProxyModel->setSourceModel( &trackerModel_ );
-    trackerProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    ctx_->setContextProperty( "trackerModel", trackerProxyModel );
-
-    QSortFilterProxyModel* versionProxyModel = new QSortFilterProxyModel( this );
-    versionProxyModel->setSourceModel( &versionModel_ );
-    versionProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    ctx_->setContextProperty( "versionModel", versionProxyModel );
+    ctx_->setContextProperty( "assigneeModel", &assigneeModel_ );
+    ctx_->setContextProperty( "categoryModel", &categoryModel_ );
+    ctx_->setContextProperty( "projectModel", &projectModel_ );
+    ctx_->setContextProperty( "trackerModel", &trackerModel_ );
+    ctx_->setContextProperty( "versionModel", &versionModel_ );
 
     // Load current user
     loadCurrentUser();
@@ -54,14 +40,14 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     // Connect the tracker selected signal to the trackerSelected slot
     connect( qml("tracker"), SIGNAL(activated(int)), this, SLOT(trackerSelected(int)) );
 
-    // Connect the category selected signal to the categorySelected slot
-    connect( qml("category"), SIGNAL(activated(int)), this, SLOT(categorySelected(int)) );
+    // Connect the assignee selected signal to the assigneeSelected slot
+    connect( qml("assignee"), SIGNAL(activated(int)), this, SLOT(assigneeSelected(int)) );
 
     // Connect the category selected signal to the categorySelected slot
     connect( qml("category"), SIGNAL(activated(int)), this, SLOT(categorySelected(int)) );
 
     // Connect the parent issue text field enter event
-    connect( qml("parentIssue"), SIGNAL(accepted()), this, SLOT(loadParentIssueData()) );
+    connect( qml("parentIssue"), SIGNAL(editingFinished()), this, SLOT(loadParentIssueData()) );
 
     // Connect the use current issue as parent button
     connect( qml("useCurrentIssue"), SIGNAL(clicked()), this, SLOT(useCurrentIssue()) );
@@ -87,6 +73,17 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
 IssueCreator::~IssueCreator()
 {
     ENTER();
+    RETURN();
+}
+
+void
+IssueCreator::assigneeSelected( int index )
+{
+    ENTER()(index);
+
+    assigneeId_ = assigneeModel_.at(index).id();
+    DEBUG()(assigneeId_);
+
     RETURN();
 }
 
@@ -139,9 +136,92 @@ IssueCreator::getProjectId() const
 }
 
 void
+IssueCreator::loadAssignees()
+{
+    ENTER()(projectId_)(assigneeId_);
+
+    if( projectId_ == NULL_ID )
+        RETURN();
+
+    if( !mainWindow_->connected() )
+        RETURN();
+
+    ++callbackCounter_;
+    redmine_->retrieveMemberships( [=]( Memberships assignees, RedmineError redmineError, QStringList errors )
+    {
+        CBENTER()(assignees)(redmineError)(errors);
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load assignees.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            CBRETURN();
+        }
+
+        assigneeModel_.clear();
+        qml("assignee")->setProperty( "currentIndex", -1 );
+
+        // Sort assignees by name
+        sort( assignees.begin(), assignees.end(),
+              []( const Membership& l, const Membership& r )
+              {
+                QString lname, rname;
+
+                if( l.user.id != NULL_ID )
+                  lname = l.user.name;
+                else if( l.group.id != NULL_ID )
+                  lname = l.group.name;
+
+                if( r.user.id != NULL_ID )
+                  rname = r.user.name;
+                else if( r.group.id != NULL_ID )
+                  rname = r.group.name;
+
+                return lname < rname;
+              } );
+
+        if( assignees.size() == 0 )
+        {
+            qml("assignee")->setProperty( "enabled", false );
+        }
+        else
+        {
+            int currentIndex = 0;
+
+            assigneeModel_.push_back( SimpleItem(NULL_ID, "") );
+            for( const auto& assignee : assignees )
+            {
+                if( assignee.user.id == assigneeId_ || assignee.group.id == assigneeId_ )
+                {
+                    currentIndex = assigneeModel_.rowCount();
+                    DEBUG("Selecting assignee")(assignee);
+                }
+
+                if( assignee.user.id != NULL_ID )
+                    assigneeModel_.push_back( SimpleItem(assignee.user) );
+                else if( assignee.group.id != NULL_ID )
+                    assigneeModel_.push_back( SimpleItem(assignee.group) );
+            }
+
+            qml("assignee")->setProperty( "currentIndex", currentIndex );
+            qml("assignee")->setProperty( "enabled", true );
+
+            DEBUG()(assigneeModel_)(currentIndex);
+        }
+
+        CBRETURN();
+    },
+    projectId_,
+    QString("limit=100") );
+}
+
+void
 IssueCreator::loadCategories()
 {
-    ENTER()(projectId_);
+    ENTER()(projectId_)(categoryId_);
 
     if( projectId_ == NULL_ID )
         RETURN();
@@ -184,7 +264,6 @@ IssueCreator::loadCategories()
                 categoryModel_.push_back( SimpleItem(category) );
             }
 
-            qml("category")->setProperty( "currentIndex", -1 );
             qml("category")->setProperty( "currentIndex", currentIndex );
             qml("category")->setProperty( "enabled", true );
         }
@@ -200,6 +279,9 @@ void
 IssueCreator::loadCurrentUser()
 {
     ENTER();
+
+    if( assigneeId_ != NULL_ID )
+        RETURN();
 
     if( !mainWindow_->connected() )
         RETURN();
@@ -219,7 +301,9 @@ IssueCreator::loadCurrentUser()
             CBRETURN();
         }
 
-        currentUserId_ = user.id;
+        assigneeId_ = user.id;
+        loadAssignees();
+
         CBRETURN();
     } );
 
@@ -423,6 +507,12 @@ IssueCreator::loadParentIssueData()
 {
     ENTER();
 
+    if( loadingParentIssueData_ )
+        RETURN();
+
+    loadingParentIssueData_ = true;
+    parentIssueId_ = NULL_ID;
+
     if( qml("parentIssue")->property("text").toString().isEmpty() )
         RETURN();
 
@@ -454,6 +544,9 @@ IssueCreator::loadParentIssueData()
                 errorMsg.append("\n").append(error);
 
             message( errorMsg, QtCriticalMsg );
+
+            loadingParentIssueData_ = false;
+
             CBRETURN();
         }
 
@@ -462,13 +555,30 @@ IssueCreator::loadParentIssueData()
 
         // Leave after loading the parent issue name
         if( !loadData )
+        {
+            loadingParentIssueData_ = false;
             CBRETURN();
+        }
 
-        categoryId_ = issue.category.id;
-        loadCategories();
+        qml("dueDate")->setProperty( "text", issue.dueDate.toString("yyyy-MM-dd") );
 
-        versionId_ = issue.version.id;
-        loadVersions();
+        if( issue.assignedTo.id != NULL_ID )
+        {
+            assigneeId_ = issue.assignedTo.id;
+            loadAssignees();
+        }
+
+        if( issue.category.id != NULL_ID )
+        {
+            categoryId_ = issue.category.id;
+            loadCategories();
+        }
+
+        if( issue.version.id != NULL_ID )
+        {
+            versionId_ = issue.version.id;
+            loadVersions();
+        }
 
         customFieldValues_.clear();
         for( const auto& customField : issue.customFields )
@@ -482,6 +592,9 @@ IssueCreator::loadParentIssueData()
         loadCustomFields();
 
         parentIssueInit_ = true;
+        loadingParentIssueData_ = false;
+
+        parentIssueId_ = issueId;
 
         CBRETURN();
     },
@@ -543,7 +656,7 @@ IssueCreator::loadProjects()
 void
 IssueCreator::loadTrackers()
 {
-    ENTER()(projectId_);
+    ENTER()(projectId_)(trackerId_);
 
     if( projectId_ == NULL_ID )
         RETURN();
@@ -593,7 +706,7 @@ IssueCreator::loadTrackers()
 void
 IssueCreator::loadVersions()
 {
-    ENTER()(projectId_);
+    ENTER()(projectId_)(versionId_);
 
     if( projectId_ == NULL_ID )
         RETURN();
@@ -620,7 +733,7 @@ IssueCreator::loadVersions()
 
         // Reset in case this has changed since calling loadVersions()
         versionModel_.clear();
-        versionModel_.push_back( SimpleItem(NULL_ID, "Choose version") );
+        versionModel_.push_back( SimpleItem(NULL_ID, "") );
 
         // Sort versions by due date
         sort( versions.begin(), versions.end(),
@@ -628,6 +741,9 @@ IssueCreator::loadVersions()
 
         for( const auto& version : versions )
         {
+            if( version.dueDate < QDate::currentDate() )
+                continue;
+
             if( version.id == versionId_ )
                 currentIndex = versionModel_.rowCount();
 
@@ -645,6 +761,7 @@ IssueCreator::loadVersions()
         qml("useCurrentIssue")->setProperty( "enabled", true );
         qml("useCurrentIssueParent")->setProperty( "enabled", true );
         qml("selectParentIssue")->setProperty( "enabled", true );
+        qml("dueDate")->setProperty( "enabled", true );
         qml("estimatedTime")->setProperty( "enabled", true );
         qml("description")->setProperty( "enabled", true );
         qml("create")->setProperty( "enabled", true );
@@ -691,9 +808,11 @@ IssueCreator::refreshGui()
     if( projectId_ == NULL_ID )
         RETURN();
 
-    loadTrackers();
+    loadAssignees();
     loadCategories();
+    loadTrackers();
     loadVersions();
+
     loadCustomFields();
 
     RETURN();
@@ -725,33 +844,38 @@ IssueCreator::save()
     }
 
     QTime time = SimpleRedmineClient::getTime( qml("estimatedTime")->property("text").toString() );
-    if( time.isValid() )
+    if( !time.isNull() )
     {
-        issue.estimatedHours = time.hour() + (double)time.minute()/60 + (double)time.second()/3600;
-    }
-    else
-    {
-        message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
-        RETURN();
+        if( time.isValid() )
+        {
+            issue.estimatedHours = time.hour() + (double)time.minute()/60 + (double)time.second()/3600;
+        }
+        else
+        {
+            message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
+            RETURN();
+        }
     }
 
     cancelOnClose_ = false;
 
+    issue.assignedTo.id = assigneeId_;
     issue.project.id = projectId_;
     issue.tracker.id = trackerId_;
-    issue.assignedTo.id = currentUserId_;
 
     if( categoryId_ != NULL_ID )
         issue.category.id = categoryId_;
 
-    if( categoryId_ != NULL_ID )
-        issue.category.id = categoryId_;
+    if( parentIssueId_ != NULL_ID )
+        issue.parentId = parentIssueId_;
 
-    if( !qml("parentIssue")->property("text").toString().isEmpty() )
-        issue.parentId = qml("parentIssue")->property("text").toInt();
+    if( versionId_ != NULL_ID )
+        issue.version.id = versionId_;
 
-    issue.subject = qml("subject")->property("text").toString();
     issue.description = qml("description")->property("text").toString();
+    issue.startDate = QDate::currentDate();
+    issue.dueDate = qml("dueDate")->property("text").toDate();
+    issue.subject = qml("subject")->property("text").toString();
 
     for( const auto& customField : customFields_ )
     {
@@ -773,7 +897,7 @@ IssueCreator::save()
     {
         CBENTER();
 
-        DEBUG()(success)(id)(errorCode)(errors);
+        DEBUG()(issue)(success)(id)(errorCode)(errors);
 
         if( !success )
         {

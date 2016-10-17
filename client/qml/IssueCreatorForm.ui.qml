@@ -94,14 +94,16 @@ GridLayout {
     }
 
     Label {
-        id: label5
-        text: qsTr("Estimated time")
+        id: label9
+        text: qsTr("Assignee")
     }
 
-    TextField {
-        id: estimatedTime
+    ComboBox {
+        id: assignee
+        objectName: "assignee"
         Layout.fillWidth: true
-        objectName: "estimatedTime"
+        model: assigneeModel
+        textRole: "name"
         enabled: false
     }
 
@@ -133,13 +135,37 @@ GridLayout {
         enabled: false
     }
 
-    Label {
+    Item {
         id: customFields
         objectName: "customFields"
-        text: qsTr("Custom fields")
-        visible: false
         Layout.columnSpan: 2
-        font.underline: true
+        visible: false
+    }
+
+    Label {
+        id: label10
+        text: qsTr("Due date")
+    }
+
+    TextField {
+        id: dueDate
+        placeholderText: "2016-01-01"
+        Layout.fillWidth: true
+        objectName: "dueDate"
+        enabled: false
+    }
+
+    Label {
+        id: label5
+        text: qsTr("Estimated time")
+    }
+
+    TextField {
+        id: estimatedTime
+        placeholderText: "02:00:00"
+        Layout.fillWidth: true
+        objectName: "estimatedTime"
+        enabled: false
     }
 
     Label {

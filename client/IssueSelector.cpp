@@ -19,23 +19,9 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
     setTitle( "Issue Selector" );
 
     // Set the models
-    QSortFilterProxyModel* projectProxyModel = new QSortFilterProxyModel( this );
-    projectProxyModel->setSourceModel( &projectModel_ );
-    projectProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    projectProxyModel->setDynamicSortFilter( true );
-    ctx_->setContextProperty( "projectModel", projectProxyModel );
-
-    QSortFilterProxyModel* assigneeProxyModel = new QSortFilterProxyModel( this );
-    assigneeProxyModel->setSourceModel( &assigneeModel_ );
-    assigneeProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    assigneeProxyModel->setDynamicSortFilter( true );
-    ctx_->setContextProperty( "assigneeModel", assigneeProxyModel );
-
-    QSortFilterProxyModel* versionProxyModel = new QSortFilterProxyModel( this );
-    versionProxyModel->setSourceModel( &versionModel_ );
-    versionProxyModel->setSortRole( SimpleModel::SimpleRoles::IdRole );
-    versionProxyModel->setDynamicSortFilter( true );
-    ctx_->setContextProperty( "versionModel", versionProxyModel );
+    ctx_->setContextProperty( "assigneeModel", &assigneeModel_ );
+    ctx_->setContextProperty( "projectModel", &projectModel_ );
+    ctx_->setContextProperty( "versionModel", &versionModel_ );
 
     issuesProxyModel_.setSourceModel( &issuesModel_ );
     issuesProxyModel_.setSortRole( IssueModel::IssueRoles::IdRole );
@@ -397,6 +383,9 @@ IssueSelector::loadVersions()
 
         for( const auto& version : versions )
         {
+            if( version.dueDate < QDate::currentDate() )
+                continue;
+
             if( version.id == versionId_ )
                 currentIndex = versionModel_.rowCount();
 

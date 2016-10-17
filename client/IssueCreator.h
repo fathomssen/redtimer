@@ -30,14 +30,20 @@ private:
     /// Use custom fields
     bool useCustomFields_ = false;
 
+    /// Currently loading parent issue data
+    bool loadingParentIssueData_ = false;
+
+    /// Current assignee
+    int assigneeId_ = NULL_ID;
+
+    /// Cached categories
+    SimpleModel assigneeModel_;
+
     /// Current category
     int categoryId_ = NULL_ID;
 
     /// Cached categories
     SimpleModel categoryModel_;
-
-    /// User ID which was used to login into Redmine
-    int currentUserId_ = NULL_ID;
 
     /// Custom fields
     qtredmine::CustomFields customFields_;
@@ -60,6 +66,9 @@ private:
     /// Currently tracked issue
     qtredmine::Issue issue_;
 
+    /// Parent issue ID
+    int parentIssueId_ = NULL_ID;
+
     /// Current project
     int projectId_ = NULL_ID;
 
@@ -79,6 +88,11 @@ private:
     SimpleModel versionModel_;
 
 private:
+    /**
+     * @brief Load and refresh assignees in the GUI
+     */
+    void loadAssignees();
+
     /**
      * @brief Load and refresh categories in the GUI
      */
@@ -178,6 +192,11 @@ public slots:
     void display();
 
 private slots:
+    /**
+     * @brief Slot to a selected assignee
+     */
+    void assigneeSelected( int index );
+
     /**
      * @brief Slot to a selected category
      */
