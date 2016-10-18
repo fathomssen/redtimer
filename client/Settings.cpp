@@ -431,11 +431,14 @@ Settings::load( const QString profile, const bool apply )
     {
         profilesModel_.sort( SimpleModel::NameRole );
 
-        QVariant profileId = settings_.value("profileId");
-        if( !profileId.isNull() && profileId.toInt()
-            && settings_.childGroups().contains(profileHash(profileId.toInt())) )
+        if( profileId_ == NULL_ID )
         {
-            profileId_ = profileId.toInt();
+            QVariant profileId = settings_.value("profileId");
+            if( !profileId.isNull() && profileId.toInt()
+                && settings_.childGroups().contains(profileHash(profileId.toInt())) )
+            {
+                profileId_ = profileId.toInt();
+            }
         }
     }
 
