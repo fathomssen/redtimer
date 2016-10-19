@@ -132,7 +132,6 @@ script:
   - echo "set -x" >> build.sh
   - run $hasQtEnv echo "source ${qtenv}" >> build.sh
   - echo "set -ex" >> build.sh
-  - run $isOsX echo "echo \"CONFIG += staticlib\" >> libqtredmine/qtredmine.pro" >> build.sh
   - run $isUbuntu echo "cd /build" >> build.sh
   - echo "qmake ${qmakeopt} -r" >> build.sh
   - echo "make" >> build.sh
