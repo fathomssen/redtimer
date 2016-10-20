@@ -25,11 +25,11 @@ IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow
     initHeight_ = height();
 
     // Set models
-    ctx_->setContextProperty( "assigneeModel", &assigneeModel_ );
-    ctx_->setContextProperty( "categoryModel", &categoryModel_ );
-    ctx_->setContextProperty( "projectModel", &projectModel_ );
-    ctx_->setContextProperty( "trackerModel", &trackerModel_ );
-    ctx_->setContextProperty( "versionModel", &versionModel_ );
+    setCtxProperty( "assigneeModel", &assigneeModel_ );
+    setCtxProperty( "categoryModel", &categoryModel_ );
+    setCtxProperty( "projectModel", &projectModel_ );
+    setCtxProperty( "trackerModel", &trackerModel_ );
+    setCtxProperty( "versionModel", &versionModel_ );
 
     // Load current user
     loadCurrentUser();
@@ -106,8 +106,8 @@ IssueCreator::close()
     if( cancelOnClose_ )
         cancelled();
 
-    mainWindow_->settings_->win_.issueCreator = getWindowData();
-    mainWindow_->settings_->save();
+    settings()->windowData()->issueCreator = getWindowData();
+    settings()->save();
 
     Window::close();
     this->deleteLater();
@@ -120,7 +120,7 @@ IssueCreator::display()
 {
     ENTER();
 
-    setWindowData( mainWindow_->settings_->win_.issueCreator );
+    setWindowData( settings()->windowData()->issueCreator );
 
     show();
     refreshGui();
@@ -143,7 +143,7 @@ IssueCreator::loadAssignees()
     if( projectId_ == NULL_ID )
         RETURN();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -226,7 +226,7 @@ IssueCreator::loadCategories()
     if( projectId_ == NULL_ID )
         RETURN();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -283,7 +283,7 @@ IssueCreator::loadCurrentUser()
     if( assigneeId_ != NULL_ID )
         RETURN();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -325,7 +325,7 @@ IssueCreator::loadCustomFields()
     filter.projectId = projectId_;
     filter.type = "issue";
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -423,7 +423,7 @@ IssueCreator::loadCustomFields()
                         customFieldModels_[customField.id]->push_back( SimpleItem(NULL_ID, possibleValue) );
                     }
 
-                    ctx_->setContextProperty( entryFieldModel, customFieldModels_[customField.id] );
+                    setCtxProperty( entryFieldModel, customFieldModels_[customField.id] );
                 }
                 else
                 {
@@ -608,7 +608,7 @@ IssueCreator::loadProjects()
 {
     ENTER();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -661,7 +661,7 @@ IssueCreator::loadTrackers()
     if( projectId_ == NULL_ID )
         RETURN();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -679,7 +679,7 @@ IssueCreator::loadTrackers()
             CBRETURN();
         }
 
-        trackerId_ = mainWindow_->settings_->data_.defaultTrackerId;
+        trackerId_ = profileData()->defaultTrackerId;
         int currentIndex = 0;
 
         trackerModel_.clear();
@@ -711,7 +711,7 @@ IssueCreator::loadVersions()
     if( projectId_ == NULL_ID )
         RETURN();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;

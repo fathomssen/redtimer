@@ -3,6 +3,7 @@
 #include "qtredmine/Logging.h"
 #include "MainWindow.h"
 #include "Models.h"
+#include "ProfileData.h"
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
@@ -17,114 +18,40 @@
 
 namespace redtimer {
 
+/// Settings data structure for the currently loaded profile
+struct WindowData
+{
+    /// Window data of the Issue Creator
+    Window::Data issueCreator;
+
+    /// Window data of the Issue Selector
+    Window::Data issueSelector;
+
+    /// Window data of the main window
+    Window::Data mainWindow;
+
+    /// Window data of the settings dialog
+    Window::Data settings;
+};
+
+struct SettingsData
+{
+    /// Current profile ID
+    int profileId = NULL_ID;
+
+    /// Internal representation of the profiles
+    QMap<int, ProfileData> profiles;
+
+    /// Window data
+    WindowData windows;
+};
+
 /**
  * @brief A settings window and IO access for RedTimer
  */
 class Settings : public Window
 {
     Q_OBJECT
-
-public:
-    /// Settings data structure for the currently loaded profile
-    struct ProfileData
-    {
-        /// @name Profile settings
-        /// @{
-
-        /// Profile ID
-        int id = NULL_ID;
-
-        /// Profile name
-        QString name;
-
-        /// @}
-
-        /// @name GUI settings
-        /// @{
-
-        /// Redmine API key
-        QString apiKey;
-
-        /// Manually check the network connection
-        bool checkConnection;
-
-        /// Ignore SSL errors
-        bool ignoreSslErrors;
-
-        /// Maximum number of recently opened issues
-        int numRecentIssues;
-
-        /// Shortcuts
-        QString shortcutCreateIssue;
-        QString shortcutSelectIssue;
-        QString shortcutStartStop;
-        QString shortcutToggle;
-
-        /// Redmine base URL
-        QString url;
-
-        /// Use custom fields
-        bool useCustomFields;
-
-        /// Use system tray icon
-        bool useSystemTrayIcon;
-
-        /// Close to tray
-        bool closeToTray;
-
-        /// Issue status to switch after tracking time
-        int workedOnId;
-
-        /// Default tracker to use in the Issue Creator
-        int defaultTrackerId;
-
-        /// ID of the time entry custom field for the start time
-        int startTimeFieldId;
-
-        /// ID of the time entry custom field for the end time
-        int endTimeFieldId;
-
-        /// @}
-
-        /// @name Internal settings
-        /// @{
-
-        /// Last used activity
-        int activityId;
-
-        /// Last opened issue
-        int issueId;
-
-        /// Last opened project
-        int projectId;
-
-        /// Recently opened issues
-        qtredmine::Issues recentIssues;
-
-        /// @}
-    };
-
-    /// Settings data structure for the currently loaded profile
-    struct WindowData
-    {
-        /// Window data of the Issue Creator
-        Window::Data issueCreator;
-
-        /// Window data of the Issue Selector
-        Window::Data issueSelector;
-
-        /// Window data of the main window
-        Window::Data mainWindow;
-
-        /// Window data of the settings dialog
-        Window::Data settings;
-    };
-
-    /// Currently applied settings
-    ProfileData data_;
-
-    /// Window data
-    WindowData win_;
 
 private:
     /// Redmine connection object
@@ -145,17 +72,25 @@ private:
     /// Time entry custom fields for the end time
     SimpleModel endTimeModel_;
 
+    /// Currently selected profile ID
+    int profileId_ = NULL_ID;
+
     /// GUI profiles
     SimpleModel profilesModel_;
     QSortFilterProxyModel profilesProxyModel_;
 
-    /// Current profile ID
-    int profileId_ = NULL_ID;
-
-    /// Internal representation of the profiles
-    QMap<int, ProfileData> profiles_;
+    /// Data pool
+    SettingsData data_;
 
 private:
+    /**
+     * @brief Load profile-dependent settings from settings file
+     *
+     * @param profileId Profile to load data for
+     * @param initData Inital data
+     */
+    void loadProfileData( const int profileId, ProfileData *initData = nullptr );
+
     /**
      * @brief Display a message box to get a profile name
      *
@@ -168,13 +103,6 @@ private:
     bool profileNameDialog( QString& name, QString title, QString initText );
 
     /**
-     * @brief Get the current profile data
-     *
-     * @return Pointer to the profile data
-     */
-    ProfileData* profileData();
-
-    /**
      * @brief Get the current profile hash
      *
      * @param id Profile ID to get the hash for
@@ -182,6 +110,20 @@ private:
      * @return Profile hash
      */
     QString profileHash( int id = NULL_ID );
+
+    /**
+     * @brief Save profile-dependent settings to settings file
+     *
+     * @param profileId Profile to save data for
+     */
+    void saveProfileData( int profileId );
+
+    /**
+     * @brief Get the currently selected profile data
+     *
+     * @return Pointer to the profile data
+     */
+    ProfileData* profileData();
 
 public:
     /**
@@ -192,41 +134,34 @@ public:
     explicit Settings( MainWindow* mainWindow );
 
     /**
-     * @brief Determines whether the currently loaded settings are valid
-     *
-     * To be valid, a set of settings must at least contain a URL and an API key.
-     *
-     * @return true if settings are valid, false otherwise
-     */
-    bool isValid( bool displayError = false );
-
-    /**
      * @brief Load settings from settings file
-     *
-     * @param profile Load this profile instead of the last loaded
-     * @param apply Apply the loaded settings
-     */
-    void load( const QString data_, const bool apply = true );
-
-    /**
-     * @brief Load settings from settings file for current profile
      *
      * @param apply Apply the loaded settings
      */
-    void load( const bool apply );
+    void load( const bool apply = true );
 
     /**
-     * @brief Load settings from settings file
-     */
-    void load();
-
-    /**
-     * @brief Load profile-dependent settings from settings file
+     * @brief Get the specified profile data
      *
-     * @param profileId Profile to load data for
-     * @param initData Inital data
+     * @param profileId Profile ID
+     *
+     * @return Pointer to the profile data
      */
-    void loadProfileData( const int profileId, const ProfileData* initData = nullptr );
+    ProfileData* profileData( int profileId );
+
+    /**
+     * @brief Get the profile ID
+     *
+     * @return Profile ID
+     */
+    int profileId();
+
+    /**
+     * @brief Get all profiles
+     *
+     * @return Map of profiles
+     */
+    QMap<int, ProfileData> profiles();
 
     /**
      * @brief Save settings to settings file
@@ -234,11 +169,25 @@ public:
     void save();
 
     /**
-     * @brief Save profile-dependent settings to settings file
+     * @brief Set the profile ID by ID
      *
-     * @param profileId Profile to save data for
+     * @param profileId Profile ID
      */
-    void saveProfileData( int profileId );
+    void setProfileId( int profileId );
+
+    /**
+     * @brief Set the profile ID by name
+     *
+     * @param profileName Profile name
+     */
+    void setProfileId( QString profileName );
+
+    /**
+     * @brief Get the window data
+     *
+     * @return Window data
+     */
+    WindowData* windowData();
 
 public slots:
     /**
@@ -336,12 +285,25 @@ signals:
 } // redtimer
 
 inline QDebug
-operator<<( QDebug debug, const redtimer::Settings::ProfileData& data )
+operator<<( QDebug debug, const redtimer::WindowData& data )
 {
     QDebugStateSaver saver( debug );
-    DEBUGFIELDS(id)(name)(apiKey)(checkConnection)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
-            (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)
-            (useSystemTrayIcon)(closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)
-            (activityId)(issueId)(projectId)(recentIssues);
+    DEBUGFIELDS(issueCreator)(issueSelector)(mainWindow)(settings);
+    return debug;
+}
+
+inline QDebug
+operator<<( QDebug debug, const redtimer::SettingsData& data )
+{
+    QDebugStateSaver saver( debug );
+    DEBUGFIELDS(profileId)(profiles)(windows);
+    return debug;
+}
+
+inline QDebug
+operator<<( QDebug debug, const redtimer::Settings& data )
+{
+    QDebugStateSaver saver( debug );
+    (void)data;
     return debug;
 }

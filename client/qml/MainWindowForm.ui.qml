@@ -94,6 +94,15 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
 
+        ComboBox {
+            id: profiles
+            Layout.fillWidth: true
+            objectName: "profiles"
+            model: profilesModel
+            textRole: "name"
+            visible: false // only display when there is more than one profile
+        }
+
         RowLayout {
             id: rowLayout1
             height: 28

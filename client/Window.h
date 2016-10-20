@@ -14,10 +14,14 @@ namespace redtimer {
 
 // forward declaration
 class MainWindow;
+class Settings;
+struct ProfileData;
 
 class Window : public QQuickView
 {
     Q_OBJECT
+
+    friend class MainWindow;
 
 private:
     /// Emit the closed signal upon closing
@@ -29,13 +33,6 @@ private:
     /// Already displayed messages
     QHash<QString, bool> displayed_;
 
-protected:
-    /// Counter to ensure that there are no idle callbacks after deleting the object
-    int callbackCounter_ = 0;
-
-    /// Flag to determine whether deleteLater() has been called
-    bool deleteLater_ = false;
-
     /// Main item
     QQuickItem* item_;
 
@@ -44,6 +41,88 @@ protected:
 
     /// Main window
     MainWindow* mainWindow_;
+
+    /// Settings
+    Settings* settings_ = nullptr;
+
+protected:
+    /// Counter to ensure that there are no idle callbacks after deleting the object
+    int callbackCounter_ = 0;
+
+    /// Flag to determine whether deleteLater() has been called
+    bool deleteLater_ = false;
+
+protected:
+    /// @name Getter
+    /// @{
+
+    /**
+     * @brief Determines whether a connection is currently available
+     *
+     * @return true if connection is available, false otherwise
+     */
+    bool connected();
+
+    /**
+     * @brief Get the main window
+     *
+     * @return Main window object
+     */
+    MainWindow* mainWindow();
+
+    /**
+     * @brief Get the current profile data
+     *
+     * @return Profile data
+     */
+    ProfileData* profileData();
+
+    /**
+     * @brief Get a QML GUI item
+     *
+     * Fetches the root item if \c qmlItem is empty.
+     *
+     * @param qmlItem Name of the QML GUI item
+     *
+     * @return QML GUI item
+     */
+    QQuickItem* qml( QString qmlItem = "" );
+
+    /**
+     * @brief Get the settings object
+     *
+     * @return Settings
+     */
+    Settings* settings();
+
+    /// @}
+
+    /// @name Setter
+    /// @{
+
+    /**
+     * @brief Set a context property
+     *
+     * @param key Key
+     * @param value Value
+     */
+    void setCtxProperty( QString key, QObject* value );
+
+    /**
+     * @brief Set the profile ID by ID
+     *
+     * @param profileId Profile ID
+     */
+    void setProfileId( int profileId );
+
+    /**
+     * @brief Set the profile ID by name
+     *
+     * @param profileName Profile name
+     */
+    void setProfileId( QString profileName );
+
+    /// @}
 
 public:
     /// Position and size of windows
@@ -64,24 +143,6 @@ public:
      * @param closeCb Close callback
      */
     Window( QString qml, MainWindow* mainWindow, std::function<void()> closeCb = nullptr );
-
-    /**
-     * @brief Get the main window
-     *
-     * @return Main window object
-     */
-    MainWindow* mainWindow();
-
-    /**
-     * @brief Get a QML GUI item
-     *
-     * Fetches the root item if \c qmlItem is empty.
-     *
-     * @param qmlItem Name of the QML GUI item
-     *
-     * @return QML GUI item
-     */
-    QQuickItem* qml( QString qmlItem = "" );
 
 protected:
     /**

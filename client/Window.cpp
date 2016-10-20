@@ -1,6 +1,8 @@
 #include "qtredmine/Logging.h"
 
 #include "MainWindow.h"
+#include "ProfileData.h"
+#include "Settings.h"
 #include "Window.h"
 
 #include <QTimer>
@@ -18,6 +20,9 @@ Window::Window( QString qml, MainWindow* mainWindow, std::function<void()> close
     ctx_ = rootContext();
     item_ = qobject_cast<QQuickItem*>( rootObject() );
     mainWindow_ = mainWindow;
+
+    if( !settings_ )
+        settings_ = mainWindow_->settings();
 
     setResizeMode( QQuickView::SizeRootObjectToView );
 
@@ -57,6 +62,16 @@ Window::event( QEvent* event )
     }
 
     return QQuickView::event( event );
+}
+
+bool
+Window::connected()
+{
+    ENTER();
+
+    bool ret = mainWindow_->connected();
+
+    RETURN( ret );
 }
 
 void
@@ -136,7 +151,7 @@ Window::message( QString text, QtMsgType type, bool force )
     {
         int timeout = 5000;
 
-        QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/MessageBox.qml")), this );
+        QQuickView* view = new QQuickView( QUrl(QStringLiteral("qrc:/qml/MessageBox.qml")), this );
         item = view->rootObject();
         item->setParentItem( item_ );
 
@@ -171,20 +186,15 @@ Window::getWindowData()
     RETURN( data );
 }
 
-void
-Window::setWindowData( Window::Data data )
+ProfileData*
+Window::profileData()
 {
-    ENTER()(data.geometry)(data.position);
+    ENTER();
 
-    QRect geometry = data.geometry;
-    if( !geometry.isNull() )
-        setGeometry( geometry );
+    int profileId = mainWindow_->profileId();
+    ProfileData* profileData = settings_->profileData( profileId );
 
-    QPoint position = data.position;
-    if( !position.isNull() )
-        setPosition( position );
-
-    RETURN();
+    RETURN( profileData, *profileData );
 }
 
 QQuickItem*
@@ -205,4 +215,56 @@ Window::qml( QString qmlItem )
 
         RETURN( child );
     }
+}
+
+void
+Window::setCtxProperty( QString key, QObject* value )
+{
+    ENTER();
+    ctx_->setContextProperty( key, value );
+    RETURN();
+}
+
+void
+Window::setProfileId( int profileId )
+{
+    ENTER()(profileId);
+
+    settings_->setProfileId( profileId );
+
+    RETURN();
+}
+
+void
+Window::setProfileId( QString profileName )
+{
+    ENTER()(profileName);
+
+    if( !profileName.isEmpty() )
+        settings_->setProfileId( profileName );
+
+    RETURN();
+}
+
+Settings*
+Window::settings()
+{
+    ENTER();
+    RETURN( settings_, *settings_ );
+}
+
+void
+Window::setWindowData( Window::Data data )
+{
+    ENTER()(data.geometry)(data.position);
+
+    QRect geometry = data.geometry;
+    if( !geometry.isNull() )
+        setGeometry( geometry );
+
+    QPoint position = data.position;
+    if( !position.isNull() )
+        setPosition( position );
+
+    RETURN();
 }

@@ -19,16 +19,16 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
     setTitle( "Issue Selector" );
 
     // Set the models
-    ctx_->setContextProperty( "assigneeModel", &assigneeModel_ );
-    ctx_->setContextProperty( "projectModel", &projectModel_ );
-    ctx_->setContextProperty( "versionModel", &versionModel_ );
+    setCtxProperty( "assigneeModel", &assigneeModel_ );
+    setCtxProperty( "projectModel", &projectModel_ );
+    setCtxProperty( "versionModel", &versionModel_ );
 
     issuesProxyModel_.setSourceModel( &issuesModel_ );
     issuesProxyModel_.setSortRole( IssueModel::IssueRoles::IdRole );
     issuesProxyModel_.setDynamicSortFilter( true );
     issuesProxyModel_.setFilterCaseSensitivity( Qt::CaseInsensitive );
     issuesProxyModel_.setFilterRole( IssueModel::IssueRoles::SubjectRole );
-    ctx_->setContextProperty( "issuesModel", &issuesProxyModel_ );
+    setCtxProperty( "issuesModel", &issuesProxyModel_ );
 
     // Connect the assignee selected signal to the assigneeSelected slot
     connect( qml("assignee"), SIGNAL(activated(int)), this, SLOT(assigneeSelected(int)) );
@@ -48,7 +48,7 @@ IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWind
     // Connect the closed signal to the close slot
     connect( this, &Window::closed, [=](){ close(); } );
 
-    projectId_ = mainWindow_->settings_->data_.projectId;
+    projectId_ = profileData()->projectId;
     loadProjects();
     loadAssignees();
     loadVersions();
@@ -61,8 +61,8 @@ IssueSelector::close()
 {
     ENTER();
 
-    mainWindow_->settings_->win_.issueSelector = getWindowData();
-    mainWindow_->settings_->save();
+    settings()->windowData()->issueSelector = getWindowData();
+    settings()->save();
 
     Window::close();
 
@@ -74,7 +74,7 @@ IssueSelector::display()
 {
     ENTER();
 
-    setWindowData( mainWindow_->settings_->win_.issueSelector );
+    setWindowData( settings()->windowData()->issueSelector );
 
     show();
 
@@ -132,7 +132,7 @@ IssueSelector::projectSelected( int index )
     projectId_ = projectModel_.at(index).id();
     DEBUG()(index)(projectId_);
 
-    mainWindow_->settings_->data_.projectId = projectId_;
+    profileData()->projectId = projectId_;
 
     // Ensure that no old issues are displayed
     issuesModel_.clear();
@@ -175,7 +175,7 @@ IssueSelector::loadAssignees()
         RETURN();
     }
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -254,7 +254,7 @@ IssueSelector::loadIssues()
     if( versionId_ != NULL_ID )
         parameters.append( QString("&fixed_version_id=%1").arg(versionId_) );
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -291,7 +291,7 @@ IssueSelector::loadProjects()
 {
     ENTER();
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -353,7 +353,7 @@ IssueSelector::loadVersions()
         RETURN();
     }
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;

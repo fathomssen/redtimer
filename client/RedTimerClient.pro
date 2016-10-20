@@ -18,8 +18,9 @@ HEADERS += \
     IssueSelector.h \
     Models.h \
     MainWindow.h \
+    ProfileData.h \
     Settings.h \
-    Window.h \
+    Window.h
 
 SOURCES += \
     main.cpp \
@@ -27,8 +28,9 @@ SOURCES += \
     IssueSelector.cpp \
     IssueCreator.cpp \
     MainWindow.cpp \
+    ProfileData.cpp \
     Settings.cpp \
-    Window.cpp \
+    Window.cpp
 
 RESOURCES += RedTimerClient.qrc
 

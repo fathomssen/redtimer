@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Models.h"
+#include "ProfileData.h"
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
@@ -89,6 +90,9 @@ private:
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
 
+    /// GUI profiles
+    SimpleModel profilesModel_;
+
     /// Recently opened issues
     IssueModel recentIssues_;
 
@@ -98,6 +102,7 @@ private:
     /// Quick pick placeholder text
     const QString quickPick_ = "<Enter or select issue>";
 
+private:
     /**
      * @brief Add an issue to the list of recent issues
      *
@@ -153,6 +158,13 @@ public:
     void initTrayIcon();
 
     /**
+     * @brief Get the current profile ID
+     *
+     * @return Profile ID
+     */
+    int profileId();
+
+    /**
      * @brief Save the current configuration
      */
     void saveSettings();
@@ -163,9 +175,6 @@ public:
      * @return Tray icon object
      */
     QSystemTrayIcon* trayIcon();
-
-    /// Redmine connection dialog object
-    Settings* settings_ = nullptr;
 
 protected:
     /**
@@ -245,6 +254,11 @@ private slots:
     void loadIssue( int issueId, bool startTimer = true, bool saveNewIssue = false );
 
     /**
+     * @brief Load profiles
+     */
+    void loadProfiles();
+
+    /**
      * @brief Notify about the current connection status
      *
      * @param connected Current connection status
@@ -255,6 +269,11 @@ private slots:
      * @brief Pause the update of the counter in the GUI
      */
     void pauseCounterGui();
+
+    /**
+     * @brief Slot to a selected profile
+     */
+    void profileSelected( int index );
 
     /**
      * @brief Resume the update of the counter in the GUI

@@ -14,12 +14,7 @@ using namespace redtimer;
 using namespace std;
 
 Settings::Settings( MainWindow* mainWindow )
-    : Window( "Settings", mainWindow,
-              [&]()
-              {
-                  if( isValid(true) )
-                      close();
-              } ),
+    : Window( "Settings", mainWindow ),
       settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this )
 {
     ENTER();
@@ -33,15 +28,15 @@ Settings::Settings( MainWindow* mainWindow )
     setTitle( "Settings" );
 
     // Set the models
-    ctx_->setContextProperty( "issueStatusModel", &issueStatusModel_ );
-    ctx_->setContextProperty( "trackerModel", &trackerModel_ );
-    ctx_->setContextProperty( "startTimeModel", &startTimeModel_ );
-    ctx_->setContextProperty( "endTimeModel", &endTimeModel_ );
+    setCtxProperty( "issueStatusModel", &issueStatusModel_ );
+    setCtxProperty( "trackerModel", &trackerModel_ );
+    setCtxProperty( "startTimeModel", &startTimeModel_ );
+    setCtxProperty( "endTimeModel", &endTimeModel_ );
 
     profilesProxyModel_.setSourceModel( &profilesModel_ );
     profilesProxyModel_.setSortRole( SimpleModel::NameRole );
     profilesProxyModel_.setDynamicSortFilter( true );
-    ctx_->setContextProperty( "profilesModel", &profilesProxyModel_ );
+    setCtxProperty( "profilesModel", &profilesModel_ );
 
     // Connect the profile selector
     connect( qml("profiles"), SIGNAL(activated(int)), this, SLOT(profileSelected(int)) );
@@ -70,6 +65,8 @@ Settings::Settings( MainWindow* mainWindow )
     // Connect the save button
     connect( qml("save"), SIGNAL(clicked()), this, SLOT(applyAndClose()) );
 
+    load();
+
     RETURN();
 }
 
@@ -79,8 +76,12 @@ Settings::apply()
     ENTER();
 
     applyProfileData();
-    if( !isValid(true) )
+    QString errmsg;
+    if( !profileData()->isValid( &errmsg ) )
+    {
+        message( errmsg, QtCriticalMsg );
         RETURN();
+    }
 
     auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
     {
@@ -97,8 +98,6 @@ Settings::apply()
         }
 
         save();
-        data_ = *profileData();
-        DEBUG()(data_);
 
         DEBUG() << "Emitting applied() signal";
         applied();
@@ -108,7 +107,7 @@ Settings::apply()
 
     // Save current time before applying
     ++callbackCounter_;
-    mainWindow_->stop( true, true, cb );
+    mainWindow()->stop( true, true, cb );
 
     RETURN();
 }
@@ -120,7 +119,7 @@ Settings::applyAndClose()
 
     apply();
 
-    if( isValid() )
+    if( profileData()->isValid() )
         close();
 
     RETURN();
@@ -196,8 +195,13 @@ Settings::applyProfileData()
             data->recentIssues.removeLast();
     }
 
-    data_ = *data;
-    DEBUG()(data_);
+    redmine_->setUrl( data->url );
+    redmine_->setAuthenticator( data->apiKey );
+    redmine_->setCheckSsl( !data->ignoreSslErrors );
+
+    updateIssueStatuses();
+    updateTrackers();
+    updateTimeEntryCustomFields();
 
     RETURN();
 }
@@ -220,7 +224,7 @@ Settings::close()
 {
     ENTER();
 
-    win_.settings = getWindowData();
+    data_.windows.settings = getWindowData();
     Window::close();
 
     RETURN();
@@ -229,7 +233,7 @@ Settings::close()
 bool
 Settings::copyProfile()
 {
-    ENTER()(profileId_);
+    ENTER()(data_.profileId);
     bool ret = createProfile( true );
     RETURN( ret );
 }
@@ -240,11 +244,9 @@ Settings::createProfile( bool copy )
     ENTER()(copy);
 
     int maxId = 0;
-    for( const auto& profile : profiles_ )
-    {
+    for( const auto& profile : data_.profiles )
         if( profile.id > maxId )
             maxId = profile.id;
-    }
 
     QString name;
     if( !profileNameDialog( name, tr("Create new profile"), "New profile" ) )
@@ -264,7 +266,8 @@ Settings::createProfile( bool copy )
     if( copy )
     {
         data.recentIssues.clear();
-        profiles_.insert( data.id, data );
+        data_.profileId = data.id;
+        data_.profiles.insert( data.id, data );
         profilesModel_.push_back( SimpleItem(data) );
     }
     else
@@ -272,9 +275,8 @@ Settings::createProfile( bool copy )
         loadProfileData( data.id, &data );
     }
 
-    profileId_ = NULL_ID;
-
     // Use the newly created profile
+    profileId_ = NULL_ID;
     QModelIndex modelIndex = profilesModel_.index( profilesModel_.rowCount() - 1 );
     QModelIndex proxyIndex = profilesProxyModel_.mapFromSource( modelIndex );
     profileSelected( proxyIndex.row() );
@@ -299,8 +301,8 @@ Settings::deleteProfile()
     if( ret != QMessageBox::Yes )
         RETURN();
 
-    profileId_ = NULL_ID;
-    profiles_.remove( profileId );
+    data_.profileId = NULL_ID;
+    data_.profiles.remove( profileId );
     QModelIndex modelIndex = profilesProxyModel_.mapToSource( proxyIndex );
     profilesModel_.removeRow( modelIndex.row() );
 
@@ -318,8 +320,7 @@ Settings::deleteProfile()
 void
 Settings::display()
 {
-    ENTER();
-    DEBUG(profileId_);
+    ENTER()(profileId_);
 
     if( profileId_ == NULL_ID )
         load( false );
@@ -327,7 +328,7 @@ Settings::display()
     // Select current profile
     {
         QModelIndexList indices = profilesProxyModel_.match( profilesProxyModel_.index(0, 0),
-                                                             SimpleModel::IdRole, profileId_ );
+                                                             SimpleModel::IdRole, data_.profileId );
         qml("profiles")->setProperty( "currentIndex", -1 );
         if( indices.size() )
             qml("profiles")->setProperty( "currentIndex", indices[0].row() );
@@ -353,7 +354,7 @@ Settings::display()
     updateTrackers();
     updateTimeEntryCustomFields();
 
-    setWindowData( win_.settings );
+    setWindowData( data_.windows.settings );
 
     showNormal();
     raise();
@@ -361,25 +362,10 @@ Settings::display()
     RETURN();
 }
 
-bool
-Settings::isValid( bool displayError )
-{
-    ENTER();
-
-    ProfileData data = *profileData();
-
-    bool result = !data.url.isEmpty() && !data.apiKey.isEmpty();
-
-    if( !result && displayError )
-        message( "URL and API key required", QtCriticalMsg );
-
-    RETURN( result );
-}
-
 void
-Settings::load( const QString profile, const bool apply )
+Settings::load( const bool apply )
 {
-    ENTER()(profile)(apply);
+    ENTER()(apply);
 
     // Window settings
     auto loadWindowData = [&]( Window::Data WindowData::*field, QString name )
@@ -389,11 +375,11 @@ Settings::load( const QString profile, const bool apply )
         QString prefix = QString("windows/%1/%2").arg(name);
 
         if( !settings_.value(prefix.arg("geometry")).isNull() )
-            (win_.*field).geometry = settings_.value(prefix.arg("geometry")).toRect();
+            (data_.windows.*field).geometry = settings_.value(prefix.arg("geometry")).toRect();
         if( !settings_.value(prefix.arg("position")).isNull() )
-            (win_.*field).position = settings_.value(prefix.arg("position")).toPoint();
+            (data_.windows.*field).position = settings_.value(prefix.arg("position")).toPoint();
 
-        DEBUG()((win_.*field).position)((win_.*field).geometry);
+        DEBUG()((data_.windows.*field).position)((data_.windows.*field).geometry);
 
         RETURN();
     };
@@ -404,7 +390,7 @@ Settings::load( const QString profile, const bool apply )
     loadWindowData( &WindowData::settings,      "settings"      );
 
     // Profiles
-    profiles_.clear();
+    data_.profiles.clear();
     profilesModel_.clear();
 
     QStringList groups = settings_.childGroups();
@@ -416,14 +402,10 @@ Settings::load( const QString profile, const bool apply )
 
         int profileId = match.captured(1).toInt();
         loadProfileData( profileId );
-
-        // If a profile was specified, try to load that one
-        if( !profile.isEmpty() && profiles_[profileId].name == profile )
-            profileId_ = profileId;
     }
 
     // If no profile exists, ask to create a new one until a profile was successfully created
-    if( profiles_.count() == 0 )
+    if( data_.profiles.count() == 0 )
     {
         while( !createProfile() );
     }
@@ -431,14 +413,12 @@ Settings::load( const QString profile, const bool apply )
     {
         profilesModel_.sort( SimpleModel::NameRole );
 
-        if( profileId_ == NULL_ID )
+        QVariant profileId = settings_.value("profileId");
+        if( !profileId.isNull() && profileId.toInt()
+            && settings_.childGroups().contains(profileHash(profileId.toInt())) )
         {
-            QVariant profileId = settings_.value("profileId");
-            if( !profileId.isNull() && profileId.toInt()
-                && settings_.childGroups().contains(profileHash(profileId.toInt())) )
-            {
-                profileId_ = profileId.toInt();
-            }
+            profileId_ = profileId.toInt();
+            data_.profileId = profileId.toInt();
         }
     }
 
@@ -446,48 +426,25 @@ Settings::load( const QString profile, const bool apply )
         profileId_ = profilesModel_.at(0).id();
 
     if( apply )
-    {
-        data_ = *profileData();
         applied();
-    }
 
-    DEBUG()(profiles_);
-
-    RETURN();
-}
-
-void
-Settings::load( const bool apply )
-{
-    ENTER();
-
-    load( QString(), apply );
+    DEBUG()(data_.profiles);
 
     RETURN();
 }
 
 void
-Settings::load()
-{
-    ENTER();
-
-    load( QString() );
-
-    RETURN();
-}
-
-void
-Settings::loadProfileData( const int profileId, const ProfileData* initData )
+Settings::loadProfileData( const int profileId, ProfileData* initData )
 {
     ENTER()(profileId)(initData);
-
-    if( initData )
-        DEBUG()(*initData);
 
     ProfileData data;
 
     if( initData )
+    {
+        DEBUG()(*initData);
         data = *initData;
+    }
 
     settings_.beginGroup( profileHash(profileId) );
 
@@ -581,31 +538,55 @@ Settings::loadProfileData( const int profileId, const ProfileData* initData )
 
     DEBUG()(data);
 
-    profiles_.insert( data.id, data );
+    data_.profileId = data.id;
+    data_.profiles.insert( data.id, data );
     profilesModel_.push_back( SimpleItem(data) );
 
     RETURN();
 }
 
-Settings::ProfileData*
+ProfileData*
 Settings::profileData()
 {
     ENTER()(profileId_);
 
-    ProfileData* data = &profiles_[profileId_];
+    ProfileData* data = &data_.profiles[profileId_];
 
     RETURN( data, *data );
+}
+
+ProfileData*
+Settings::profileData( int profileId )
+{
+    ENTER()(profileId);
+    DEBUG()(data_);
+    RETURN( &data_.profiles[profileId] );
 }
 
 QString
 Settings::profileHash( int id )
 {
-    ENTER()(id)(profileId_);
+    ENTER()(id)(data_.profileId);
 
     if( id == NULL_ID )
-        id = profileId_;
+        id = data_.profileId;
 
     RETURN( QString("profile-%1").arg(id) );
+}
+
+int
+Settings::profileId()
+{
+    ENTER()(data_.profileId)(profileId_);
+
+    int profileId;
+
+    if( data_.profileId == NULL_ID )
+        profileId = profileId_;
+    else
+        profileId = data_.profileId;
+
+    RETURN( profileId );
 }
 
 bool
@@ -628,7 +609,7 @@ Settings::profileNameDialog( QString& name, QString title, QString initText )
     }
 
     bool foundName = false;
-    for( const auto& profile : profiles_ )
+    for( const auto& profile : data_.profiles )
     {
         if( profile.name == name )
         {
@@ -645,6 +626,13 @@ Settings::profileNameDialog( QString& name, QString title, QString initText )
     }
 
     RETURN( true );
+}
+
+QMap<int, ProfileData>
+Settings::profiles()
+{
+    ENTER();
+    RETURN( data_.profiles );
 }
 
 void
@@ -688,8 +676,6 @@ Settings::save()
 
     settings_.clear();
 
-    profiles_[profileId_] = data_;
-
     // General settings
     {
         auto saveWindowData = [&]( Window::Data WindowData::*field, QString name )
@@ -698,8 +684,8 @@ Settings::save()
 
             QString prefix = QString("windows/%1/%2").arg(name);
 
-            settings_.setValue( prefix.arg("geometry"), (win_.*field).geometry );
-            settings_.setValue( prefix.arg("position"), (win_.*field).position );
+            settings_.setValue( prefix.arg("geometry"), (data_.windows.*field).geometry );
+            settings_.setValue( prefix.arg("position"), (data_.windows.*field).position );
 
             RETURN();
         };
@@ -709,12 +695,12 @@ Settings::save()
         saveWindowData( &WindowData::mainWindow,    "mainWindow"    );
         saveWindowData( &WindowData::settings,      "settings"      );
 
-        settings_.setValue( "profileId", profileId_ );
+        settings_.setValue( "profileId", data_.profileId );
     }
 
-    DEBUG()(profiles_);
+    DEBUG()(data_.profiles);
 
-    for( const auto& profile: profiles_ )
+    for( const auto& profile: data_.profiles )
         saveProfileData( profile.id );
 
     settings_.sync();
@@ -730,49 +716,49 @@ Settings::saveProfileData( int profileId )
     if( !profileId )
         RETURN();
 
-    ProfileData data = profiles_[profileId];
+    ProfileData* data = &data_.profiles[profileId];
 
     settings_.beginGroup( profileHash(profileId) );
 
-    settings_.setValue( "id", data.id );
-    settings_.setValue( "name", data.name );
+    settings_.setValue( "id", data->id );
+    settings_.setValue( "name", data->name );
 
     // Connection
     {
-        settings_.setValue( "apikey",            data.apiKey );
-        settings_.setValue( "checkConnection",   data.checkConnection );
-        settings_.setValue( "ignoreSslErrors",   data.ignoreSslErrors );
-        settings_.setValue( "numRecentIssues",   data.numRecentIssues );
-        settings_.setValue( "url",               data.url );
-        settings_.setValue( "useCustomFields",   data.useCustomFields );
-        settings_.setValue( "workedOnId",        data.workedOnId );
-        settings_.setValue( "defaultTrackerId",  data.defaultTrackerId );
-        settings_.setValue( "startTimeFieldId",  data.startTimeFieldId );
-        settings_.setValue( "endTimeFieldId",    data.endTimeFieldId );
+        settings_.setValue( "apikey",            data->apiKey );
+        settings_.setValue( "checkConnection",   data->checkConnection );
+        settings_.setValue( "ignoreSslErrors",   data->ignoreSslErrors );
+        settings_.setValue( "numRecentIssues",   data->numRecentIssues );
+        settings_.setValue( "url",               data->url );
+        settings_.setValue( "useCustomFields",   data->useCustomFields );
+        settings_.setValue( "workedOnId",        data->workedOnId );
+        settings_.setValue( "defaultTrackerId",  data->defaultTrackerId );
+        settings_.setValue( "startTimeFieldId",  data->startTimeFieldId );
+        settings_.setValue( "endTimeFieldId",    data->endTimeFieldId );
 
-        settings_.setValue( "activity", data.activityId );
-        settings_.setValue( "issue",    data.issueId );
-        settings_.setValue( "project",  data.projectId );
+        settings_.setValue( "activity", data->activityId );
+        settings_.setValue( "issue",    data->issueId );
+        settings_.setValue( "project",  data->projectId );
     }
 
     // Shortcuts
-    settings_.setValue("shortcutCreateIssue", data.shortcutCreateIssue );
-    settings_.setValue("shortcutSelectIssue", data.shortcutSelectIssue );
-    settings_.setValue("shortcutStartStop",   data.shortcutStartStop );
-    settings_.setValue("shortcutToggle",      data.shortcutToggle );
+    settings_.setValue("shortcutCreateIssue", data->shortcutCreateIssue );
+    settings_.setValue("shortcutSelectIssue", data->shortcutSelectIssue );
+    settings_.setValue("shortcutStartStop",   data->shortcutStartStop );
+    settings_.setValue("shortcutToggle",      data->shortcutToggle );
 
     // Interface
-    settings_.setValue( "useSystemTrayIcon", data.useSystemTrayIcon );
-    settings_.setValue( "closeToTray", data.closeToTray );
+    settings_.setValue( "useSystemTrayIcon", data->useSystemTrayIcon );
+    settings_.setValue( "closeToTray", data->closeToTray );
 
     // Recently used issues for the data
     {
         settings_.beginWriteArray( "recentIssues" );
-        for( int i = 0; i < data.recentIssues.size(); ++i )
+        for( int i = 0; i < data->recentIssues.size(); ++i )
         {
             settings_.setArrayIndex( i );
-            settings_.setValue( "id",      data.recentIssues.at(i).id );
-            settings_.setValue( "subject", data.recentIssues.at(i).subject );
+            settings_.setValue( "id",      data->recentIssues.at(i).id );
+            settings_.setValue( "subject", data->recentIssues.at(i).subject );
         }
         settings_.endArray();
     }
@@ -781,6 +767,29 @@ Settings::saveProfileData( int profileId )
 
     RETURN();
 }
+
+void
+Settings::setProfileId( int profileId )
+{
+    ENTER()(profileId);
+
+    data_.profileId = profileId;
+
+    RETURN();
+}
+
+void
+Settings::setProfileId( QString profileName )
+{
+    ENTER()(profileName);
+
+    for( const auto& profile : data_.profiles )
+        if( profile.name == profileName )
+            data_.profileId = profile.id;
+
+    RETURN();
+}
+
 
 void
 Settings::toggleCustomFields()
@@ -797,7 +806,7 @@ Settings::updateIssueStatuses()
 {
     ENTER();
 
-    if( !isValid() )
+    if( !profileData()->isValid() )
     {
         issueStatusModel_.clear();
         issueStatusModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
@@ -816,7 +825,7 @@ Settings::updateIssueStatuses()
     else
         redmine_->setCheckSsl( true );
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -870,7 +879,7 @@ Settings::updateTimeEntryCustomFields()
 
     bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
 
-    if( !isValid() || !useCustomFields )
+    if( !profileData()->isValid() || !useCustomFields )
     {
         QString err;
 
@@ -905,7 +914,7 @@ Settings::updateTimeEntryCustomFields()
     else
         redmine_->setCheckSsl( true );
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -974,7 +983,7 @@ Settings::updateTrackers()
 {
     ENTER();
 
-    if( !isValid() )
+    if( !profileData()->isValid() )
     {
         trackerModel_.clear();
         trackerModel_.push_back( SimpleItem(NULL_ID, "URL and API key required") );
@@ -993,7 +1002,7 @@ Settings::updateTrackers()
     else
         redmine_->setCheckSsl( true );
 
-    if( !mainWindow_->connected() )
+    if( !connected() )
         RETURN();
 
     ++callbackCounter_;
@@ -1037,4 +1046,11 @@ Settings::updateTrackers()
     } );
 
     RETURN();
+}
+
+WindowData*
+Settings::windowData()
+{
+    ENTER();
+    RETURN( &data_.windows, data_.windows );
 }
