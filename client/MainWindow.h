@@ -96,6 +96,9 @@ private:
     /// Recently opened issues
     IssueModel recentIssues_;
 
+    /// Last time that the counter diff has been updated, in UTC
+    QDateTime lastCounterUpdated_;
+
     /// Last time that the timer has been started, in UTC
     QDateTime lastStarted_;
 

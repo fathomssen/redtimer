@@ -257,7 +257,7 @@ MainWindow::counterNoDiff()
 {
     ENTER();
 
-    int value = lastStarted_.secsTo(QDateTime::currentDateTimeUtc());
+    int value = lastCounterUpdated_.secsTo(QDateTime::currentDateTimeUtc());
 
     RETURN( value );
 }
@@ -1016,6 +1016,7 @@ MainWindow::startTimer()
 
     timer_->start();
 
+    lastCounterUpdated_ = QDateTime::currentDateTimeUtc();
     lastStarted_ = QDateTime::currentDateTimeUtc();
 
     // Set the start/stop button icon to stop
@@ -1039,8 +1040,8 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     ENTER();
 
     QDateTime cur = QDateTime::currentDateTimeUtc();
-    counterDiff_ += lastStarted_.secsTo( cur );
-    lastStarted_ = cur;
+    counterDiff_ += lastCounterUpdated_.secsTo( cur );
+    lastCounterUpdated_ = cur;
 
     if( !timer_->isActive() && counter() == 0 )
     {
