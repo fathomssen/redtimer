@@ -33,3 +33,6 @@ popd
 sync
 hdiutil detach "${DEVICE}"
 hdiutil convert tmp.dmg -format UDZO -imagekey zlib-level=9 -o RedTimerClient.dmg
+
+# Generate ZIP file
+zip -r -9 RedTimerClient.zip RedTimerClient.app

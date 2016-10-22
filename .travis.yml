@@ -154,10 +154,12 @@ before_deploy:
   - run $isUbuntu chmod 755 deploy.sh
   - run $isUbuntu $DOCKER /build/deploy.sh
   # OS X
-  - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}.dmg
+  - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}
   - run $isOsX cd client
   - run $isOsX ../build/deploy.osx.sh
-  - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE
+  - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE.dmg
+  - run $isOsX mv RedTimerClient.zip $DEPLOYFILE.zip
+  - run $isOsX export DEPLOYFILE=$DEPLOYFILE.*
 
 deploy:
   provider: releases
