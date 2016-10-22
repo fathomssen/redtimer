@@ -148,4 +148,4 @@ fi
 
 distfile=$redtimer.tar.bz2
 
-tar jcf $distfile -C $distdir/.. $redtimer
+tar jcf -9 $distfile -C $distdir/.. $redtimer

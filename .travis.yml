@@ -158,7 +158,7 @@ before_deploy:
   - run $isOsX cd client
   - run $isOsX ../build/deploy.osx.sh
   - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE.dmg
-  - run $isOsX mv RedTimerClient.zip $DEPLOYFILE.zip
+  - run $isOsX mv RedTimerClient.tar.bz2 $DEPLOYFILE.tar.bz2
   - run $isOsX export DEPLOYFILE=$DEPLOYFILE.*
 
 deploy:
