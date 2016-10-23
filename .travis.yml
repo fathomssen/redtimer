@@ -85,7 +85,7 @@ after_success:
   - run $isLinux mkdir dist
   - run $isLinux cp client/RedTimerClient dist
   - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -appimage -bundle-non-qt-libs -verbose=2
-  - run mv dist.AppImage $DEPLOYFILE
+  - run $isLinux mv dist.AppImage $DEPLOYFILE
   # OS X
   - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}
   - run $isMacOs export PREFIX=redtimer-${TRAVIS_TAG}-macos-${distver}-${distname}
