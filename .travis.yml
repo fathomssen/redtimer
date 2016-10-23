@@ -6,51 +6,17 @@ matrix:
     # Workaround to prevent building in an empty environment
     - compiler: clang
   include:
-    ####################### Ubuntu #######################
-    ###
-    ### Ubuntu 14.04 x86_64, Qt 5.6
-    ###
+    ####################### Linux #######################
     - os: linux
       dist: trusty
       sudo: required
+      compiler: gcc
       env:
-        - dist: ubuntu
-        - distver: "14.04"
-        - arch: x86_64
-        - init: /sbin/init
-        - qtenv: /opt/qt56/bin/qt56-env.sh
-        - qtpkg: "'qt56base qt56quickcontrols qt56quickcontrols2 qt56svg qt56x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt561-trusty
-        - deployscript: "'build/deploy.ubuntu.sh -qt'"
-    ###
-    ### Ubuntu 16.04 x86_64, Qt 5.5
-    ###
-    - os: linux
-      dist: trusty
-      sudo: required
-      env:
-        - dist: ubuntu
-        - distver: "16.04"
-        - arch: x86_64
-        - init: /sbin/init
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
-        - qmakeopt: "-qt5"
-        - deployscript: build/deploy.ubuntu.sh
-    ###
-    ### Ubuntu 16.10 x86_64, Qt 5.6
-    ###
-    - os: linux
-      dist: trusty
-      sudo: required
-      env:
-        - dist: ubuntu
-        - distver: "16.10"
-        - arch: x86_64
-        - init: "'sleep 10m'"
-        - qtpkg: "'qtbase5-dev qtdeclarative5-dev libqt5svg5-dev libqt5x11extras5-dev qtbase5-private-dev'"
-        - qmakeopt: "-qt5"
-        - deployscript: build/deploy.ubuntu.sh
-    ####################### OS X #######################
+        - dist: AppImage
+        - qtenv: /opt/qt57/bin/qt57-env.sh
+        - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt57-trusty
+    ####################### macOS #######################
     ###
     ### OS X 10.10
     ###
@@ -68,7 +34,7 @@ matrix:
         - distver: "10.11"
         - distname: "el-capitan"
     ###
-    ### OS X 10.12
+    ### macOS 10.12
     ###
     - os: osx
       osx_image: xcode8
@@ -90,76 +56,41 @@ before_install:
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - export isNewOsX=$( [[ "$isOsX" == "true" && "${distver}" < "10.12" ]] && echo true || echo false )
-  - export isUbuntu=$( [[ "$isLinux" == "true" && "${dist}" == "ubuntu" ]] && echo true || echo false )
-  - export hasQtEnv=$( [[ -n "${qtenv}" ]] && echo true || echo false )
-  - export hasQtPpa=$( [[ "$isUbuntu" == "true" && -n "${qtppa}" ]] && echo true || echo false )
-  - export hasQtPkg=$( [[ "$isUbuntu" == "true" && -n "${qtpkg}" ]] && echo true || echo false )
+  - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Linux
-  - run $isLinux docker pull ${dist}:${distver}
-  - run $isLinux export CONTAINER=$(run $isLinux docker run --detach --privileged --volume="${PWD}":/build:rw ${dist}:${distver} ${init})
-  - run $isLinux export DOCKER="docker exec -t ${CONTAINER}"
-  ### Ubuntu
-  - run $hasQtPpa $DOCKER apt-get update
-  - run $hasQtPpa $DOCKER apt-get install -y software-properties-common
-  - run $hasQtPpa $DOCKER add-apt-repository -y ${qtppa}
-  - run $isUbuntu $DOCKER apt-get update
+  - run $isLinux add-apt-repository -y ${qtppa}
+  - run $isLinux apt-get update
   ### OS X
-  - run $isOsX brew untap caskroom/homebrew-cask
-  - run $isOsX brew uninstall --force brew-cask
   - run $isOsX brew update
-  - run $isOsX brew cleanup
-  - run $isOsX brew cask cleanup
 
 install:
-  ### Ubuntu
+  ### Linux
   # Install dependencies
-  - run $hasQtPkg $DOCKER apt-get install -y ${qtpkg}
-  - run $isUbuntu $DOCKER apt-get install -y lsb-release
-  - run $isUbuntu $DOCKER apt-get install -y build-essential
+  - run $isLinux apt-get install -y ${qtpkg}
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
   - run $isOsX brew linkapps qt5
   - run $isOsX brew link --force qt5
-  - run $isNewOsX build/fixQtForXcode8.sh
 
 script:
-  - export USER_ID=$(id -u)
-  - export GROUP_ID=$(id -g)
-  - echo "#!/bin/bash" >> build.sh
-  - echo >> build.sh
-  - echo "set -x" >> build.sh
-  - run $hasQtEnv echo "source ${qtenv}" >> build.sh
-  - echo "set -ex" >> build.sh
-  - run $isUbuntu echo "cd /build" >> build.sh
-  - echo "qmake ${qmakeopt} -r" >> build.sh
-  - echo "make" >> build.sh
-  - echo "chown -R ${USER_ID}:${GROUP_ID} ." >> build.sh
-  - chmod 755 build.sh
-  - run $isUbuntu $DOCKER /build/build.sh
-  - run $isOsX ./build.sh
+  - run $isLinux source ${qtenv}
+  - qmake -r
+  - make
 
-before_deploy:
-  - test $TRAVIS_TEST_RESULT = 0
+after_success:
   ### The following commands have to define a $DEPLOYFILE
-  # Ubuntu
-  - run $isUbuntu export VERSION="redtimer-${TRAVIS_TAG}-${dist}-${distver}-${arch}"
-  - run $isUbuntu export DEPLOYFILE="${VERSION}.tar.bz2"
-  - run $isUbuntu echo "#!/bin/bash" >> deploy.sh
-  - run $isUbuntu echo "set -ex" >> deploy.sh
-  - run $isUbuntu echo "cd /build" >> deploy.sh
-  - run $isUbuntu echo "${deployscript} ${VERSION}" >> deploy.sh
-  - run $isUbuntu echo "chown -R $USER_ID:$GROUP_ID ." >> deploy.sh
-  - run $isUbuntu chmod 755 deploy.sh
-  - run $isUbuntu $DOCKER /build/deploy.sh
+  # Linux
+  - run $isLinux export DEPLOYFILE=redtimer-${TRAVIS_TAG}-linux-x86_64.AppImage
+  - run $isLinux mkdir dist
+  - run $isLinux cp client/RedTimerClient dist
+  - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -appimage -bundle-non-qt-libs -verbose=2
+  - run mv dist.AppImage $DEPLOYFILE
   # OS X
-  - run $isOsX export DEPLOYFILE=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}
-  - run $isOsX cd client
-  - run $isOsX ../build/deploy.osx.sh
-  - run $isOsX mv RedTimerClient.dmg $DEPLOYFILE.dmg
-  - run $isOsX mv RedTimerClient.tar.bz2 $DEPLOYFILE.tar.bz2
-  - run $isOsX export DEPLOYFILE=$DEPLOYFILE.*
+  - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}
+  - run $isMacOs export PREFIX=redtimer-${TRAVIS_TAG}-macos-${distver}-${distname}
+  - run $isOsX .travis/deploy.osx.sh client $PREFIX
+  - run $isOsX export DEPLOYFILE=$PREFIX.*
 
 deploy:
   provider: releases

@@ -8,5 +8,5 @@
 	path = client/qxtglobalshortcut5
 	url = https://github.com/fathomssen/qxtglobalshortcut5.git
 [submodule "build/macdeployqtfix"]
-	path = build/macdeployqtfix
+	path = .travis/macdeployqtfix
 	url = https://github.com/aurelien-rainone/macdeployqtfix.git

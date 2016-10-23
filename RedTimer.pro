@@ -10,7 +10,7 @@ libqtredmine.file = libqtredmine/qtredmine.pro
 client.depends = libqtredmine
 
 DISTFILES += \
-    build/* \
+    .travis/* \
     images/* \
     .travis.yml \
     appveyor.yml \
