@@ -10,7 +10,6 @@ matrix:
     - os: linux
       dist: trusty
       sudo: required
-      compiler: gcc
       env:
         - dist: AppImage
         - qtenv: /opt/qt57/bin/qt57-env.sh
@@ -59,6 +58,7 @@ before_install:
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
+  - run $isLinux sudo add-apt-repository -y "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-3.9 main"
   - run $isLinux sudo apt-get update
   ### OS X
   - run $isOsX brew update
@@ -67,6 +67,7 @@ install:
   ### Linux
   # Install dependencies
   - run $isLinux sudo apt-get install -y ${qtpkg}
+  - run $isLInux sudo apt-get install -y clang-3.9 lldb-3.9
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
