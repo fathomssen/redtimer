@@ -58,15 +58,15 @@ before_install:
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Linux
-  - run $isLinux add-apt-repository -y ${qtppa}
-  - run $isLinux apt-get update
+  - run $isLinux sudo add-apt-repository -y ${qtppa}
+  - run $isLinux sudo apt-get update
   ### OS X
   - run $isOsX brew update
 
 install:
   ### Linux
   # Install dependencies
-  - run $isLinux apt-get install -y ${qtpkg}
+  - run $isLinux sudo apt-get install -y ${qtpkg}
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
