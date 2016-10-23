@@ -67,7 +67,7 @@ install:
   ### Linux
   # Install dependencies
   - run $isLinux sudo apt-get install -y ${qtpkg}
-  - run $isLInux sudo apt-get install -y clang-3.9 lldb-3.9
+  - run $isLinux sudo apt-get install -y clang-3.9 lldb-3.9
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
