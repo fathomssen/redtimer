@@ -123,6 +123,13 @@ private:
     double counter();
 
     /**
+     * @brief Get the currently displayed time
+     *
+     * @return Currently displayed time
+     */
+    double counterGui();
+
+    /**
      * @brief Get the currently tracked time without the difference
      *
      * @return Currently tracked time in seconds

@@ -253,6 +253,19 @@ MainWindow::counter()
 }
 
 double
+MainWindow::counterGui()
+{
+    ENTER();
+
+    int value = 0;
+    QTime time = SimpleRedmineClient::getTime( qml("counter")->property("text").toString() );
+    if( time.isValid() )
+        value = time.hour()*3600 + time.minute()*60 + time.second();
+
+    RETURN( value );
+}
+
+double
 MainWindow::counterNoDiff()
 {
     ENTER();
@@ -782,7 +795,7 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
         qml("connectionStatus")->setProperty("tooltip", "Connection established" );
         qml("connectionStatusStyle")->setProperty("color", "lightgreen" );
 
-        if( !timer_->isActive() && counter() != 0 )
+        if( !timer_->isActive() && counterGui() != 0 )
             stop( false );
     }
     else
@@ -1043,7 +1056,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     counterDiff_ += lastCounterUpdated_.secsTo( cur );
     lastCounterUpdated_ = cur;
 
-    if( !timer_->isActive() && counter() == 0 )
+    if( !timer_->isActive() && counterGui() == 0 )
     {
         if( cb )
             cb( true, NULL_ID, (RedmineError)0, QStringList() );
