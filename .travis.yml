@@ -83,7 +83,7 @@ after_success:
   - run $isLinux mkdir dist
   - run $isLinux cp client/RedTimerClient dist
   - run $isLinux cp client/icons/clock_red.svg dist
-  - run $isLinux cp .travis/redtimer.desktop dist
+  - run $isLinux cp .travis/RedTimerClient.desktop dist
   - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -qmldir=client/qml -appimage -bundle-non-qt-libs -verbose=2
   - run $isLinux rm dist.AppImage
   - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -qmldir=client/qml -appimage -bundle-non-qt-libs -verbose=2
