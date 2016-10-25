@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=RedTimer
+Exec=AppRun %F
+Icon=clock_red
+Comment=Redmine Time Tracker
