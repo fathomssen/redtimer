@@ -83,11 +83,11 @@ after_success:
   ### The following commands have to define a $DEPLOYFILE
   # Linux
   - run $isLinux export DEPLOYFILE=redtimer-${TRAVIS_TAG}-linux-x86_64.AppImage
-  - run $isLinux .travis/deploy.linux.sh client $DEPLOYFILE
+  - run $isLinux .travis/deploy.linux.sh $DEPLOYFILE
   # OS X
   - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-${dist}-${distver}-${distname}
-  - run $isOsX .travis/deploy.osx.sh client $PREFIX
-  - run $isOsX export DEPLOYFILE=client/$PREFIX.*
+  - run $isOsX .travis/deploy.osx.sh $PREFIX
+  - run $isOsX export DEPLOYFILE=$PREFIX.*
 
 deploy:
   provider: releases

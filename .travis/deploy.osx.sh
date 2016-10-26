@@ -1,20 +1,15 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <base directory> <output prefix>"
-  exit 1
-fi
-
-if [ ! -d $1 ]; then
-  echo "$1 not found or not a directory"
+if [ $# -ne 1 ]; then
+  echo "Usage: $0 <output prefix>"
   exit 1
 fi
 
 export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
-export BASEDIR=$1
-export PREFIX=$2
+export ROOTDIR=$TRAVISDIR/..
+export PREFIX=$ROOTDIR/$1
 
-cd $BASEDIR
+cd $ROOTDIR/client
 
 macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
 export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
