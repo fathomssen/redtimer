@@ -21,6 +21,7 @@ matrix:
     - os: osx
       osx_image: xcode7.1
       env:
+        - dist: "osx"
         - distver: "10.10"
         - distname: "yosemite"
     ###
@@ -29,6 +30,7 @@ matrix:
     - os: osx
       osx_image: xcode7.3
       env:
+        - dist: "osx"
         - distver: "10.11"
         - distname: "el-capitan"
     ###
@@ -37,6 +39,7 @@ matrix:
     - os: osx
       osx_image: xcode8
       env:
+        - dist: "macos"
         - distver: "10.12"
         - distname: "sierra"
 
@@ -80,17 +83,9 @@ after_success:
   ### The following commands have to define a $DEPLOYFILE
   # Linux
   - run $isLinux export DEPLOYFILE=redtimer-${TRAVIS_TAG}-linux-x86_64.AppImage
-  - run $isLinux mkdir dist
-  - run $isLinux cp client/RedTimerClient dist
-  - run $isLinux cp client/icons/clock_red.svg dist
-  - run $isLinux cp .travis/RedTimerClient.desktop dist
-  - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -qmldir=client/qml -appimage -bundle-non-qt-libs -verbose=2
-  - run $isLinux rm dist.AppImage
-  - run $isLinux .travis/linuxdeployqt.AppImage dist/RedTimerClient -qmldir=client/qml -appimage -bundle-non-qt-libs -verbose=2
-  - run $isLinux mv dist.AppImage $DEPLOYFILE
+  - run $isLinux .travis/deploy.linux.sh client $DEPLOYFILE
   # OS X
-  - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-osx-${distver}-${distname}
-  - run $isMacOs export PREFIX=redtimer-${TRAVIS_TAG}-macos-${distver}-${distname}
+  - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-${dist}-${distver}-${distname}
   - run $isOsX .travis/deploy.osx.sh client $PREFIX
   - run $isOsX export DEPLOYFILE=client/$PREFIX.*
 

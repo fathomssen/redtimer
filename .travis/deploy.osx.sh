@@ -10,16 +10,17 @@ if [ ! -d $1 ]; then
   exit 1
 fi
 
-export BASEDIR=$(cd "$(dirname "$0")"; pwd)
+export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
+export BASEDIR=$1
 export PREFIX=$2
 
-cd $1
+cd $BASEDIR
 
 macdeployqt RedTimerClient.app -appstore-compliant -qmldir=qml
 export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimerClient.app/Contents/PlugIns
-python $BASEDIR/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
-cp -a $BASEDIR/Info.plist RedTimerClient.app/Contents
+python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimerClient.app/Contents/MacOS/RedTimerClient $QTDIR/
+cp -a $TRAVISDIR/Info.plist RedTimerClient.app/Contents
 sed -i '' "s/__VERSION__/${TRAVIS_TAG}/" RedTimerClient.app/Contents/Info.plist
 
 # Thanks to https://medium.com/juan-cruz-viotti/how-to-code-sign-os-x-electron-apps-in-travis-ci-6b6a0756c04a#.x84x807hk
