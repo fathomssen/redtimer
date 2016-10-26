@@ -21,8 +21,8 @@ cp client/icons/clock_red.svg dist
 cp .travis/RedTimerClient.desktop dist
 
 # Include SVG icon engine
-mkdir -p dist/iconengines
-cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/iconengines
+mkdir -p dist/plugins/iconengines
+cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/plugins/iconengines
 
 # First run
 .travis/linuxdeployqt.AppImage dist/RedTimerClient -qmldir=client/qml -appimage -bundle-non-qt-libs -verbose=2
