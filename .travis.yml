@@ -81,14 +81,14 @@ script:
 
 after_success:
   ### The following commands have to define a $DEPLOYFILE
-  - export VERSION=${TRAVIS_TAG#v}
   # Linux
-  - run $isLinux export PREFIX=redtimer-${VERSION}-linux-x86_64
+  - run $isLinux export PREFIX=redtimer-${TRAVIS_TAG}-linux-x86_64
   - run $isLinux sudo apt-get install -y --force-yes ruby-dev rpm
   - run $isLinux sudo gem install fpm
-  - run $isLinux .travis/deploy.linux.sh $DEPLOYFILE $VERSION
+  - run $isLinux export VERSION=${TRAVIS_TAG#v}
+  - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
   # OS X
-  - run $isOsX export PREFIX=redtimer-${VERSION}-${dist}-${distver}-${distname}
+  - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-${dist}-${distver}-${distname}
   - run $isOsX .travis/deploy.osx.sh $PREFIX
   # Both
   - export DEPLOYFILE=$PREFIX.*

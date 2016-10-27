@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <output prefix> <version>"
+if [ $# -lt 1 -o $# -gt 2 ]; then
+  echo "Usage: $0 <output prefix> [<version for .deb and .rpm>]"
   exit 1
 fi
 
@@ -37,6 +37,11 @@ cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/opt/redtimer/plugins/ico
 mv dist/opt/redtimer.AppImage $PREFIX.AppImage
 
 ##################### DEB/RPM creation #####################
+
+if [ -z "$VERSION" ]; then
+  echo "Skip building .deb and .rpm"
+  exit 0
+fi
 
 mkdir -p dist/usr/bin
 mkdir -p dist/usr/share/applications
