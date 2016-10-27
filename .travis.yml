@@ -60,7 +60,7 @@ before_install:
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
-  - run $isLinux sudo apt-add-repository ppa:brightbox/ruby-ng
+  - run $isLinux sudo apt-add-repository -y ppa:brightbox/ruby-ng
   - run $isLinux sudo apt-get update
   ### OS X
   - run $isOsX brew update
