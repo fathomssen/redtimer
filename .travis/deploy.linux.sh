@@ -39,8 +39,8 @@ mv dist/opt/redtimer.AppImage $PREFIX.AppImage
 ##################### DEB/RPM creation #####################
 
 if [ -z "$VERSION" ]; then
-  echo "Skip building .deb and .rpm"
-  exit 0
+  export VERSION="0.1-pre0"
+  echo "Building dummy version $VERSION"
 fi
 
 mkdir -p dist/usr/bin
