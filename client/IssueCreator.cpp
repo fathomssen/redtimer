@@ -852,7 +852,7 @@ IssueCreator::save()
         }
         else
         {
-            message( tr("Invalid time format, expecting hh:mm:ss "), QtCriticalMsg );
+            message( tr("Invalid time format, expecting hh:mm:ss"), QtCriticalMsg );
             RETURN();
         }
     }
@@ -874,7 +874,14 @@ IssueCreator::save()
 
     issue.description = qml("description")->property("text").toString();
     issue.startDate = QDate::currentDate();
+
     issue.dueDate = qml("dueDate")->property("text").toDate();
+    if( issue.dueDate.isValid() && issue.dueDate < QDate::currentDate() )
+    {
+        message( tr("Due date may not be earlier than today"), QtCriticalMsg );
+        RETURN();
+    }
+
     issue.subject = qml("subject")->property("text").toString();
 
     for( const auto& customField : customFields_ )
