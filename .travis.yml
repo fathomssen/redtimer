@@ -84,8 +84,11 @@ after_success:
   # Linux
   - run $isLinux export PREFIX=redtimer-${TRAVIS_TAG}-linux-x86_64
   - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
-  - run $isLinux rvm use 2.1.9
-  - run $isLinux sudo gem install fpm
+  - run $isLinux git clone https://github.com/jordansissel/fpm.git
+  - run $isLinux cd fpm
+  - run $isLinux bundle install
+  - run $isLinux make
+  - run $isLinux sudo make install
   - run $isLinux export VERSION=${TRAVIS_TAG#v}
   - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
   # OS X
