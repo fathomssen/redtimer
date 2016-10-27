@@ -84,9 +84,9 @@ after_success:
   ### The following commands have to define a $DEPLOYFILE
   # Linux
   - run $isLinux export PREFIX=redtimer-${TRAVIS_TAG}-linux-x86_64
-  - run $isLinux sudo apt-get install -y --force-yes ruby2.3 ruby2.3-dev build-essential rpm
-  - yes yes | rvm implode
-  - run $isLinux sudo gem2.3 install fpm
+  - run $isLinux sudo apt-get install -y --force-yes ruby2.2 ruby2.2-dev build-essential rpm
+  - run $isLinux rvm use 2.2.5
+  - run $isLinux sudo gem2.2 install fpm
   - run $isLinux export VERSION=${TRAVIS_TAG#v}
   - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
   # OS X
