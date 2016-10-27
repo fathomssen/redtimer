@@ -89,6 +89,7 @@ after_success:
   - run $isLinux bundle install
   - run $isLinux make
   - run $isLinux sudo make install
+  - run $isLinux cd ..
   - run $isLinux export VERSION=${TRAVIS_TAG#v}
   - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
   # OS X
