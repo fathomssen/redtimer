@@ -214,7 +214,7 @@ Settings::cancel()
     close();
 
     // Revert edit changes
-    load( false );
+    load( false, false );
 
     RETURN();
 }
@@ -239,7 +239,7 @@ Settings::copyProfile()
 }
 
 bool
-Settings::createProfile( bool copy )
+Settings::createProfile( bool copy, bool force )
 {
     ENTER()(copy);
 
@@ -248,8 +248,8 @@ Settings::createProfile( bool copy )
         if( profile.id > maxId )
             maxId = profile.id;
 
-    QString name;
-    if( !profileNameDialog( name, tr("Create new profile"), "New profile" ) )
+    QString name = "New profile";
+    if( !profileNameDialog( name, tr("Create new profile"), name ) && !force )
         RETURN( false );
 
     // Save to profiles map and model
@@ -362,8 +362,15 @@ Settings::display()
     RETURN();
 }
 
+bool
+Settings::initialised()
+{
+    ENTER();
+    RETURN( initialised_ );
+}
+
 void
-Settings::load( const bool apply )
+Settings::load( const bool apply, const bool createNewProfile )
 {
     ENTER()(apply);
 
@@ -407,7 +414,8 @@ Settings::load( const bool apply )
     // If no profile exists, ask to create a new one until a profile was successfully created
     if( data_.profiles.count() == 0 )
     {
-        while( !createProfile() );
+        if( createNewProfile )
+            while( !createProfile(false, true) );
     }
     else
     {
@@ -422,7 +430,7 @@ Settings::load( const bool apply )
         }
     }
 
-    if( profileId_ == NULL_ID )
+    if( profileId_ == NULL_ID && profilesModel_.rowCount() )
         profileId_ = profilesModel_.at(0).id();
 
     if( apply )
@@ -595,13 +603,13 @@ Settings::profileNameDialog( QString& name, QString title, QString initText )
     ENTER();
 
     bool ok;
-    name = QInputDialog::getText( qobject_cast<QWidget*>(this), title, tr("Profile name:"),
-                                  QLineEdit::Normal, initText, &ok );
+    QString newProfile = QInputDialog::getText( qobject_cast<QWidget*>(this), title, tr("Profile name:"),
+                                                QLineEdit::Normal, initText, &ok );
 
     if( !ok )
         RETURN( false );
 
-    if( name.isEmpty() )
+    if( newProfile.isEmpty() )
     {
         QMessageBox::critical( qobject_cast<QWidget*>(this), tr("Create new profile"),
                                tr("No profile name specified. Aborting.") );
@@ -611,7 +619,7 @@ Settings::profileNameDialog( QString& name, QString title, QString initText )
     bool foundName = false;
     for( const auto& profile : data_.profiles )
     {
-        if( profile.name == name )
+        if( profile.name == newProfile )
         {
             foundName = true;
             break;
@@ -621,9 +629,11 @@ Settings::profileNameDialog( QString& name, QString title, QString initText )
     if( foundName )
     {
         QMessageBox::critical( qobject_cast<QWidget*>(this), title,
-                               tr("Profile '%1' already exists. Aborting.").arg(name) );
+                               tr("Profile '%1' already exists. Aborting.").arg(newProfile) );
         RETURN( false );
     }
+
+    name = newProfile;
 
     RETURN( true );
 }

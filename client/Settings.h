@@ -57,6 +57,9 @@ private:
     /// Redmine connection object
     qtredmine::SimpleRedmineClient* redmine_;
 
+    /// Initialised
+    bool initialised_ = false;
+
     /// Application settings
     QSettings settings_;
 
@@ -137,8 +140,9 @@ public:
      * @brief Load settings from settings file
      *
      * @param apply Apply the loaded settings
+     * @param createNewProfile Create new profile if none exists
      */
-    void load( const bool apply = true );
+    void load( const bool apply = true , const bool createNewProfile = true );
 
     /**
      * @brief Get the specified profile data
@@ -223,10 +227,11 @@ public slots:
      * @brief Create a new profile
      *
      * @param copy Copy current profile
+     * @param force If no profile name was specified, use the default
      *
      * @return true if profile was created successfully, false otherwise
      */
-    bool createProfile( bool copy = false );
+    bool createProfile( bool copy = false, bool force = false);
 
     /**
      * @brief Cancel and close
@@ -242,6 +247,13 @@ public slots:
      * @brief Display the settings dialog
      */
     void display();
+
+    /**
+     * @brief Settings have been initialised
+     *
+     * @return true if settings have been initialised, false otherwise
+     */
+    bool initialised();
 
     /**
      * @brief A profile has been selected

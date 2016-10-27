@@ -21,7 +21,7 @@ struct ProfileData
 
     /// @}
 
-    /// @name GUI settings
+    /// @name Settings GUI
     /// @{
 
     /// Redmine API key

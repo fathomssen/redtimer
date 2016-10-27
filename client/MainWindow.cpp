@@ -142,6 +142,8 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     loadProfiles();
 
+    initialised_ = true;
+
     RETURN();
 }
 
@@ -257,6 +259,9 @@ MainWindow::counterGui()
 {
     ENTER();
 
+    if( !qml("counter") )
+        RETURN( 0 );
+
     int value = 0;
     QTime time = SimpleRedmineClient::getTime( qml("counter")->property("text").toString() );
     if( time.isValid() )
@@ -366,10 +371,16 @@ MainWindow::eventFilter( QObject* obj, QEvent* event )
 void
 MainWindow::exit()
 {
-    ENTER();
+    ENTER()(initialised_);
+
+    if( !initialised_ )
+    {
+        app_->quit();
+        RETURN();
+    }
 
     // Show warning on close and if timer is running
-    if( timer_->isActive() )
+    if( timer_->isActive() || counterGui() != 0 )
     {
         DEBUG() << "Received close event while timer is running";
 

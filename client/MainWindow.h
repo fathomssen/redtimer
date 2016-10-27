@@ -51,6 +51,9 @@ private:
     QxtGlobalShortcut* shortcutStartStop_;
     QxtGlobalShortcut* shortcutToggle_;
 
+    /// RedTimer has been initialised
+    bool initialised_ = false;
+
     /// System tray icon
     QSystemTrayIcon* trayIcon_ = nullptr;
 
@@ -218,14 +221,6 @@ private slots:
     void display();
 
     /**
-     * @brief Exit the application
-     *
-     * If the timer is running, a warning is displayed which gives the user the opportunity to abort exiting,
-     * to save the tracked time or to discard the tracked time.
-     */
-    void exit();
-
-    /**
      * @brief Open the issue creator and load issue
      */
     void createIssue();
@@ -383,6 +378,13 @@ private slots:
     void updateTitle();
 
 public slots:
+    /**
+     * @brief Exit the application
+     *
+     * If the timer is running, a warning is displayed which gives the user the opportunity to abort exiting,
+     * to save the tracked time or to discard the tracked time.
+     */
+    void exit();
 
     /**
      * @brief Stop time tracking
