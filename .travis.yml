@@ -60,7 +60,6 @@ before_install:
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
-  - run $isLinux sudo apt-add-repository -y ppa:brightbox/ruby-ng
   - run $isLinux sudo apt-get update
   ### OS X
   - run $isOsX brew update
@@ -84,9 +83,9 @@ after_success:
   ### The following commands have to define a $DEPLOYFILE
   # Linux
   - run $isLinux export PREFIX=redtimer-${TRAVIS_TAG}-linux-x86_64
-  - run $isLinux sudo apt-get install -y --force-yes ruby2.2 ruby2.2-dev build-essential rpm
-  - run $isLinux rvm use 2.2.5
-  - run $isLinux sudo gem2.2 install fpm
+  - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
+  - run $isLinux rvm use 2.1.9
+  - run $isLinux sudo gem install fpm
   - run $isLinux export VERSION=${TRAVIS_TAG#v}
   - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
   # OS X
