@@ -4,3 +4,4 @@ Name=RedTimer
 Exec=RedTimerClient %F
 Icon=redtimer
 Comment=Redmine Time Tracker
+Categories=Utility;Network
