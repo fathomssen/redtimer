@@ -46,6 +46,7 @@ ColumnLayout {
         id: issues
         boundsBehavior: Flickable.StopAtBounds
         Layout.alignment: Qt.AlignLeft | Qt.AlignTop
+        clip: enabled
         objectName: "issues"
         model: issuesModel
 
