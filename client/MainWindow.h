@@ -93,6 +93,9 @@ private:
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
 
+    /// Currently selected profile
+    int profileId_ = NULL_ID;
+
     /// GUI profiles
     SimpleModel profilesModel_;
 
@@ -292,8 +295,10 @@ private slots:
 
     /**
      * @brief Refresh Redmine entities
+     *
+     * @param refreshProfiles Refresh profiles (default: true)
      */
-    void refreshGui();
+    void refreshGui( bool refreshProfiles = true );
 
     /**
      * @brief Reset all GUI fields

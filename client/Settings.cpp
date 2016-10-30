@@ -75,39 +75,43 @@ Settings::apply()
 {
     ENTER();
 
-    applyProfileData();
+    bool reload = false;
+    applyProfileData( &reload );
+
     QString errmsg;
     if( !profileData()->isValid( &errmsg ) )
-    {
-        message( errmsg, QtCriticalMsg );
-        RETURN();
-    }
+        message( errmsg, QtWarningMsg );
 
-    auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
+    if( reload && profileId() == profileId_ )
     {
-        CBENTER()(success)(id)(errorCode)(errors);
-
-        if( !success )
+        auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
         {
-            QString errorMsg = tr( "Could not save the time entry." );
-            for( const auto& error : errors )
-                errorMsg.append("\n").append(error);
-            message( errorMsg, QtCriticalMsg );
+            CBENTER()(success)(id)(errorCode)(errors);
+
+            if( !success )
+            {
+                QString errorMsg = tr( "Could not save the time entry." );
+                for( const auto& error : errors )
+                    errorMsg.append("\n").append(error);
+                message( errorMsg, QtCriticalMsg );
+
+                CBRETURN();
+            }
+
+            save();
+
+            DEBUG() << "Emitting applied() signal";
+            applied();
 
             CBRETURN();
-        }
+        };
 
-        save();
-
-        DEBUG() << "Emitting applied() signal";
+        // Save current time before applying
+        ++callbackCounter_;
+        mainWindow()->stop( true, true, cb );
+    }
+    else
         applied();
-
-        CBRETURN();
-    };
-
-    // Save current time before applying
-    ++callbackCounter_;
-    mainWindow()->stop( true, true, cb );
 
     RETURN();
 }
@@ -118,15 +122,13 @@ Settings::applyAndClose()
     ENTER();
 
     apply();
-
-    if( profileData()->isValid() )
-        close();
+    close();
 
     RETURN();
 }
 
 void
-Settings::applyProfileData()
+Settings::applyProfileData( bool* reload )
 {
     ENTER()(profileId_);
 
@@ -135,6 +137,7 @@ Settings::applyProfileData()
 
     ProfileData* data = profileData();
 
+    QString oldApiKey = data->apiKey;
     QString oldUrl = data->url;
 
     // Connection
@@ -155,7 +158,11 @@ Settings::applyProfileData()
     data->useSystemTrayIcon = qml("useSystemTrayIcon")->property("checked").toBool();
     data->closeToTray = qml("closeToTray")->property("checked").toBool();
 
-    if( oldUrl == data->url )
+    bool loginUnchanged = oldApiKey == data->apiKey && oldUrl == data->url;
+    if( reload )
+        *reload = !loginUnchanged;
+
+    if( loginUnchanged )
     {
         if( issueStatusModel_.rowCount() )
         {
@@ -233,7 +240,7 @@ Settings::close()
 bool
 Settings::copyProfile()
 {
-    ENTER()(data_.profileId);
+    ENTER()(profileId_);
     bool ret = createProfile( true );
     RETURN( ret );
 }
@@ -266,12 +273,12 @@ Settings::createProfile( bool copy, bool force )
     if( copy )
     {
         data.recentIssues.clear();
-        data_.profileId = data.id;
         data_.profiles.insert( data.id, data );
         profilesModel_.push_back( SimpleItem(data) );
     }
     else
     {
+        // @improve Replace by initProfileData
         loadProfileData( data.id, &data );
     }
 
@@ -301,7 +308,7 @@ Settings::deleteProfile()
     if( ret != QMessageBox::Yes )
         RETURN();
 
-    data_.profileId = NULL_ID;
+    profileId_ = NULL_ID;
     data_.profiles.remove( profileId );
     QModelIndex modelIndex = profilesProxyModel_.mapToSource( proxyIndex );
     profilesModel_.removeRow( modelIndex.row() );
@@ -328,7 +335,7 @@ Settings::display()
     // Select current profile
     {
         QModelIndexList indices = profilesProxyModel_.match( profilesProxyModel_.index(0, 0),
-                                                             SimpleModel::IdRole, data_.profileId );
+                                                             SimpleModel::IdRole, profileId_ );
         qml("profiles")->setProperty( "currentIndex", -1 );
         if( indices.size() )
             qml("profiles")->setProperty( "currentIndex", indices[0].row() );
@@ -546,7 +553,7 @@ Settings::loadProfileData( const int profileId, ProfileData* initData )
 
     DEBUG()(data);
 
-    data_.profileId = data.id;
+    profileId_ = data.id;
     data_.profiles.insert( data.id, data );
     profilesModel_.push_back( SimpleItem(data) );
 

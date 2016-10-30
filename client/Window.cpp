@@ -250,7 +250,7 @@ Settings*
 Window::settings()
 {
     ENTER();
-    RETURN( settings_, *settings_ );
+    RETURN( settings_ );
 }
 
 void

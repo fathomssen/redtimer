@@ -16,6 +16,7 @@ Item {
     property alias counterMouseArea: counterMouseArea
     property alias description: description
     property alias issueStatus: issueStatus
+    property alias profiles: profiles
     property alias quickPick: quickPick
     property alias selectIssue: selectIssue
     property alias settings: settings
@@ -153,25 +154,34 @@ Item {
                     placeholderText: qsTr("Subject")
                 }
 
-                TextArea {
-                    id: description
-                    implicitHeight: 80
+                SplitView {
+                    id: splitView1
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    objectName: "description"
-                    readOnly: true
+                    orientation: Qt.Vertical
+
+                    TextArea {
+                        id: description
+                        implicitHeight: 80
+                        Layout.fillHeight: true
+                        Layout.fillWidth: true
+                        objectName: "description"
+                        readOnly: true
+                        verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
+                    }
+
+                    TextArea {
+                        id: more
+                        implicitHeight: 40
+                        visible: false
+                        objectName: "more"
+                        Layout.fillWidth: true
+                        readOnly: true
+                        textFormat: TextEdit.RichText
+                        verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
+                    }
                 }
 
-                TextArea {
-                    id: more
-                    implicitHeight: 40
-                    visible: false
-                    objectName: "more"
-                    Layout.fillWidth: true
-                    readOnly: true
-                    textFormat: TextEdit.RichText
-                    verticalScrollBarPolicy: Qt.ScrollBarAlwaysOn
-                }
 
             }
         }

@@ -201,8 +201,10 @@ public slots:
 
     /**
      * @brief Store the profile data from the settings dialog in this class
+     *
+     * @param reload Specifies whether the connection has to be reloaded after applying profile data
      */
-    void applyProfileData();
+    void applyProfileData( bool* reload = nullptr );
 
     /**
      * @brief Store the settings and close

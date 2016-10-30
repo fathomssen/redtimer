@@ -76,9 +76,9 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     // Initially connect and update the GUI
     reconnect();
 
-    setCtxProperty( "activityModel", &activityModel_ );
-    setCtxProperty( "issueStatusModel", &issueStatusModel_ );
-    setCtxProperty( "profilesModel", &profilesModel_ );
+    setCtxProperty( "activityModel",     &activityModel_ );
+    setCtxProperty( "issueStatusModel",  &issueStatusModel_ );
+    setCtxProperty( "profilesModel",     &profilesModel_ );
     setCtxProperty( "recentIssuesModel", &recentIssues_ );
 
     // Set transient window parent
@@ -720,8 +720,14 @@ MainWindow::loadIssueStatuses()
 void
 MainWindow::loadProfiles()
 {
-    ENTER()(profileId());
+    ENTER();
 
+    if( profileId_ == NULL_ID )
+        profileId_ = profileId();
+
+    DEBUG()(profileId_);
+
+    // Only display profile selector when there is more than one profile
     if( settings()->profiles().size() <= 1 )
     {
         qml("profiles")->setProperty( "visible", false );
@@ -734,12 +740,13 @@ MainWindow::loadProfiles()
     int currentIndex = 0;
     for( const auto& profile : settings()->profiles() )
     {
-        if( profile.id == profileId() )
+        if( profile.id == profileId_ )
             currentIndex = profilesModel_.rowCount();
 
         profilesModel_.push_back( profile );
     }
 
+    DEBUG()(currentIndex)(profilesModel_);
     qml("profiles")->setProperty( "currentIndex", -1 );
     qml("profiles")->setProperty( "currentIndex", currentIndex );
 
@@ -847,8 +854,9 @@ MainWindow::profileSelected( int index )
 {
     ENTER();
 
-    setProfileId( profilesModel_.at(index).id() );
-    refreshGui();
+    profileId_ = profilesModel_.at(index).id();
+    setProfileId( profileId_ );
+    refreshGui( false );
 
     RETURN();
 }
@@ -892,7 +900,7 @@ MainWindow::reconnect()
 }
 
 void
-MainWindow::refreshGui()
+MainWindow::refreshGui( bool refreshProfiles )
 {
     ENTER();
 
@@ -913,7 +921,8 @@ MainWindow::refreshGui()
 
     initTrayIcon();
 
-    loadProfiles();
+    if( refreshProfiles )
+        loadProfiles();
 
     if( profileData()->activityId != NULL_ID)
         activityId_ = profileData()->activityId;
