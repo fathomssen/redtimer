@@ -883,7 +883,7 @@ MainWindow::profileSelected( int index )
     if( oldProfileId != newProfileId && counter() != 0 )
         stop( true, true, cb );
     else
-        cb( true, NULL_ID, NO_ERROR, QStringList() );
+        cb( true, NULL_ID, (RedmineError)NO_ERROR, QStringList() );
 
 
     RETURN();
@@ -1111,7 +1111,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     if( !timer_->isActive() && counterGui() == 0 )
     {
         if( cb )
-            cb( true, NULL_ID, NO_ERROR, QStringList() );
+            cb( true, NULL_ID, (RedmineError)NO_ERROR, QStringList() );
 
         RETURN();
     }
