@@ -1,4 +1,5 @@
 #include "qtredmine/Logging.h"
+#include "qtredmine/SimpleRedmineTypes.h"
 
 #include "IssueCreator.h"
 #include "IssueSelector.h"
