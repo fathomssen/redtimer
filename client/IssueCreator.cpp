@@ -679,7 +679,9 @@ IssueCreator::loadTrackers()
             CBRETURN();
         }
 
-        trackerId_ = profileData()->defaultTrackerId;
+        if( trackerId_ == NULL_ID )
+            trackerId_ = profileData()->defaultTrackerId;
+
         int currentIndex = 0;
 
         trackerModel_.clear();

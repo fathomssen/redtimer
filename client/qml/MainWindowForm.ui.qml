@@ -30,12 +30,11 @@ Item {
         anchors.left: parent.left
         anchors.top: parent.top
 
-        ToolButton {
+        Button {
             id: createIssue
             width: 24
             height: 24
             objectName: "createIssue"
-            text: "Create &new issue"
             anchors.verticalCenter: parent.verticalCenter
             anchors.leftMargin: 0
             anchors.left: parent.left
@@ -43,7 +42,7 @@ Item {
             iconSource: "qrc:/open-iconic/svg/plus.svg"
         }
 
-        ToolButton {
+        Button {
             id: connectionStatus
             width: 24
             height: 24
@@ -59,24 +58,22 @@ Item {
                 } }
         }
 
-        ToolButton {
+        Button {
             id: reload
             width: 24
             height: 24
             objectName: "reload"
-            text: "&Reload"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: settings.left
             tooltip: "Reload"
             iconSource: "qrc:/open-iconic/svg/reload.svg"
         }
 
-        ToolButton {
+        Button {
             id: settings
             width: 24
             height: 24
             objectName: "settings"
-            text: "&Settings"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             tooltip: "Open Settings"
@@ -118,7 +115,7 @@ Item {
                 textRole: "text"
             }
 
-            ToolButton {
+            Button {
                 id: selectIssue
                 Layout.preferredHeight: 24
                 Layout.preferredWidth: 24
@@ -191,7 +188,7 @@ Item {
             height: 26
             Layout.fillWidth: true
 
-            ToolButton {
+            Button {
                 id: startStop
                 Layout.preferredHeight: 24
                 Layout.preferredWidth: 24

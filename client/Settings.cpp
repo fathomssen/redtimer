@@ -84,7 +84,7 @@ Settings::apply()
 
     if( reload && profileId() == profileId_ )
     {
-        auto cb = [&](bool success, int id, RedmineError errorCode, QStringList errors)
+        auto cb = [=](bool success, int id, RedmineError errorCode, QStringList errors)
         {
             CBENTER()(success)(id)(errorCode)(errors);
 
@@ -325,9 +325,13 @@ Settings::deleteProfile()
 }
 
 void
-Settings::display()
+Settings::display( bool loadMainProfile )
 {
     ENTER()(profileId_);
+
+    // Load main window's profile ID
+    if( loadMainProfile )
+        profileId_ = mainWindow()->profileId();
 
     if( profileId_ == NULL_ID )
         load( false );
@@ -661,7 +665,7 @@ Settings::profileSelected( int profileIndex )
 
     QModelIndex proxyIndex = profilesProxyModel_.index( profileIndex, 0 );
     profileId_ = proxyIndex.data(SimpleModel::IdRole).toInt();
-    display();
+    display( false );
 
     RETURN();
 }
@@ -791,6 +795,7 @@ Settings::setProfileId( int profileId )
     ENTER()(profileId);
 
     data_.profileId = profileId;
+    profileId_ = profileId;
 
     RETURN();
 }
@@ -801,8 +806,13 @@ Settings::setProfileId( QString profileName )
     ENTER()(profileName);
 
     for( const auto& profile : data_.profiles )
+    {
         if( profile.name == profileName )
+        {
             data_.profileId = profile.id;
+            profileId_ = profile.id;
+        }
+    }
 
     RETURN();
 }

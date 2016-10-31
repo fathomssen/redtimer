@@ -247,8 +247,10 @@ public slots:
 
     /**
      * @brief Display the settings dialog
+     *
+     * @param loadMainProfile Load profile from main window
      */
-    void display();
+    void display( bool loadMainProfile = true );
 
     /**
      * @brief Settings have been initialised

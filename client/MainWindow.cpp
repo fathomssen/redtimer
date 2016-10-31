@@ -807,7 +807,7 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
             connected_ = true;            
             connectedOnce_ = true;
             deleteMessage( MSG_CANNOT_PROCEDE );
-            refreshGui();
+            refreshGui( false );
         }
 
         qml("connectionStatus")->setProperty("tooltip", "Connection established" );
@@ -854,9 +854,36 @@ MainWindow::profileSelected( int index )
 {
     ENTER();
 
-    profileId_ = profilesModel_.at(index).id();
-    setProfileId( profileId_ );
-    refreshGui( false );
+    int oldProfileId = profileId_;
+    int newProfileId = profilesModel_.at(index).id();
+
+    auto cb = [=](bool success, int id, RedmineError errorCode, QStringList errors)
+    {
+        CBENTER()(success)(id)(errorCode)(errors);
+
+        if( !success )
+        {
+            QString errorMsg = tr( "Could not save the time entry." );
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+            message( errorMsg, QtCriticalMsg );
+
+            CBRETURN();
+        }
+
+        profileId_ = newProfileId;
+        setProfileId( profileId_ );
+
+        reconnect( false );
+
+        CBRETURN();
+    };
+
+    if( oldProfileId != newProfileId && counter() != 0 )
+        stop( true, true, cb );
+    else
+        cb( true, NULL_ID, RedmineError::NO_ERROR, QStringList() );
+
 
     RETURN();
 }
@@ -870,6 +897,9 @@ MainWindow::resumeCounterGui()
 
     if( time.isValid() )
     {
+        if( !timer_->isActive() )
+            startTimer();
+
         int secs = time.hour()*3600 + time.minute()*60 + time.second();
 
         if( secs != counterBeforeEdit_ )
@@ -884,14 +914,14 @@ MainWindow::resumeCounterGui()
 }
 
 void
-MainWindow::reconnect()
+MainWindow::reconnect( bool refreshProfiles )
 {
     ENTER();
 
     redmine_->setUrl( profileData()->url );
     redmine_->setAuthenticator( profileData()->apiKey );
 
-    refreshGui();
+    refreshGui( refreshProfiles );
 
     if( !timer_->isActive() && counter() != 0 )
         stop();
@@ -1021,6 +1051,7 @@ MainWindow::settingsApplied()
     {
         connected_ = false;
         settings_->display();
+        RETURN();
     }
 
     reconnect();
@@ -1079,7 +1110,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     if( !timer_->isActive() && counterGui() == 0 )
     {
         if( cb )
-            cb( true, NULL_ID, (RedmineError)0, QStringList() );
+            cb( true, NULL_ID, RedmineError::NO_ERROR, QStringList() );
 
         RETURN();
     }
