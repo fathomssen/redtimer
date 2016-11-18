@@ -28,6 +28,7 @@ security default-keychain -s $KEYCHAIN
 security set-keychain-settings $KEYCHAIN
 security unlock-keychain -p mysecretpassword $KEYCHAIN
 security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -A
+security set-key-partition-list -S apple-tool:,apple: -s -k $CERTIFICATE_PASSWORD $KEYCHAIN
 
 # Use first ID
 security find-identity -v $KEYCHAIN
