@@ -2,10 +2,10 @@
 	path = libqtredmine
 	url = https://github.com/fathomssen/qtredmine.git
 [submodule "open-iconic"]
-	path = client/open-iconic
+	path = gui/open-iconic
 	url = https://github.com/iconic/open-iconic.git
 [submodule "qxtglobalshortcut5"]
-	path = client/qxtglobalshortcut5
+	path = gui/qxtglobalshortcut5
 	url = https://github.com/fathomssen/qxtglobalshortcut5.git
 [submodule "build/macdeployqtfix"]
 	path = .travis/macdeployqtfix

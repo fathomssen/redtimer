@@ -31,8 +31,8 @@ after_build:
   - mkdir %DIST%\platforms
   - mkdir %DIST%\QtQuick
   - mkdir %DIST%\QtQuick.2
-  # Copy RedTimer and qtredmine
-  - xcopy %BUILD%\client\release\redtimerclient.exe %DIST%
+  # Copy redtimer and qtredmine
+  - xcopy %BUILD%\gui\release\redtimer.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%

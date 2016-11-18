@@ -1,13 +1,13 @@
 TEMPLATE = subdirs
 
 SUBDIRS = \
-    client \
+    gui \
     libqtredmine \
 
-client.file = client/RedTimerClient.pro
+gui.file = gui/redtimer.pro
 libqtredmine.file = libqtredmine/qtredmine.pro
 
-client.depends = libqtredmine
+gui.depends = libqtredmine
 
 DISTFILES += \
     .travis/* \

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=RedTimer
-Exec=RedTimerClient %F
+Exec=redtimer %F
 Icon=redtimer
 Comment=Redmine Time Tracker
 Categories=Utility;Network

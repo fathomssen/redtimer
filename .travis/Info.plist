@@ -13,8 +13,8 @@
 	<key>CFBundleSignature</key>
 	<string>Thomssen IT</string>
 	<key>CFBundleExecutable</key>
-	<string>RedTimerClient</string>
+        <string>redtimer</string>
 	<key>CFBundleIdentifier</key>
-	<string>de.thomssen-it.RedTimerClient</string>
+        <string>de.thomssen-it.redtimer</string>
 </dict>
 </plist>
