@@ -27,7 +27,7 @@ security create-keychain -p mysecretpassword $KEYCHAIN
 security default-keychain -s $KEYCHAIN
 security set-keychain-settings $KEYCHAIN
 security unlock-keychain -p mysecretpassword $KEYCHAIN
-security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign -A
+security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -A
 
 # Use first ID
 security find-identity -v $KEYCHAIN
