@@ -25,13 +25,16 @@ echo $CERTIFICATE_OSX_P12 | base64 -D > $CERTIFICATE_P12
 export KEYCHAIN=build.keychain
 security create-keychain -p mysecretpassword $KEYCHAIN
 security default-keychain -s $KEYCHAIN
+security set-keychain-settings $KEYCHAIN
 security unlock-keychain -p mysecretpassword $KEYCHAIN
-security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign
+security import $CERTIFICATE_P12 -k $KEYCHAIN -P $CERTIFICATE_PASSWORD -T /usr/bin/codesign -A
 
 # Use first ID
 security find-identity -v $KEYCHAIN
 export ID=$(security find-identity -v $KEYCHAIN | grep "1)" | sed "s/^ *1) *\([^ ]*\).*/\1/")
 codesign --deep --force --verbose --sign $ID --keychain $KEYCHAIN RedTimer.app
+
+security delete-keychain $KEYCHAIN
 
 # Thanks to https://asmaloney.com/2013/07/howto/packaging-a-mac-os-x-application-using-a-dmg
 hdiutil create -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -srcfolder RedTimer.app -volname redtimer tmp.dmg
