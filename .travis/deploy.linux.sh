@@ -52,5 +52,8 @@ mv dist/opt/redtimer/redtimer.desktop dist/usr/share/applications
 mv dist/opt/redtimer/redtimer.svg dist/usr/share/icons/hicolor/scalable/apps
 rm -f dist/opt/redtimer/default.png
 
-fpm -s dir -t deb -n redtimer -v $VERSION -C dist -p $PREFIX.deb
-fpm -s dir -t rpm -n redtimer -v $VERSION -C dist -p $PREFIX.rpm
+export MAINT="Frederick Thomssen <thomssen@thomssen-it.de>"
+export DESCR="Redmine Time Tracker"
+
+fpm -s dir -t deb -m "$MAINT" --description "$DESCR" -n redtimer -v $VERSION -C dist -p $PREFIX.deb
+fpm -s dir -t rpm -m "$MAINT" --description "$DESCR" -n redtimer -v $VERSION -C dist -p $PREFIX.rpm
