@@ -80,3 +80,4 @@ RedTimer
 /Release/*.ini
 /Release/.qmake.stash
 cli/redtimercli
+dist
