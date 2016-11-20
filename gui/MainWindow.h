@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QEvent>
 #include <QList>
+#include <QLocalServer>
 #include <QMap>
 #include <QObject>
 #include <QQmlContext>
@@ -59,6 +60,9 @@ private:
 
     /// Timer for stopping the worked on time
     QTimer* timer_ = nullptr;
+
+    /// Server for local socket connection
+    QLocalServer* server = nullptr;
 
     /// Update the counter in the GUI
     bool updateCounterGui_ = true;
@@ -234,6 +238,11 @@ private slots:
     void hide();
 
     /**
+     * @brief (Re-)Initialise the local socket server
+     */
+    void initServer();
+
+    /**
      * @brief Slot to a selected issue status
      */
     void issueStatusSelected( int index );
@@ -318,6 +327,11 @@ private slots:
      * @brief Load the latest activity on the issue and refresh activities
      */
     void loadLatestActivity();
+
+    /**
+     * @brief Receive a command from a local socket
+     */
+    void receiveCommand();
 
     /**
      * @brief Refresh the counter

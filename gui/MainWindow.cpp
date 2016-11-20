@@ -7,6 +7,8 @@
 #include "Settings.h"
 
 #include <QEventLoop>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <QMessageBox>
 #include <QMenu>
 #include <QNetworkInterface>
@@ -142,6 +144,11 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     } );
 
     loadProfiles();
+
+    server = new QLocalServer( this );
+    server->setSocketOptions( QLocalServer::UserAccessOption );
+    connect( server, &QLocalServer::newConnection, this, &MainWindow::receiveCommand );
+    initServer();
 
     initialised_ = true;
 
@@ -376,6 +383,9 @@ MainWindow::exit()
 
     if( !initialised_ )
     {
+        if( server )
+            server->close();
+
         app_->quit();
         RETURN();
     }
@@ -430,7 +440,31 @@ MainWindow::exit()
     if( trayIcon_ )
         trayIcon_->hide();
 
+    server->close();
+
     app_->quit();
+
+    RETURN();
+}
+
+void
+MainWindow::initServer()
+{
+    ENTER()(profileId_);
+
+    server->close();
+
+    QString uname = qgetenv( "USER" ); // UNIX
+    if( uname.isEmpty() )
+        uname = qgetenv( "USERNAME" ); // Windows
+    QString serverName = QString("redtimer-%1-%2").arg(uname).arg(profileId_);
+
+    DEBUG()(serverName);
+
+    if( server->listen(serverName) )
+        DEBUG() << "Listening on socket";
+    else
+        DEBUG() << server->errorString();
 
     RETURN();
 }
@@ -545,7 +579,13 @@ MainWindow::loadIssueFromTextField()
 {
     ENTER();
 
-    int issueId = qml("quickPick")->property("editText").toInt();
+    bool ok;
+    int issueId = qml("quickPick")->property("editText").toInt( &ok );
+    if( !ok )
+    {
+        message( "Issue ID may consist of digits only", QtWarningMsg );
+        RETURN();
+    }
 
     qml("startStop")->setProperty( "focus", true );
 
@@ -875,6 +915,8 @@ MainWindow::profileSelected( int index )
         profileId_ = newProfileId;
         setProfileId( profileId_ );
 
+        initServer();
+
         reconnect( false );
 
         CBRETURN();
@@ -885,6 +927,58 @@ MainWindow::profileSelected( int index )
     else
         cb( true, NULL_ID, (RedmineError)NO_ERROR, QStringList() );
 
+
+    RETURN();
+}
+
+void
+MainWindow::receiveCommand()
+{
+    ENTER();
+
+    QLocalSocket* socket = server->nextPendingConnection();
+
+    ++callbackCounter_;
+    auto cb = [=]()
+    {
+        CBENTER();
+
+        QDataStream in( socket );
+        in.setVersion( QDataStream::Qt_5_5 );
+
+        if( in.atEnd() )
+            CBRETURN();
+
+        QString cmds;
+        in >> cmds;
+
+        DEBUG()(cmds);
+
+        // Format: 'key1:value1|key2:value2|...'
+        for( const auto& cmd : cmds.split("|") )
+        {
+            QStringList kv = cmd.split( ":" );
+
+            DEBUG()(kv);
+
+            if( kv.count() != 2 )
+                continue;
+
+            if( kv[0] == "issue" )
+            {
+                bool ok;
+                int issueId = kv[1].toInt( &ok );
+                if( !ok )
+                    continue;
+
+                loadIssue( issueId );
+            }
+        }
+
+        CBRETURN();
+    };
+
+    connect( socket, &QLocalSocket::readyRead, cb );
 
     RETURN();
 }

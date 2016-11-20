@@ -20,6 +20,7 @@ mkdir -p dist/opt/redtimer
 
 # Include binary and dist files
 cp gui/redtimer dist/opt/redtimer
+cp cli/redtimercli dist/opt/redtimer
 cp gui/icons/clock_red.svg dist/opt/redtimer/redtimer.svg
 cp .travis/redtimer.desktop dist/opt/redtimer
 
@@ -30,6 +31,7 @@ cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/opt/redtimer/plugins/ico
 
 # First run
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -verbose=2
+.travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
 
 # Second run, to include xcbglintegration
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
@@ -48,6 +50,7 @@ mkdir -p dist/usr/share/applications
 mkdir -p dist/usr/share/icons/hicolor/scalable/apps
 
 ln -sf /opt/redtimer/redtimer dist/usr/bin/redtimer
+ln -sf /opt/redtimer/redtimercli dist/usr/bin/redtimercli
 mv dist/opt/redtimer/redtimer.desktop dist/usr/share/applications
 mv dist/opt/redtimer/redtimer.svg dist/usr/share/icons/hicolor/scalable/apps
 rm -f dist/opt/redtimer/default.png

@@ -516,9 +516,9 @@ IssueCreator::loadParentIssueData()
     if( qml("parentIssue")->property("text").toString().isEmpty() )
         RETURN();
 
-    int issueId = qml("parentIssue")->property("text").toInt();
-
-    if( !issueId )
+    bool ok;
+    int issueId = qml("parentIssue")->property("text").toInt( &ok );
+    if( !ok )
         RETURN();
 
     bool loadData = true;

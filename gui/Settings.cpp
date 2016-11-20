@@ -418,8 +418,11 @@ Settings::load( const bool apply, const bool createNewProfile )
         if( !group.contains(QRegularExpression("profile-(\\d+)"), &match) )
             continue;
 
-        int profileId = match.captured(1).toInt();
-        loadProfileData( profileId );
+        bool ok;
+        int profileId = match.captured(1).toInt( &ok );
+
+        if( ok )
+            loadProfileData( profileId );
     }
 
     // If no profile exists, ask to create a new one until a profile was successfully created
@@ -432,12 +435,13 @@ Settings::load( const bool apply, const bool createNewProfile )
     {
         profilesModel_.sort( SimpleModel::NameRole );
 
-        QVariant profileId = settings_.value("profileId");
-        if( !profileId.isNull() && profileId.toInt()
-            && settings_.childGroups().contains(profileHash(profileId.toInt())) )
+        QVariant value = settings_.value("profileId");
+        bool ok;
+        int profileId = value.toInt( &ok );
+        if( ok && settings_.childGroups().contains(profileHash(profileId)) )
         {
-            profileId_ = profileId.toInt();
-            data_.profileId = profileId.toInt();
+            profileId_ = profileId;
+            data_.profileId = profileId;
         }
     }
 

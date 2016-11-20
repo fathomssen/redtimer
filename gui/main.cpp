@@ -3,8 +3,6 @@
 #include <QApplication>
 #include <QCommandLineParser>
 
-#include <memory>
-
 using namespace redtimer;
 using namespace std;
 

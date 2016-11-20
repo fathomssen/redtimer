@@ -9,8 +9,17 @@ export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
 export ROOTDIR=$TRAVISDIR/..
 export PREFIX=$ROOTDIR/$1
 
-cd $ROOTDIR/gui
-mv redtimer.app RedTimer.app
+cd $ROOTDIR
+
+# Create a new dist folder
+rm -rf dist
+mkdir dist
+
+cp -a gui/redtimer.app dist/RedTimer.app
+cp -a cli/redtimercli dist/RedTimer.app/Contents/MacOS
+cp -a gui/qml dist
+
+cd dist
 
 macdeployqt RedTimer.app -appstore-compliant -qmldir=qml
 export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
