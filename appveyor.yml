@@ -1,12 +1,12 @@
 version: '{branch}-{build}'
 
 environment:
-  QTDIR: C:\Qt\5.6\mingw49_32
+  QTDIR: C:\Qt\5.7\mingw53_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - C:\Qt\5.6\mingw49_32\bin\qtenv2.bat
+  - C:\Qt\5.7\mingw53_32\bin\qtenv2.bat
 
 build_script:
   - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
@@ -31,8 +31,9 @@ after_build:
   - mkdir %DIST%\platforms
   - mkdir %DIST%\QtQuick
   - mkdir %DIST%\QtQuick.2
-  # Copy redtimer and qtredmine
+  # Copy redtimer, redtimercli and qtredmine
   - xcopy %BUILD%\gui\release\redtimer.exe %DIST%
+  - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%

@@ -5,7 +5,7 @@ Redmine Time Tracker
 ====================
 
 RedTimer is an easy-to-use platform-independent time tracker which allows the user to track time while working
-on an issue. Futhermore, a user can create new issues using RedTimer during which the time tracking will
+on an issue. Furthermore, a user can create new issues using RedTimer during which the time tracking will
 already start.
 
 Usage
