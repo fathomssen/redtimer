@@ -75,13 +75,12 @@ export YEAR=$(date +%Y)
 echo "Copyright (c) ${YEAR} by Frederick Thomssen <thomssen@thomssen-it.de>" > dist/usr/share/doc/redtimer/copyright
 
 export MAINT="Frederick Thomssen <thomssen@thomssen-it.de>"
-export DESCR='Redmine Time Tracker
+export DESCR="Redmine Time Tracker\n\n
+RedTimer is an easy-to-use platform-independent time tracker which allows the\n
+user to track time while working on an issue. Furthermore, a user can create\n
+new issues using RedTimer during which the time tracking will already start."
 
-RedTimer is an easy-to-use platform-independent time tracker which allows the
-user to track time while working on an issue. Furthermore, a user can create
-new issues using RedTimer during which the time tracking will already start.'
-
-export OPTS="-m '$MAINT' --description '$DESCR' -n redtimer -v $VERSION -C dist --no-depends --category net"
+export OPTS="-m \"$MAINT\" --description \"$DESCR\" -n redtimer -v $VERSION -C dist --no-depends --category net"
 
 fpm -s dir -t deb -p $PREFIX.deb $OPTS --deb-changelog CHANGELOG
 fpm -s dir -t rpm -p $PREFIX.rpm $OPTS
