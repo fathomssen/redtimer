@@ -1,0 +1,45 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: redtimer
+Source: <https://github.com/fathomssen/redtimer>
+
+Files: opt/redtimer/redtimer*,usr/share/doc/*,usr/share/applications/*
+Copyright: 2016 Frederick Thomssen <thomssen@thomssen-it.de>
+License: LGPL-3.0+
+
+Files: debian/*
+Copyright: 2016 Frederick Thomssen <thomssen@thomssen-it.de>
+License: LGPL-3.0+
+
+Files: opt/redtimer/lib/libQt*,opt/redtimer/plugins/*,opt/redtimer/qml/* 
+Copyright: 2015 The Qt Company Ltd. <info@qt.io>
+License: LGPL-3.0+
+
+Files: opt/redtimer/lib/*
+Copyright: 2016 Multiple open-source projects
+License: GPL-2.0+
+
+Files: usr/share/icons/hicolor/scalable/apps/redtimer.svg
+Copyright: 2016 iconic <yourfriends@useiconic.com>
+           2016 Frederick Thomssen <thomssen@thomssen-it.de>
+License: MIT
+
+Files: opt/redtimer/qt.conf
+Copyright: 2016 Simon Peter
+License: GPL-3.0+
+
+License: LGPL-3.0+
+ This package is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 3 of the License, or (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public License
+ along with this program. If not, see <https://www.gnu.org/licenses/>.
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License can be found in "/usr/share/common-licenses/LGPL-3".
