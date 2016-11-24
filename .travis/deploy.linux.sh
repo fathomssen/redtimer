@@ -33,6 +33,10 @@ cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/opt/redtimer/plugins/ico
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -verbose=2
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
 
+# Stripping by linuxdeployqt does not satisfy lintian
+strip dist/opt/redtimer/redtimer
+strip dist/opt/redtimer/redtimercli
+
 # Second run, to include xcbglintegration
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
@@ -55,8 +59,27 @@ mv dist/opt/redtimer/redtimer.desktop dist/usr/share/applications
 mv dist/opt/redtimer/redtimer.svg dist/usr/share/icons/hicolor/scalable/apps
 rm -f dist/opt/redtimer/default.png
 
-export MAINT="Frederick Thomssen <thomssen@thomssen-it.de>"
-export DESCR="Redmine Time Tracker"
+# Set correct filesystem permissions
+find dist/* -type d -exec chmod 755 {} \;
+find dist/* -type f -exec chmod 644 {} \;
+chmod 755 dist/opt/redtimer/redtimer
+chmod 755 dist/opt/redtimer/redtimercli
 
-fpm -s dir -t deb -m "$MAINT" --description "$DESCR" -n redtimer -v $VERSION -C dist -p $PREFIX.deb
-fpm -s dir -t rpm -m "$MAINT" --description "$DESCR" -n redtimer -v $VERSION -C dist -p $PREFIX.rpm
+# Add Debian-specific files
+mkdir -p dist/usr/share/doc/redtimer
+echo "RedTimer version $VERSION" > dist/usr/share/doc/redtimer/changelog
+gzip dist/usr/share/doc/redtimer/changelog
+export YEAR=$(date +%Y)
+echo "Copyright (c) ${YEAR} by Frederick Thomssen <thomssen@thomssen-it.de>" > dist/usr/share/doc/redtimer/copyright
+
+export MAINT="Frederick Thomssen <thomssen@thomssen-it.de>"
+export DESCR='Redmine Time Tracker
+
+RedTimer is an easy-to-use platform-independent time tracker which allows the
+user to track time while working on an issue. Furthermore, a user can create
+new issues using RedTimer during which the time tracking will already start.'
+
+export OPTS="-s dir -m '$MAINT' --description '$DESCR' -n redtimer -v $VERSION -C dist --no-depends --category net"
+
+fpm $OPTS -t deb -p $PREFIX.deb --deb-changelog CHANGELOG
+fpm $OPTS -t rpm -p $PREFIX.rpm
