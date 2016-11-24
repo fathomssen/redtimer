@@ -65,6 +65,8 @@ find dist/* -type f -exec chmod 644 {} \;
 chmod 755 dist/opt/redtimer/redtimer
 chmod 755 dist/opt/redtimer/redtimercli
 
+set -x
+
 # Add Debian-specific files
 mkdir -p dist/usr/share/doc/redtimer
 echo "RedTimer version $VERSION" > dist/usr/share/doc/redtimer/changelog
@@ -79,7 +81,7 @@ RedTimer is an easy-to-use platform-independent time tracker which allows the
 user to track time while working on an issue. Furthermore, a user can create
 new issues using RedTimer during which the time tracking will already start.'
 
-export OPTS="-s dir -m '$MAINT' --description '$DESCR' -n redtimer -v $VERSION -C dist --no-depends --category net"
+export OPTS="-m '$MAINT' --description '$DESCR' -n redtimer -v $VERSION -C dist --no-depends --category net"
 
-fpm $OPTS -t deb -p $PREFIX.deb --deb-changelog CHANGELOG
-fpm $OPTS -t rpm -p $PREFIX.rpm
+fpm -s dir -t deb -p $PREFIX.deb $OPTS --deb-changelog CHANGELOG
+fpm -s dir -t rpm -p $PREFIX.rpm $OPTS
