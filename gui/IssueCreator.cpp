@@ -957,7 +957,17 @@ IssueCreator::setCurrentIssue( Issue issue )
     if( issue.id != NULL_ID )
     {
         issue_ = issue;
-        useCurrentIssueParent();
+
+        if( issue.parentId != NULL_ID )
+        {
+            qml("useCurrentIssueParent")->setProperty( "visible", true );
+            useCurrentIssueParent();
+        }
+        else
+        {
+            qml("useCurrentIssueParent")->setProperty( "visible", false );
+            useCurrentIssue();
+        }
     }
 
     RETURN();
