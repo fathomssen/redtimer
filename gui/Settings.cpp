@@ -10,8 +10,9 @@
 #include <QRegularExpressionMatch>
 
 using namespace qtredmine;
-using namespace redtimer;
 using namespace std;
+
+namespace redtimer {
 
 Settings::Settings( MainWindow* mainWindow )
     : Window( "Settings", mainWindow ),
@@ -1085,3 +1086,5 @@ Settings::windowData()
     ENTER();
     RETURN( &data_.windows, data_.windows );
 }
+
+} // redtimer

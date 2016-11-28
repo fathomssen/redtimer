@@ -17,3 +17,4 @@ HEADERS += \
 
 # External projects
 include($$PWD/../libqtredmine/qtredmine.pri)
+include($$PWD/../libredtimer/libredtimer.pri)

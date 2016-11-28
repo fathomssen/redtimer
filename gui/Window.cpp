@@ -8,8 +8,9 @@
 #include <QTimer>
 #include <QUrl>
 
-using namespace redtimer;
 using namespace std;
+
+namespace redtimer {
 
 Window::Window( QString qml, MainWindow* mainWindow, std::function<void()> closeCb )
     : QQuickView( QUrl(QString("qrc:/qml/").append(qml).append(".qml")) )
@@ -118,7 +119,7 @@ Window::message( QString text, QtMsgType type, bool force )
         RETURN( nullptr );
 
     QString colour;
-    QSystemTrayIcon::MessageIcon icon;
+    QSystemTrayIcon::MessageIcon icon = QSystemTrayIcon::NoIcon;
 
     switch( type )
     {
@@ -268,3 +269,5 @@ Window::setWindowData( Window::Data data )
 
     RETURN();
 }
+
+} // redtimer

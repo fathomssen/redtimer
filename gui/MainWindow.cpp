@@ -1,5 +1,6 @@
 #include "qtredmine/Logging.h"
 #include "qtredmine/SimpleRedmineTypes.h"
+#include "redtimer/CliOptions.h"
 
 #include "IssueCreator.h"
 #include "IssueSelector.h"
@@ -13,11 +14,13 @@
 #include <QMenu>
 #include <QNetworkInterface>
 #include <QObject>
+#include <QSystemSemaphore>
 #include <QTime>
 
 using namespace qtredmine;
-using namespace redtimer;
 using namespace std;
+
+namespace redtimer {
 
 #define MSG_CANNOT_PROCEDE "Cannot procede without a connection"
 
@@ -447,6 +450,23 @@ MainWindow::exit()
     RETURN();
 }
 
+QString
+MainWindow::getServerName( QString suffix )
+{
+    ENTER()(suffix)(profileId_);
+
+    QString uname = qgetenv( "USER" ); // UNIX
+    if( uname.isEmpty() )
+        uname = qgetenv( "USERNAME" ); // Windows
+
+    QString serverName = QString("redtimer-%1").arg(uname);
+
+    if( !suffix.isEmpty() )
+        serverName = QString("%1-%2").arg(serverName).arg(suffix);
+
+    RETURN( serverName );
+}
+
 void
 MainWindow::initServer()
 {
@@ -454,12 +474,7 @@ MainWindow::initServer()
 
     server->close();
 
-    QString uname = qgetenv( "USER" ); // UNIX
-    if( uname.isEmpty() )
-        uname = qgetenv( "USERNAME" ); // Windows
-    QString serverName = QString("redtimer-%1-%2").arg(uname).arg(profileId_);
-
-    DEBUG()(serverName);
+    QString serverName = getServerName( QString::number(profileId_) );
 
     if( server->listen(serverName) )
         DEBUG() << "Listening on socket";
@@ -837,6 +852,200 @@ MainWindow::loadLatestActivity()
 }
 
 void
+MainWindow::loadOrCreateIssue( CliOptions options )
+{
+    ENTER()(options);
+
+    QString suffix = QString("create-%1").arg(options.externalId);
+    QSystemSemaphore* semaphore = new QSystemSemaphore( getServerName(suffix), 1 );
+
+    if( !semaphore )
+        RETURN();
+
+    // If another process is already creating an issue, wait until it has finished
+    bool ok;
+    ok = semaphore->acquire();
+
+    if( !ok )
+        RETURN();
+
+    auto create = [=]( int parentId = NULL_ID )
+    {
+        ENTER()(parentId);
+
+        Issue issue;
+        issue.subject = options.subject;
+        issue.project.id = options.projectId;
+
+        if( options.assigneeId != NULL_ID )
+            issue.assignedTo.id = options.assigneeId;
+
+        if( parentId != NULL_ID )
+            issue.parentId = parentId;
+
+        if( options.trackerId != NULL_ID )
+            issue.tracker.id = options.trackerId;
+
+        if( options.versionId != NULL_ID )
+            issue.version.id = options.versionId;
+
+        if( !options.description.isEmpty() )
+            issue.description = options.description;
+
+        issue.startDate = QDate::currentDate();
+
+        // external ID
+        {
+            CustomField externalId;
+            #warning Custom field no. 11 hardcoded
+            externalId.id = 11;
+            externalId.values.push_back( options.externalId );
+
+            issue.customFields.push_back( externalId );
+        }
+
+        ++callbackCounter_;
+        redmine_->sendIssue( issue, [=](bool success, int id, RedmineError errorCode, QStringList errors)
+        {
+            CBENTER();
+
+            DEBUG()(issue)(success)(id)(errorCode)(errors);
+
+            if( !success )
+            {
+                QString errorMsg = tr( "CLI: Could not create issue." );
+                for( const auto& error : errors )
+                    errorMsg.append("\n").append(error);
+
+                message( errorMsg, QtCriticalMsg );
+
+                semaphore->release();
+                delete semaphore;
+
+                CBRETURN();
+            }
+
+            message( tr("CLI: New issue created with ID %1").arg(id) );
+
+            loadIssue( id );
+
+            semaphore->release();
+            delete semaphore;
+
+            CBRETURN();
+        } );
+
+        RETURN();
+    };
+
+    auto createAndFindParent = [=]()
+    {
+        ENTER();
+
+        // Try to load an existing issue first
+        if( options.parentId != NULL_ID || !options.externalParentId.isEmpty() )
+        {
+            if( options.parentId != NULL_ID )
+            {
+                // Search by issue ID
+                ++callbackCounter_;
+                redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
+                {
+                    CBENTER()(issue)(redmineError)(errors);
+
+                    // Exactly one issue found, loading it
+                    create( issue.id );
+
+                    CBRETURN();
+                },
+                options.parentId );
+            }
+            else if( !options.externalParentId.isEmpty() )
+            {
+                // Search by external ID
+                RedmineOptions redmineOptions;
+                redmineOptions.parameters = QString("cf_11=%1").arg(options.externalParentId);
+
+                ++callbackCounter_;
+                redmine_->retrieveIssues( [=]( Issues issues, RedmineError redmineError, QStringList errors )
+                {
+                    CBENTER()(issues)(redmineError)(errors);
+
+                    if( issues.count() != 1 )
+                    {
+                        // No exact match found for parent
+                        create();
+
+                        CBRETURN();
+                    }
+
+                    // Exactly one parent found
+                    create( issues[0].id );
+
+                    CBRETURN();
+                },
+                redmineOptions );
+            }
+        }
+        else
+        {
+            // If no issue has been found, create a new one
+            create();
+        }
+
+        RETURN();
+    };
+
+    // Try to load an existing issue first
+    if( !options.externalId.isEmpty() )
+    {
+        // Search by external ID
+        RedmineOptions redmineOptions;
+        #warning Custom field no. 11 hardcoded
+        redmineOptions.parameters = QString("cf_11=%1").arg(options.externalId);
+
+        ++callbackCounter_;
+        redmine_->retrieveIssues( [=]( Issues issues, RedmineError redmineError, QStringList errors )
+        {
+            CBENTER()(issues)(redmineError)(errors);
+
+            if( issues.count() > 1 )
+            {
+                // Multiple issues found, doing nothing
+                semaphore->release();
+                delete semaphore;
+
+                CBRETURN();
+            }
+
+            if( issues.count() == 0 )
+            {
+                // No issue found, creating one
+                createAndFindParent();
+
+                CBRETURN();
+            }
+
+            // Exactly one issue found, loading it
+            loadIssue( issues[0].id );
+
+            semaphore->release();
+            delete semaphore;
+
+            CBRETURN();
+        },
+        redmineOptions );
+    }
+    else
+    {
+        // Create a new issue
+        createAndFindParent();
+    }
+
+    RETURN();
+}
+
+void
 MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility connected )
 {
     ENTER()(connected);
@@ -943,37 +1152,18 @@ MainWindow::receiveCommand()
     {
         CBENTER();
 
-        QDataStream in( socket );
-        in.setVersion( QDataStream::Qt_5_5 );
+        CliOptions options = CliOptions::deserialise( socket );
 
-        if( in.atEnd() )
-            CBRETURN();
+        DEBUG()(options);
 
-        QString cmds;
-        in >> cmds;
-
-        DEBUG()(cmds);
-
-        // Format: 'key1:value1|key2:value2|...'
-        for( const auto& cmd : cmds.split("|") )
-        {
-            QStringList kv = cmd.split( ":" );
-
-            DEBUG()(kv);
-
-            if( kv.count() != 2 )
-                continue;
-
-            if( kv[0] == "issue" )
-            {
-                bool ok;
-                int issueId = kv[1].toInt( &ok );
-                if( !ok )
-                    continue;
-
-                loadIssue( issueId );
-            }
-        }
+        if( options.command == "start" )
+            loadIssue( options.issueId );
+        else if( options.command == "stop")
+            stop();
+        else if( options.command == "create" )
+            loadOrCreateIssue( options );
+        else if( options.command == "issue" )
+            void();
 
         CBRETURN();
     };
@@ -1415,3 +1605,5 @@ MainWindow::updateTitle()
 
     RETURN();
 }
+
+} // redtimer

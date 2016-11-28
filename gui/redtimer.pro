@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++11
 
 QT += gui qml quick svg widgets
 QT += gui-private # Required for global shortcuts on some Linux distributions
@@ -37,6 +37,7 @@ RESOURCES += redtimer.qrc
 # External projects
 include($$PWD/qxtglobalshortcut5/qxt.pri)
 include($$PWD/../libqtredmine/qtredmine.pri)
+include($$PWD/../libredtimer/libredtimer.pri)
 
 # Default rules for deployment.
 include($$PWD/redtimer.pri)

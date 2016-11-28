@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+using namespace redtimer;
 using namespace std;
 
 CommandSender::CommandSender( QObject*parent )
@@ -27,16 +28,18 @@ CommandSender::deleteSocket( QLocalSocket* socket )
     socket->abort();
     socket->deleteLater();
 
-    if( finished_ && sockets_.count() == 0 )
+    if( (singleProfile_ || finished_) && sockets_.count() == 0 )
         emit finished();
 
     RETURN();
 }
 
 void
-CommandSender::send( QString cmds )
+CommandSender::sendToAll( const CliOptions& options )
 {
-    ENTER()(cmds);
+    ENTER()(options);
+
+    singleProfile_ = false;
 
     QSettings settings( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this );
 
@@ -51,7 +54,7 @@ CommandSender::send( QString cmds )
         int profileId = match.captured(1).toInt( &ok );
 
         if( ok )
-            send( profileId, cmds );
+            sendToProfile( profileId, options );
     }
 
     finished_ = true;
@@ -62,9 +65,9 @@ CommandSender::send( QString cmds )
 }
 
 void
-CommandSender::send( int profileId, QString cmds )
+CommandSender::sendToProfile( int profileId, const CliOptions& options )
 {
-    ENTER()(profileId)(cmds);
+    ENTER()(profileId)(options);
 
     QString uname = qgetenv( "USER" ); // UNIX
     if( uname.isEmpty() )
@@ -76,7 +79,7 @@ CommandSender::send( int profileId, QString cmds )
     QLocalSocket* socket = new QLocalSocket( this );
     sockets_.insert( socket, true );
 
-    connect( socket, &QLocalSocket::connected,    [=](){ send(socket, cmds); } );
+    connect( socket, &QLocalSocket::connected,    [=](){ sendToSocket(socket, options); } );
     connect( socket, &QLocalSocket::disconnected, [=](){ deleteSocket(socket); } );
 
     socket->connectToServer( serverName, QIODevice::WriteOnly );
@@ -87,14 +90,11 @@ CommandSender::send( int profileId, QString cmds )
 }
 
 void
-CommandSender::send( QLocalSocket* socket, const QString cmds )
+CommandSender::sendToSocket( QLocalSocket* socket, const CliOptions& options )
 {
-    ENTER()(socket)(cmds);
+    ENTER()(socket)(options);
 
-    QByteArray block;
-    QDataStream out( &block, QIODevice::WriteOnly );
-    out.setVersion( QDataStream::Qt_5_5 );
-    out << cmds;
+    QByteArray block = CliOptions::serialise( options );
 
     socket->write( block );
     socket->flush();
