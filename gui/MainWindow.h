@@ -5,6 +5,7 @@
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
+#include "redtimer/CliOptions.h"
 #include "qxtglobalshortcut.h"
 
 #include <QApplication>
@@ -233,12 +234,25 @@ private slots:
     void createIssue();
 
     /**
+     * @brief Get the current server name
+     *
+     * @todo Move to libredtimer
+     *
+     * @param suffix Optional suffix to the server name
+     *
+     * @return Server name
+     */
+    QString getServerName( QString suffix = QString() );
+
+    /**
      * @brief Hide the main window
      */
     void hide();
 
     /**
      * @brief (Re-)Initialise the local socket server
+     *
+     * @todo Move to class Redtimer
      */
     void initServer();
 
@@ -269,6 +283,11 @@ private slots:
      * @param saveNewIssue When saving tracked time, save time for the newly loaded issue
      */
     void loadIssue( int issueId, bool startTimer = true, bool saveNewIssue = false );
+
+    /**
+     * @brief Load issue with the specified external ID or create one if it does not exists
+     */
+    void loadOrCreateIssue( CliOptions options );
 
     /**
      * @brief Load profiles

@@ -9,8 +9,9 @@
 #include <QTime>
 
 using namespace qtredmine;
-using namespace redtimer;
 using namespace std;
+
+namespace redtimer {
 
 IssueCreator::IssueCreator( SimpleRedmineClient* redmine, MainWindow* mainWindow )
     : Window( "IssueCreator", mainWindow ),
@@ -1046,3 +1047,5 @@ IssueCreator::versionSelected( int index )
 
     RETURN();
 }
+
+} // redtimer

@@ -4,8 +4,9 @@
 #include "Settings.h"
 
 using namespace qtredmine;
-using namespace redtimer;
 using namespace std;
+
+namespace redtimer {
 
 IssueSelector::IssueSelector( SimpleRedmineClient* redmine, MainWindow* mainWindow )
     : Window( "IssueSelector", mainWindow ),
@@ -428,3 +429,5 @@ IssueSelector::setProjectId( int id, bool fixed )
 
     RETURN();
 }
+
+} // redtimer

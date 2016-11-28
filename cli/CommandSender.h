@@ -1,5 +1,7 @@
 #pragma once
 
+#include "redtimer/CliOptions.h"
+
 #include <QMap>
 #include <QObject>
 
@@ -12,6 +14,9 @@ class CommandSender : public QObject
 private:
     /// All commands have been sent
     bool finished_ = false;
+
+    /// Just one profile receives a command
+    bool singleProfile_ = true;
 
     /// Sockets
     QMap<QLocalSocket*, bool> sockets_;
@@ -41,23 +46,23 @@ public slots:
     /**
      * @brief Send commands to all running RedTimer instances
      *
-     * @param cmds Commands string
+     * @param options Options
      */
-    void send( const QString cmds );
+    void sendToAll( const redtimer::CliOptions& options );
 
     /**
      * @brief Send commands to the running RedTimer instance with the specified profile selected
      *
      * @param profileId Profile ID
-     * @param cmds Commands string
+     * @param options Options
      */
-    void send( int profileId, const QString cmds );
+    void sendToProfile( int profileId, const redtimer::CliOptions& options );
 
     /**
      * @brief Send commands to the running RedTimer instance connected to by the specified socket
      *
      * @param socket Socket connected to the RedTimer instance
-     * @param cmds Commands string
+     * @param options Options
      */
-    void send( QLocalSocket* socket, const QString cmds );
+    void sendToSocket( QLocalSocket* socket, const redtimer::CliOptions& options );
 };

@@ -2,8 +2,9 @@
 
 #include "Models.h"
 
-using namespace redtimer;
 using namespace qtredmine;
+
+namespace redtimer {
 
 SimpleItem::SimpleItem( int id, const QString& name )
     : id_( id ),
@@ -324,3 +325,5 @@ SimpleModel::setData( const QModelIndex& index, const QVariant& value, int role 
 
     RETURN( true );
 }
+
+} // redtimer

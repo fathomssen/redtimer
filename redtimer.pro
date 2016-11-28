@@ -3,14 +3,16 @@ TEMPLATE = subdirs
 SUBDIRS = \
     cli \
     gui \
-    libqtredmine
+    libqtredmine \
+    libredtimer
 
 cli.file = cli/redtimercli.pro
 gui.file = gui/redtimer.pro
 libqtredmine.file = libqtredmine/qtredmine.pro
 
-cli.depends = libqtredmine
-gui.depends = libqtredmine
+cli.depends = libqtredmine libredtimer
+gui.depends = libredtimer
+libredtimer.depends = libqtredmine
 
 DISTFILES += \
     .travis/* \
