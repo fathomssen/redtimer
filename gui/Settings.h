@@ -69,6 +69,9 @@ private:
     /// Cached trackers
     SimpleModel trackerModel_;
 
+    /// Issue custom fields for the external ID
+    SimpleModel externalIdModel_;
+
     /// Time entry custom fields for the start time
     SimpleModel startTimeModel_;
 
@@ -280,6 +283,11 @@ public slots:
      * @brief Update trackers
      */
     void updateTrackers();
+
+    /**
+     * @brief Update issue custom fields
+     */
+    void updateIssueCustomFields();
 
     /**
      * @brief Update time entry custom fields

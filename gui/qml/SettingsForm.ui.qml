@@ -140,10 +140,30 @@ ColumnLayout {
                 }
 
                 CheckBox {
+                    id: startLocalServer
+                    objectName: "startLocalServer"
+                    text: qsTr("Start a local socket server")
+                    Layout.columnSpan: 2
+                }
+
+                CheckBox {
                     id: useCustomFields
                     objectName: "useCustomFields"
                     text: qsTr("Use custom fields (requires 'redmine_shared_api' plugin)")
                     Layout.columnSpan: 2
+                }
+
+                Label {
+                    text: "\t"+qsTr("External ID field")
+                }
+
+                ComboBox {
+                    id: externalId
+                    enabled: false
+                    Layout.fillWidth: true
+                    objectName: "externalId"
+                    model: externalIdModel
+                    textRole: "name"
                 }
 
                 Label {

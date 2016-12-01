@@ -474,12 +474,15 @@ MainWindow::initServer()
 
     server->close();
 
-    QString serverName = getServerName( QString::number(profileId_) );
+    if( profileData()->startLocalServer )
+    {
+        QString serverName = getServerName( QString::number(profileId_) );
 
-    if( server->listen(serverName) )
-        DEBUG() << "Listening on socket";
-    else
-        DEBUG() << server->errorString();
+        if( server->listen(serverName) )
+            DEBUG() << "Listening on socket";
+        else
+            DEBUG() << server->errorString();
+    }
 
     RETURN();
 }
@@ -897,8 +900,7 @@ MainWindow::loadOrCreateIssue( CliOptions options )
         // external ID
         {
             CustomField externalId;
-            #warning Custom field no. 11 hardcoded
-            externalId.id = 11;
+            externalId.id = profileData()->externalIdFieldId;
             externalId.values.push_back( options.externalId );
 
             issue.customFields.push_back( externalId );
@@ -962,9 +964,20 @@ MainWindow::loadOrCreateIssue( CliOptions options )
             }
             else if( !options.externalParentId.isEmpty() )
             {
+                if( profileData()->externalIdFieldId == NULL_ID )
+                {
+                    message( "Cannot load existing parent issue: No external ID field specified.", QtCriticalMsg );
+
+                    semaphore->release();
+                    delete semaphore;
+
+                    CBRETURN();
+                }
+
                 // Search by external ID
                 RedmineOptions redmineOptions;
-                redmineOptions.parameters = QString("cf_11=%1").arg(options.externalParentId);
+                redmineOptions.parameters = QString("cf_%1=%2").arg(profileData()->externalIdFieldId)
+                                                               .arg(options.externalParentId);
 
                 ++callbackCounter_;
                 redmine_->retrieveIssues( [=]( Issues issues, RedmineError redmineError, QStringList errors )
@@ -999,10 +1012,20 @@ MainWindow::loadOrCreateIssue( CliOptions options )
     // Try to load an existing issue first
     if( !options.externalId.isEmpty() )
     {
+        if( profileData()->externalIdFieldId == NULL_ID )
+        {
+            message( "Cannot load existing issue: No external ID field specified.", QtCriticalMsg );
+
+            semaphore->release();
+            delete semaphore;
+
+            RETURN();
+        }
+
         // Search by external ID
         RedmineOptions redmineOptions;
-        #warning Custom field no. 11 hardcoded
-        redmineOptions.parameters = QString("cf_11=%1").arg(options.externalId);
+        redmineOptions.parameters = QString("cf_%1=%2").arg(profileData()->externalIdFieldId)
+                                                       .arg(options.externalParentId);
 
         ++callbackCounter_;
         redmine_->retrieveIssues( [=]( Issues issues, RedmineError redmineError, QStringList errors )

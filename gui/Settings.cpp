@@ -30,9 +30,10 @@ Settings::Settings( MainWindow* mainWindow )
 
     // Set the models
     setCtxProperty( "issueStatusModel", &issueStatusModel_ );
-    setCtxProperty( "trackerModel", &trackerModel_ );
-    setCtxProperty( "startTimeModel", &startTimeModel_ );
-    setCtxProperty( "endTimeModel", &endTimeModel_ );
+    setCtxProperty( "trackerModel",     &trackerModel_ );
+    setCtxProperty( "externalIdModel",  &externalIdModel_ );
+    setCtxProperty( "startTimeModel",   &startTimeModel_ );
+    setCtxProperty( "endTimeModel",     &endTimeModel_ );
 
     profilesProxyModel_.setSourceModel( &profilesModel_ );
     profilesProxyModel_.setSortRole( SimpleModel::NameRole );
@@ -54,7 +55,7 @@ Settings::Settings( MainWindow* mainWindow )
     // Connect the rename profile button
     connect( qml("renameProfile"), SIGNAL(clicked()), this, SLOT(renameProfile()) );
 
-    // Connect the rename profile button
+    // Connect the use custom fields checkbox
     connect( qml("useCustomFields"), SIGNAL(clicked()), this, SLOT(toggleCustomFields()) );
 
     // Connect the cancel button
@@ -146,6 +147,7 @@ Settings::applyProfileData( bool* reload )
     data->checkConnection   = qml("checkConnection")->property("checked").toBool();
     data->ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
     data->numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
+    data->startLocalServer  = qml("startLocalServer")->property("checked").toBool();
     data->url               = qml("url")->property("text").toString();
     data->useCustomFields   = qml("useCustomFields")->property("checked").toBool();
 
@@ -177,6 +179,12 @@ Settings::applyProfileData( bool* reload )
             data->defaultTrackerId = trackerModel_.at(defaultTrackerIndex).id();
         }
 
+        if( externalIdModel_.rowCount() )
+        {
+            int externalIdFieldId = qml("externalId")->property("currentIndex").toInt();
+            data->externalIdFieldId = externalIdModel_.at(externalIdFieldId).id();
+        }
+
         if( startTimeModel_.rowCount() )
         {
             int startTimeFieldId = qml("startTime")->property("currentIndex").toInt();
@@ -196,6 +204,7 @@ Settings::applyProfileData( bool* reload )
         data->projectId  = NULL_ID;
         data->workedOnId = NULL_ID;
         data->defaultTrackerId = NULL_ID;
+        data->externalIdFieldId = NULL_ID;
         data->startTimeFieldId = NULL_ID;
         data->endTimeFieldId   = NULL_ID;
 
@@ -207,6 +216,7 @@ Settings::applyProfileData( bool* reload )
     redmine_->setAuthenticator( data->apiKey );
     redmine_->setCheckSsl( !data->ignoreSslErrors );
 
+    updateIssueCustomFields();
     updateIssueStatuses();
     updateTrackers();
     updateTimeEntryCustomFields();
@@ -352,6 +362,7 @@ Settings::display( bool loadMainProfile )
     qml("closeToTray")->setProperty( "checked", profileData()->closeToTray );
     qml("ignoreSslErrors")->setProperty( "checked", profileData()->ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", profileData()->numRecentIssues );
+    qml("startLocalServer")->setProperty( "checked", profileData()->startLocalServer );
     qml("url")->setProperty( "text", profileData()->url );
     qml("url")->setProperty( "cursorPosition", 0 );
     qml("useCustomFields")->setProperty( "checked", profileData()->useCustomFields );
@@ -362,6 +373,7 @@ Settings::display( bool loadMainProfile )
     qml("shortcutStartStop")->setProperty( "text", profileData()->shortcutStartStop );
     qml("shortcutToggle")->setProperty( "text", profileData()->shortcutToggle );
 
+    updateIssueCustomFields();
     updateIssueStatuses();
     updateTrackers();
     updateTimeEntryCustomFields();
@@ -493,6 +505,10 @@ Settings::loadProfileData( const int profileId, ProfileData* initData )
                            ? settings_.value("numRecentIssues").toInt()
                            : 10;
 
+    data.startLocalServer = settings_.value("startLocalServer").isValid()
+                           ? settings_.value("startLocalServer").toBool()
+                           : true;
+
     data.useCustomFields = settings_.value("useCustomFields").isValid()
                            ? settings_.value("useCustomFields").toBool()
                            : true;
@@ -511,6 +527,10 @@ Settings::loadProfileData( const int profileId, ProfileData* initData )
                       : NULL_ID;
     data.defaultTrackerId = settings_.value("defaultTrackerId").isValid()
                             ? settings_.value("defaultTrackerId").toInt()
+                            : NULL_ID;
+
+    data.externalIdFieldId = settings_.value("externalIdFieldId").isValid()
+                            ? settings_.value("externalIdFieldId").toInt()
                             : NULL_ID;
 
     data.startTimeFieldId = settings_.value("startTimeFieldId").isValid()
@@ -755,10 +775,12 @@ Settings::saveProfileData( int profileId )
         settings_.setValue( "checkConnection",   data->checkConnection );
         settings_.setValue( "ignoreSslErrors",   data->ignoreSslErrors );
         settings_.setValue( "numRecentIssues",   data->numRecentIssues );
+        settings_.setValue( "startLocalServer",  data->startLocalServer );
         settings_.setValue( "url",               data->url );
         settings_.setValue( "useCustomFields",   data->useCustomFields );
         settings_.setValue( "workedOnId",        data->workedOnId );
         settings_.setValue( "defaultTrackerId",  data->defaultTrackerId );
+        settings_.setValue( "externalIdFieldId", data->externalIdFieldId );
         settings_.setValue( "startTimeFieldId",  data->startTimeFieldId );
         settings_.setValue( "endTimeFieldId",    data->endTimeFieldId );
 
@@ -828,6 +850,7 @@ Settings::toggleCustomFields()
 {
     ENTER();
 
+    updateIssueCustomFields();
     updateTimeEntryCustomFields();
 
     RETURN();
@@ -905,6 +928,95 @@ Settings::updateIssueStatuses()
 }
 
 void
+Settings::updateIssueCustomFields()
+{
+    ENTER();
+
+    bool useCustomFields = qml("useCustomFields")->property("checked").toBool();
+
+    if( !profileData()->isValid() || !useCustomFields )
+    {
+        QString err;
+
+        if( useCustomFields )
+            err = "URL and API key required";
+        else
+            err = "Custom fields not enabled";
+
+        externalIdModel_.clear();
+        externalIdModel_.push_back( SimpleItem(NULL_ID, err) );
+        qml("externalId")->setProperty( "enabled", false );
+        qml("externalId")->setProperty( "currentIndex", -1 );
+        qml("externalId")->setProperty( "currentIndex", 0 );
+
+        RETURN();
+    }
+
+    CustomFieldFilter filter;
+    filter.format = "string";
+    filter.type   = "issue";
+
+    // @todo Remove from here
+    redmine_->setUrl( profileData()->url );
+    redmine_->setAuthenticator( profileData()->apiKey );
+    if( profileData()->ignoreSslErrors )
+        redmine_->setCheckSsl( false );
+    else
+        redmine_->setCheckSsl( true );
+
+    if( !connected() )
+        RETURN();
+
+    ++callbackCounter_;
+    redmine_->retrieveCustomFields( [&]( CustomFields customFields, RedmineError redmineError,
+                                         QStringList errors )
+    {
+        CBENTER();
+
+        if( redmineError != NO_ERROR )
+        {
+            QString errorMsg = tr("Could not load custom fields.");
+            for( const auto& error : errors )
+                errorMsg.append("\n").append(error);
+
+            message( errorMsg, QtCriticalMsg );
+            CBRETURN();
+        }
+
+        QString firstEntry;
+
+        if( customFields.size() )
+            firstEntry = "Choose issue field";
+        else
+            firstEntry = "No issue fields found";
+
+        int externalIdCurrentIndex = 0;
+        externalIdModel_.clear();
+        externalIdModel_.push_back( SimpleItem(NULL_ID, firstEntry) );
+
+        sort( customFields.begin(), customFields.end(),
+              [](CustomField l, CustomField r){ return l.name < r.name;} );
+
+        // Create loaded custom fields
+        for( const auto& customField : customFields )
+        {
+            if( customField.id == profileData()->externalIdFieldId )
+                externalIdCurrentIndex = externalIdModel_.rowCount();
+            externalIdModel_.push_back( SimpleItem(customField) );
+        }
+
+        qml("externalId")->setProperty( "currentIndex", -1 );
+        qml("externalId")->setProperty( "currentIndex", externalIdCurrentIndex );
+        qml("externalId")->setProperty( "enabled", true );
+
+        CBRETURN();
+    },
+    filter );
+
+    RETURN();
+}
+
+void
 Settings::updateTimeEntryCustomFields()
 {
     ENTER();
@@ -939,6 +1051,7 @@ Settings::updateTimeEntryCustomFields()
     filter.format = "string";
     filter.type   = "time_entry";
 
+    // @todo Remove from here
     redmine_->setUrl( profileData()->url );
     redmine_->setAuthenticator( profileData()->apiKey );
     if( profileData()->ignoreSslErrors )

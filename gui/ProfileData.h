@@ -48,6 +48,9 @@ struct ProfileData
     /// Use custom fields
     bool useCustomFields;
 
+    /// Start a local socket server
+    bool startLocalServer;
+
     /// Use system tray icon
     bool useSystemTrayIcon;
 
@@ -59,6 +62,9 @@ struct ProfileData
 
     /// Default tracker to use in the Issue Creator
     int defaultTrackerId;
+
+    /// ID of the issue custom field for the external issue ID
+    int externalIdFieldId;
 
     /// ID of the time entry custom field for the start time
     int startTimeFieldId;
