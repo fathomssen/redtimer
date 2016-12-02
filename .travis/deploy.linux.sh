@@ -87,7 +87,9 @@ new issues using RedTimer during which the time tracking will already start."
 rm -f $PREFIX.deb $PREFIX.rpm
 
 # .deb
-fpm -s dir -t deb -p $PREFIX.deb -m "${MAINT}" --description "${DESCR}" -n redtimer -v ${VERSION} -C dist --category net --deb-no-default-config-files --deb-changelog CHANGELOG --no-depends
+export DEBVERSION=${VERSION//-/\~} # Convert - to ~
+fpm -s dir -t deb -p $PREFIX.deb -m "${MAINT}" --description "${DESCR}" -n redtimer -v ${DEBVERSION} -C dist --category net --deb-no-default-config-files --deb-changelog CHANGELOG --no-depends
 
 # .rpm
-fpm -s dir -t rpm -p $PREFIX.rpm -m "${MAINT}" --description "${DESCR}" -n redtimer -v ${VERSION} -C dist --category net --deb-no-default-config-files
+export RPMVERSION=${VERSION//-/\_} # Convert - to _
+fpm -s dir -t rpm -p $PREFIX.rpm -m "${MAINT}" --description "${DESCR}" -n redtimer -v ${RPMVERSION} -C dist --category net --deb-no-default-config-files
