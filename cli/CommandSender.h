@@ -37,13 +37,6 @@ signals:
 
 public slots:
     /**
-     * @brief Delete the local socket and emit finished() signal if all sockets are deleted
-     *
-     * @param socket Socket to delete
-     */
-    void deleteSocket( QLocalSocket* socket );
-
-    /**
      * @brief Send commands to all running RedTimer instances
      *
      * @param options Options
@@ -57,6 +50,22 @@ public slots:
      * @param options Options
      */
     void sendToProfile( int profileId, const redtimer::CliOptions& options );
+
+private slots:
+    /**
+     * @brief Delete the local socket and emit finished() signal if all sockets are deleted
+     *
+     * @param socket Socket to delete
+     */
+    void deleteSocket( QLocalSocket* socket );
+
+    /**
+     * @brief Read an answer from the socket
+     *
+     * @param socket Socket connected to the RedTimer instance
+     * @param options Options
+     */
+    void readFromSocket( QLocalSocket* socket, const redtimer::CliOptions& options );
 
     /**
      * @brief Send commands to the running RedTimer instance connected to by the specified socket

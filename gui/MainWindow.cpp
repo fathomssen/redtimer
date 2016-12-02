@@ -1186,7 +1186,12 @@ MainWindow::receiveCommand()
         else if( options.command == "create" )
             loadOrCreateIssue( options );
         else if( options.command == "issue" )
-            void();
+            options.issueId = issue_.id;
+
+        QByteArray block = CliOptions::serialise( options );
+
+        socket->write( block );
+        socket->flush();
 
         CBRETURN();
     };

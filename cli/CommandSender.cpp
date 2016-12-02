@@ -35,6 +35,50 @@ CommandSender::deleteSocket( QLocalSocket* socket )
 }
 
 void
+CommandSender::readFromSocket( QLocalSocket* socket, const CliOptions& options )
+{
+    ENTER()(socket)(options);
+
+    auto cb = [=]()
+    {
+        ENTER();
+
+        CliOptions optionsIn = CliOptions::deserialise( socket );
+
+        DEBUG()(optionsIn);
+
+        std::string serverName = socket->serverName().toStdString();
+
+        if( options.command == optionsIn.command )
+        {
+            if( optionsIn.command == "issue" )
+            {
+                if( optionsIn.issueId != NULL_ID )
+                    cout << serverName << ": Current issue ID: " << optionsIn.issueId << endl;
+                else
+                    cout << serverName << ": No issue currently selected" << endl;
+            }
+            else
+            {
+                cout << serverName << ": Successfully sent command " << options.command.toStdString() << endl;
+            }
+        }
+        else
+        {
+            cout << serverName << ": Could not send command " << options.command.toStdString() << endl;
+        }
+
+        socket->disconnectFromServer();
+
+        RETURN();
+    };
+
+    connect( socket, &QLocalSocket::readyRead, cb );
+
+    RETURN();
+}
+
+void
 CommandSender::sendToAll( const CliOptions& options )
 {
     ENTER()(options);
@@ -82,7 +126,7 @@ CommandSender::sendToProfile( int profileId, const CliOptions& options )
     connect( socket, &QLocalSocket::connected,    [=](){ sendToSocket(socket, options); } );
     connect( socket, &QLocalSocket::disconnected, [=](){ deleteSocket(socket); } );
 
-    socket->connectToServer( serverName, QIODevice::WriteOnly );
+    socket->connectToServer( serverName, QIODevice::ReadWrite );
     if( !socket->waitForConnected() )
         deleteSocket( socket );
 
@@ -94,11 +138,17 @@ CommandSender::sendToSocket( QLocalSocket* socket, const CliOptions& options )
 {
     ENTER()(socket)(options);
 
+    cout << socket->serverName().toStdString() << ": Sending command " << options.command.toStdString()
+         << endl;
+
     QByteArray block = CliOptions::serialise( options );
 
     socket->write( block );
-    socket->flush();
-    socket->disconnectFromServer();
+
+    if( socket->flush() )
+        readFromSocket( socket, options );
+    else
+        socket->disconnectFromServer();
 
     RETURN();
 }
