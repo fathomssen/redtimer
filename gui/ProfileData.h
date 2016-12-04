@@ -27,9 +27,6 @@ struct ProfileData
     /// Redmine API key
     QString apiKey;
 
-    /// Manually check the network connection
-    bool checkConnection;
-
     /// Ignore SSL errors
     bool ignoreSslErrors;
 
@@ -109,7 +106,7 @@ inline QDebug
 operator<<( QDebug debug, const redtimer::ProfileData& data )
 {
     QDebugStateSaver saver( debug );
-    DEBUGFIELDS(id)(name)(apiKey)(checkConnection)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
+    DEBUGFIELDS(id)(name)(apiKey)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
             (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)
             (useSystemTrayIcon)(closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)
             (activityId)(issueId)(projectId)(recentIssues);

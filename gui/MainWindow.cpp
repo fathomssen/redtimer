@@ -58,12 +58,6 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     // Main window access members
     qmlCounter_ = qml( "counter" );
 
-    // Additional connection check in case that VirtualBox or similar is installed
-    checkConnectionTimer_ = new QTimer( this );
-    connect( checkConnectionTimer_, &QTimer::timeout, this, &MainWindow::checkNetworkConnection );
-    checkConnectionTimer_->setTimerType( Qt::VeryCoarseTimer );
-    checkConnectionTimer_->setInterval( 5000 );
-
     // Shortcuts
     shortcutCreateIssue_ = new QxtGlobalShortcut( this );
     shortcutSelectIssue_ = new QxtGlobalShortcut( this );
@@ -124,13 +118,13 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     connect( qml(), SIGNAL(counterEntered()), this, SLOT(pauseCounterGui()) );
     connect( qml("counter"), SIGNAL(editingFinished()), this, SLOT(resumeCounterGui()) );
 
-    // Connect the settings saved signal to the reconnect slot
+    // Connect the settings saved signal to the settingsApplied (including reconnect) slot
     connect( settings_, &Settings::applied, this, &MainWindow::settingsApplied );
 
     // Connect the timer to the tracking counter
     connect( timer_, &QTimer::timeout, this, &MainWindow::refreshCounter );
 
-    // Initially check the internet connection
+    // Initially check the Redmine connection
     redmine_->checkConnectionStatus();
 
     qml("quickPick")->setProperty( "editText", quickPick_ );
@@ -196,62 +190,10 @@ MainWindow::addRecentIssue( qtredmine::Issue issue )
     RETURN();
 }
 
-void
-MainWindow::checkNetworkConnection()
-{
-    ENTER();
-
-    QNetworkAccessManager::NetworkAccessibility accessible = QNetworkAccessManager::NotAccessible;
-
-    for( const auto& ifc : QNetworkInterface::allInterfaces() )
-    {
-        // Check whether interface is up, running and no loopback
-        if(    !ifc.isValid()
-            || !ifc.flags().testFlag(QNetworkInterface::IsUp)
-            || !ifc.flags().testFlag(QNetworkInterface::IsRunning)
-            || ifc.flags().testFlag(QNetworkInterface::IsLoopBack) )
-            continue;
-
-        // Ignore virtual interfaces
-        if(    ifc.humanReadableName().startsWith("VirtualBox")
-            || ifc.humanReadableName().startsWith("vbox")
-            || ifc.humanReadableName().startsWith("VMware") )
-            continue;
-
-        for( const auto& addr : ifc.addressEntries() )
-        {
-            const auto ip = addr.ip();
-
-            // Not a valid IPv4 or IPv6 address
-            if( ip.isNull() || ip.isLoopback() || ip == QHostAddress::Any )
-                continue;
-
-            DEBUG()(ip.toString());
-
-            accessible = QNetworkAccessManager::Accessible;
-            break;
-        }
-
-        if( accessible == QNetworkAccessManager::Accessible )
-        {
-            DEBUG()(ifc.humanReadableName());
-            break;
-        }
-    }
-
-    redmine_->checkConnectionStatus( accessible );
-
-    RETURN();
-}
-
 bool
 MainWindow::connected()
 {
-    ENTER();
-
-    if( connectedOnce_ && !connected_ )
-        message( MSG_CANNOT_PROCEDE, QtCriticalMsg, false );
-
+    ENTER()(connected_);
     RETURN( connected_ );
 }
 
@@ -303,12 +245,14 @@ MainWindow::createIssue()
     if( !timer_->isActive() )
         startTimer();
 
+    const ProfileData* data = profileData();
+
     // Display the issue creator with the current issue as parent
     IssueCreator* issueCreator = new IssueCreator( redmine_, this );
     issueCreator->setTransientParent( this );
     issueCreator->setCurrentIssue( issue_ );
-    issueCreator->setProjectId( profileData()->projectId );
-    issueCreator->setUseCustomFields( profileData()->useCustomFields );
+    issueCreator->setProjectId( data->projectId );
+    issueCreator->setUseCustomFields( data->useCustomFields );
     issueCreator->display();
 
     // Empty the issue information and set ID to NULL_ID
@@ -492,8 +436,10 @@ MainWindow::initTrayIcon()
 {
     ENTER();
 
+    const bool useSystemTrayIcon = profileData()->useSystemTrayIcon;
+
     // Create tray icon if desired and not yet available
-    if( !trayIcon_ && profileData()->useSystemTrayIcon
+    if( !trayIcon_ && useSystemTrayIcon
             && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( this );
@@ -510,9 +456,8 @@ MainWindow::initTrayIcon()
         // Connect the tray icon to the window show slot
         connect( trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::trayEvent );
     }
-
     // Hide tray icon if desired and currently shown
-    if( trayIcon_ && !profileData()->useSystemTrayIcon )
+    else if( trayIcon_ && !useSystemTrayIcon )
     {
         trayIcon_->hide();
         delete trayIcon_;
@@ -549,7 +494,7 @@ MainWindow::loadActivities()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load activities.");
             for( const auto& error : errors )
@@ -645,7 +590,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
     {
         CBENTER()(issue);
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load issue.");
             for( const auto& error : errors )
@@ -743,7 +688,7 @@ MainWindow::loadIssueStatuses()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr( "Could not load issue statuses." );
             for( const auto& error : errors )
@@ -832,7 +777,7 @@ MainWindow::loadLatestActivity()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr( "Could not load time entries." );
             for( const auto& error : errors )
@@ -1078,8 +1023,6 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
         if( !connected_ )
         {
             connected_ = true;            
-            connectedOnce_ = true;
-            deleteMessage( MSG_CANNOT_PROCEDE );
             refreshGui( false );
         }
 
@@ -1149,6 +1092,7 @@ MainWindow::profileSelected( int index )
 
         initServer();
 
+        connected_ = false;
         reconnect( false );
 
         CBRETURN();
@@ -1157,7 +1101,7 @@ MainWindow::profileSelected( int index )
     if( oldProfileId != newProfileId && counter() != 0 )
         stop( true, true, cb );
     else
-        cb( true, NULL_ID, (RedmineError)NO_ERROR, QStringList() );
+        cb( true, NULL_ID, RedmineError::NO_ERROR, QStringList() );
 
 
     RETURN();
@@ -1231,8 +1175,11 @@ MainWindow::reconnect( bool refreshProfiles )
 {
     ENTER();
 
-    redmine_->setUrl( profileData()->url );
-    redmine_->setAuthenticator( profileData()->apiKey );
+    const ProfileData* data = profileData();
+
+    redmine_->setUrl( data->url );
+    redmine_->setAuthenticator( data->apiKey );
+    redmine_->reconnect();
 
     refreshGui( refreshProfiles );
 
@@ -1247,33 +1194,30 @@ MainWindow::refreshGui( bool refreshProfiles )
 {
     ENTER();
 
-    if( profileData()->ignoreSslErrors )
+    const ProfileData* data = profileData();
+
+    if( data->ignoreSslErrors )
         redmine_->setCheckSsl( false );
     else
         redmine_->setCheckSsl( true );
 
-    if( profileData()->checkConnection )
-        checkConnectionTimer_->start();
-    else
-        checkConnectionTimer_->stop();
-
-    shortcutCreateIssue_->setShortcut( QKeySequence(profileData()->shortcutCreateIssue) );
-    shortcutSelectIssue_->setShortcut( QKeySequence(profileData()->shortcutSelectIssue) );
-    shortcutStartStop_->setShortcut( QKeySequence(profileData()->shortcutStartStop) );
-    shortcutToggle_->setShortcut(  QKeySequence(profileData()->shortcutToggle) );
+    shortcutCreateIssue_->setShortcut( QKeySequence(data->shortcutCreateIssue) );
+    shortcutSelectIssue_->setShortcut( QKeySequence(data->shortcutSelectIssue) );
+    shortcutStartStop_->setShortcut( QKeySequence(data->shortcutStartStop) );
+    shortcutToggle_->setShortcut(  QKeySequence(data->shortcutToggle) );
 
     initTrayIcon();
 
     if( refreshProfiles )
         loadProfiles();
 
-    if( profileData()->activityId != NULL_ID)
-        activityId_ = profileData()->activityId;
+    if( data->activityId != NULL_ID)
+        activityId_ = data->activityId;
 
-    loadIssue( profileData()->issueId, false, true );
+    loadIssue( data->issueId, false, true );
 
     recentIssues_.clear();
-    for( const auto& issue : profileData()->recentIssues )
+    for( const auto& issue : data->recentIssues )
         recentIssues_.push_back( issue );
 
     loadLatestActivity();
@@ -1312,14 +1256,15 @@ MainWindow::saveSettings()
 {
     ENTER();
 
+    ProfileData* data = profileData();
     settings_->windowData()->mainWindow = getWindowData();
-    profileData()->recentIssues = recentIssues_.data().toVector();
+    data->recentIssues = recentIssues_.data().toVector();
 
     // If currently there is no issue selected, use the first one from the recently opened issues list
     if( issue_.id == NULL_ID && recentIssues_.rowCount() )
-        profileData()->issueId = recentIssues_.at(0).id;
+        data->issueId = recentIssues_.at(0).id;
     else
-        profileData()->issueId = issue_.id;
+        data->issueId = issue_.id;
 
     settings_->save();
 
@@ -1423,7 +1368,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     if( !timer_->isActive() && counterGui() == 0 )
     {
         if( cb )
-            cb( true, NULL_ID, (RedmineError)NO_ERROR, QStringList() );
+            cb( true, NULL_ID, (RedmineError)RedmineError::NO_ERROR, QStringList() );
 
         RETURN();
     }
@@ -1436,7 +1381,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         message( errors.at(0), QtCriticalMsg );
 
         if( cb )
-            cb( false, NULL_ID, ERR_NOT_SAVED, errors );
+            cb( false, NULL_ID, RedmineError::ERR_NOT_SAVED, errors );
 
         RETURN();
     }
@@ -1448,7 +1393,8 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     timeEntry.issue.id    = issue_.id;
 
     // Possibly save start and end time as well
-    if( profileData()->useCustomFields )
+    const ProfileData* data = profileData();
+    if( data->useCustomFields )
     {
         auto addCustomField = [&timeEntry]( int fieldId, QString stime )
         {
@@ -1467,8 +1413,8 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         };
 
         QString timeFormat = "yyyy-MM-ddTHH:mm:ss";
-        addCustomField( profileData()->startTimeFieldId, lastStarted_.toString(timeFormat) );
-        addCustomField( profileData()->endTimeFieldId,
+        addCustomField( data->startTimeFieldId, lastStarted_.toString(timeFormat) );
+        addCustomField( data->endTimeFieldId,
                         QDateTime::currentDateTimeUtc().toString(timeFormat) );
     }
 
@@ -1480,7 +1426,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     {
         CBENTER()(success)(id)(errorCode)(errors);
 
-        if( !success && errorCode != ERR_TIME_ENTRY_TOO_SHORT )
+        if( !success && errorCode != RedmineError::ERR_TIME_ENTRY_TOO_SHORT )
         {
             QString errorMsg = tr( "Could not save the time entry." );
             for( const auto& error : errors )
@@ -1493,7 +1439,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
             CBRETURN();
         }
 
-        if( errorCode == ERR_TIME_ENTRY_TOO_SHORT )
+        if( errorCode == RedmineError::ERR_TIME_ENTRY_TOO_SHORT )
             message( tr("Not saving time entries shorter than one minute."), QtWarningMsg );
 
         if( !stopTimerAfterSaving )
@@ -1502,14 +1448,14 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         if( success )
             message( tr("Saved time %1").arg(QTime(0, 0, 0).addSecs(counter()).toString("HH:mm:ss")) );
 
-        if( success || (resetTimerOnError && errorCode != ERR_TIME_ENTRY_TOO_SHORT) )
+        if( success || (resetTimerOnError && errorCode != RedmineError::ERR_TIME_ENTRY_TOO_SHORT) )
         {
             counterDiff_ = 0;
             qmlCounter_->setProperty( "text", "00:00:00" );
         }
 
         DEBUG() << "Emitting signal timeEntrySaved()";
-        timeEntrySaved();
+        emit timeEntrySaved();
 
         if( cb )
             cb( true, id, errorCode, errors );
@@ -1615,9 +1561,10 @@ MainWindow::updateTitle()
 {
     ENTER();
 
+    const QString name = profileData()->name;
     QString title = "RedTimer";
-    if( !profileData()->name.isEmpty() )
-        title.append(" - ").append( profileData()->name );
+    if( !name.isEmpty() )
+        title.append(" - ").append( name );
     setTitle( title );
 
     if( trayIcon_ )

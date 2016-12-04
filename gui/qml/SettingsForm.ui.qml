@@ -199,13 +199,6 @@ ColumnLayout {
                     Layout.columnSpan: 2
                 }
 
-                CheckBox {
-                    id: checkConnection
-                    objectName: "checkConnection"
-                    text: qsTr("Check network connection every 5s")
-                    Layout.columnSpan: 2
-                }
-
                 Item {
                     // Spacer
                     Layout.fillHeight: true

@@ -103,7 +103,7 @@ Settings::apply()
             save();
 
             DEBUG() << "Emitting applied() signal";
-            applied();
+            emit applied();
 
             CBRETURN();
         };
@@ -113,7 +113,9 @@ Settings::apply()
         mainWindow()->stop( true, true, cb );
     }
     else
-        applied();
+    {
+        emit applied();
+    }
 
     RETURN();
 }
@@ -144,7 +146,6 @@ Settings::applyProfileData( bool* reload )
 
     // Connection
     data->apiKey            = qml("apikey")->property("text").toString();
-    data->checkConnection   = qml("checkConnection")->property("checked").toBool();
     data->ignoreSslErrors   = qml("ignoreSslErrors")->property("checked").toBool();
     data->numRecentIssues   = qml("numRecentIssues")->property("text").toInt();
     data->startLocalServer  = qml("startLocalServer")->property("checked").toBool();
@@ -358,7 +359,6 @@ Settings::display( bool loadMainProfile )
 
     qml("apikey")->setProperty( "text", profileData()->apiKey );
     qml("apikey")->setProperty( "cursorPosition", 0 );
-    qml("checkConnection")->setProperty( "checked", profileData()->checkConnection );
     qml("closeToTray")->setProperty( "checked", profileData()->closeToTray );
     qml("ignoreSslErrors")->setProperty( "checked", profileData()->ignoreSslErrors );
     qml("numRecentIssues")->setProperty( "text", profileData()->numRecentIssues );
@@ -462,7 +462,7 @@ Settings::load( const bool apply, const bool createNewProfile )
         profileId_ = profilesModel_.at(0).id();
 
     if( apply )
-        applied();
+        emit applied();
 
     DEBUG()(data_.profiles);
 
@@ -497,7 +497,6 @@ Settings::loadProfileData( const int profileId, ProfileData* initData )
 
     // Connection
     data.apiKey = settings_.value("apikey").toString();
-    data.checkConnection = settings_.value("checkConnection").toBool();
     data.ignoreSslErrors = settings_.value("ignoreSslErrors").toBool();
     data.url = settings_.value("url").toString();
 
@@ -772,7 +771,6 @@ Settings::saveProfileData( int profileId )
     // Connection
     {
         settings_.setValue( "apikey",            data->apiKey );
-        settings_.setValue( "checkConnection",   data->checkConnection );
         settings_.setValue( "ignoreSslErrors",   data->ignoreSslErrors );
         settings_.setValue( "numRecentIssues",   data->numRecentIssues );
         settings_.setValue( "startLocalServer",  data->startLocalServer );
@@ -889,7 +887,7 @@ Settings::updateIssueStatuses()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load issue statuses.");
             for( const auto& error : errors )
@@ -973,7 +971,7 @@ Settings::updateIssueCustomFields()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load custom fields.");
             for( const auto& error : errors )
@@ -1068,7 +1066,7 @@ Settings::updateTimeEntryCustomFields()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load custom fields.");
             for( const auto& error : errors )
@@ -1155,7 +1153,7 @@ Settings::updateTrackers()
     {
         CBENTER();
 
-        if( redmineError != NO_ERROR )
+        if( redmineError != RedmineError::NO_ERROR )
         {
             QString errorMsg = tr("Could not load trackers.");
             for( const auto& error : errors )

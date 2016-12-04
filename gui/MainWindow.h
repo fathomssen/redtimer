@@ -68,14 +68,8 @@ private:
     /// Update the counter in the GUI
     bool updateCounterGui_ = true;
 
-    /// Timer for manually checking the connection
-    QTimer* checkConnectionTimer_ = nullptr;
-
     /// Currently connected
     bool connected_ = false;
-
-    /// Connection was established once
-    bool connectedOnce_ = false;
 
     /// Add this time in seconds to the tracked time (may be negative)
     int counterDiff_ = 0;
@@ -215,13 +209,6 @@ private slots:
      * @brief Slot to a selected activity
      */
     void activitySelected( int index );
-
-    /**
-     * @brief Proactively check the network connection, ignoring virtual interfaces
-     *
-     * @return \c Accessible if connection currently works, \c NotAccessible otherwise
-     */
-    void checkNetworkConnection();
 
     /**
      * @brief Display and raise the main window
