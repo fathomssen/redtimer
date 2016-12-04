@@ -494,7 +494,7 @@ MainWindow::loadActivities()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load activities.");
             for( const auto& error : errors )
@@ -590,7 +590,7 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
     {
         CBENTER()(issue);
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load issue.");
             for( const auto& error : errors )
@@ -688,7 +688,7 @@ MainWindow::loadIssueStatuses()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr( "Could not load issue statuses." );
             for( const auto& error : errors )
@@ -777,7 +777,7 @@ MainWindow::loadLatestActivity()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr( "Could not load time entries." );
             for( const auto& error : errors )
@@ -1101,7 +1101,7 @@ MainWindow::profileSelected( int index )
     if( oldProfileId != newProfileId && counter() != 0 )
         stop( true, true, cb );
     else
-        cb( true, NULL_ID, RedmineError::NO_ERROR, QStringList() );
+        cb( true, NULL_ID, RedmineError::NO_ERR, QStringList() );
 
 
     RETURN();
@@ -1368,7 +1368,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     if( !timer_->isActive() && counterGui() == 0 )
     {
         if( cb )
-            cb( true, NULL_ID, (RedmineError)RedmineError::NO_ERROR, QStringList() );
+            cb( true, NULL_ID, (RedmineError)RedmineError::NO_ERR, QStringList() );
 
         RETURN();
     }

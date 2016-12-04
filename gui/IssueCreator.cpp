@@ -152,7 +152,7 @@ IssueCreator::loadAssignees()
     {
         CBENTER()(assignees)(redmineError)(errors);
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load assignees.");
             for( const auto& error : errors )
@@ -235,7 +235,7 @@ IssueCreator::loadCategories()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load projects.");
             for( const auto& error : errors )
@@ -292,7 +292,7 @@ IssueCreator::loadCurrentUser()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load current user.");
             for( const auto& error : errors )
@@ -335,7 +335,7 @@ IssueCreator::loadCustomFields()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load custom fields.");
             for( const auto& error : errors )
@@ -538,7 +538,7 @@ IssueCreator::loadParentIssueData()
     {
         CBENTER()(issue);
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load issue.");
             for( const auto& error : errors )
@@ -617,7 +617,7 @@ IssueCreator::loadProjects()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load projects.");
             for( const auto& error : errors )
@@ -670,7 +670,7 @@ IssueCreator::loadTrackers()
     {
         CBENTER()(project)(redmineError)(errors);
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load projects.");
             for( const auto& error : errors )
@@ -722,7 +722,7 @@ IssueCreator::loadVersions()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load versions.");
             for( const auto& error : errors )

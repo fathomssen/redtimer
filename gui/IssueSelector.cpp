@@ -184,7 +184,7 @@ IssueSelector::loadAssignees()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load assignees.");
             for( const auto& error : errors )
@@ -263,7 +263,7 @@ IssueSelector::loadIssues()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load issues.");
             for( const auto& error : errors )
@@ -300,7 +300,7 @@ IssueSelector::loadProjects()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load projects.");
             for( const auto& error : errors )
@@ -362,7 +362,7 @@ IssueSelector::loadVersions()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load versions.");
             for( const auto& error : errors )

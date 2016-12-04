@@ -887,7 +887,7 @@ Settings::updateIssueStatuses()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load issue statuses.");
             for( const auto& error : errors )
@@ -971,7 +971,7 @@ Settings::updateIssueCustomFields()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load custom fields.");
             for( const auto& error : errors )
@@ -1066,7 +1066,7 @@ Settings::updateTimeEntryCustomFields()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load custom fields.");
             for( const auto& error : errors )
@@ -1153,7 +1153,7 @@ Settings::updateTrackers()
     {
         CBENTER();
 
-        if( redmineError != RedmineError::NO_ERROR )
+        if( redmineError != RedmineError::NO_ERR )
         {
             QString errorMsg = tr("Could not load trackers.");
             for( const auto& error : errors )
