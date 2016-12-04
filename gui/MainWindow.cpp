@@ -1440,7 +1440,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
         }
 
         if( errorCode == RedmineError::ERR_TIME_ENTRY_TOO_SHORT )
-            message( tr("Not saving time entries shorter than one minute."), QtWarningMsg );
+            message( tr("Not saving too short time entries."), QtWarningMsg );
 
         if( !stopTimerAfterSaving )
             startTimer();
