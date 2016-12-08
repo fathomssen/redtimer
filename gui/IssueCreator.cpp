@@ -744,7 +744,12 @@ IssueCreator::loadVersions()
 
         for( const auto& version : versions )
         {
-            if( version.dueDate < QDate::currentDate() )
+            // @todo Control the date check with a switch
+            //if( version.dueDate < QDate::currentDate() )
+            //    continue;
+
+            // @todo Control the status check with a switch
+            if( version.status != VersionStatus::open )
                 continue;
 
             if( version.id == versionId_ )
