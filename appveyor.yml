@@ -1,12 +1,10 @@
 version: '{branch}-{build}'
 
-environment:
-  QTDIR: C:\Qt\5.7\mingw53_32
-
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - C:\Qt\5.7\mingw53_32\bin\qtenv2.bat
+  - set QTDIR=C:\Qt\5.7\mingw53_32
+  - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
   - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
