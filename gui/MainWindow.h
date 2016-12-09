@@ -195,14 +195,13 @@ protected:
     /**
      * @brief Filter Qt events
      *
-     * Prevent the GUI from closing when timer is running.
+     * Checks the connection when the main window has gained focus.
      *
-     * @param obj Watched object
      * @param event Received event
      *
      * @return true if event has been processed, false otherwise
      */
-    bool eventFilter( QObject* obj, QEvent* event );
+    bool event( QEvent* event );
 
 private slots:
     /**

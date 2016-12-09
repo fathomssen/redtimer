@@ -305,12 +305,20 @@ MainWindow::hide()
 }
 
 bool
-MainWindow::eventFilter( QObject* obj, QEvent* event )
+MainWindow::event( QEvent* event )
 {
+    // Try to reconnect upon window focus
+    if( event->type() == QEvent::FocusIn )
+    {
+        DEBUG() << "Received window activated signal";
+        reconnect( false );
+    }
+
     // Control closing behaviour depending on tray icon usage
     if( event->type() == QEvent::Close )
     {
-        DEBUG("Received close signal");
+        DEBUG() << "Received close signal";
+
         if( trayIcon_ && profileData()->closeToTray )
             hide();
         else
@@ -320,7 +328,7 @@ MainWindow::eventFilter( QObject* obj, QEvent* event )
         return true;
     }
 
-    return QObject::eventFilter( obj, event );
+    return Window::event( event );
 }
 
 void
@@ -492,7 +500,10 @@ MainWindow::loadActivities()
     redmine_->retrieveTimeEntryActivities( [&]( Enumerations activities, RedmineError redmineError,
                                                 QStringList errors )
     {
-        CBENTER();
+        CBENTER()(redmineError)(errors);
+
+        if( !connected() )
+            CBRETURN();
 
         if( redmineError != RedmineError::NO_ERR )
         {
@@ -588,7 +599,10 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
     ++callbackCounter_;
     redmine_->retrieveIssue( [=]( Issue issue, RedmineError redmineError, QStringList errors )
     {
-        CBENTER()(issue);
+        CBENTER()(issue)(redmineError)(errors);
+
+        if( !connected() )
+            CBRETURN();
 
         if( redmineError != RedmineError::NO_ERR )
         {
@@ -686,7 +700,10 @@ MainWindow::loadIssueStatuses()
     redmine_->retrieveIssueStatuses( [&]( IssueStatuses issueStatuses, RedmineError redmineError,
                                           QStringList errors )
     {
-        CBENTER();
+        CBENTER()(redmineError)(errors);
+
+        if( !connected() )
+            CBRETURN();
 
         if( redmineError != RedmineError::NO_ERR )
         {
@@ -775,7 +792,10 @@ MainWindow::loadLatestActivity()
     redmine_->retrieveTimeEntries( [&]( TimeEntries timeEntries, RedmineError redmineError,
                                         QStringList errors )
     {
-        CBENTER();
+        CBENTER()(redmineError)(errors);
+
+        if( !connected() )
+            CBRETURN();
 
         if( redmineError != RedmineError::NO_ERR )
         {
@@ -911,7 +931,8 @@ MainWindow::loadOrCreateIssue( CliOptions options )
             {
                 if( profileData()->externalIdFieldId == NULL_ID )
                 {
-                    message( "Cannot load existing parent issue: No external ID field specified.", QtCriticalMsg );
+                    message( "Cannot load existing parent issue: No external ID field specified.",
+                             QtCriticalMsg );
 
                     semaphore->release();
                     delete semaphore;

@@ -57,9 +57,9 @@ Window::event( QEvent* event )
     // Show warning on close and if timer is running
     if( emitClosedSignal_ && event->type() == QEvent::Close )
     {
-        DEBUG("Received close signal")(this);
+        DEBUG() << "Received close signal";
         emitClosedSignal_ = false;
-        closed();
+        emit closed();
     }
 
     return QQuickView::event( event );
