@@ -317,10 +317,7 @@ MainWindow::event( QEvent* event )
         DEBUG() << "Received window activated signal";
 
         if( initialised_ )
-        {
             reconnect();
-            refreshGui( false );
-        }
     }
 
     // Control closing behaviour depending on tray icon usage
