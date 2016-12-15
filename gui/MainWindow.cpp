@@ -71,6 +71,7 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     // Initially connect and update the GUI
     reconnect();
+    refreshGui();
 
     // Notify upon connection status change
     connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &MainWindow::notifyConnectionStatus );
@@ -93,7 +94,7 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     connect( qml("settings"), SIGNAL(clicked()), settings_, SLOT(display()) );
 
     // Connect the reload button
-    connect( qml("reload"), SIGNAL(clicked()), this, SLOT(reconnect()) );
+    connect( qml("reload"), SIGNAL(clicked()), this, SLOT(reconnectAndRefreshGui()) );
 
     // Connect the issue selector button
     connect( qml("selectIssue"), SIGNAL(clicked()), this, SLOT(selectIssue()) );
@@ -316,7 +317,10 @@ MainWindow::event( QEvent* event )
         DEBUG() << "Received window activated signal";
 
         if( initialised_ )
-            reconnect( false );
+        {
+            reconnect();
+            refreshGui( false );
+        }
     }
 
     // Control closing behaviour depending on tray icon usage
@@ -1119,7 +1123,8 @@ MainWindow::profileSelected( int index )
         initServer();
 
         connected_ = false;
-        reconnect( false );
+        reconnect();
+        refreshGui( false );
 
         CBRETURN();
     };
@@ -1197,23 +1202,29 @@ MainWindow::resumeCounterGui()
 }
 
 void
-MainWindow::reconnect( bool refreshProfiles )
+MainWindow::reconnect()
 {
     ENTER();
 
     const ProfileData* data = profileData();
 
-    if( data->isValid() )
+    if( data->isValid() && !connected() )
     {
         redmine_->setUrl( data->url );
         redmine_->setAuthenticator( data->apiKey );
         redmine_->reconnect();
     }
 
-    refreshGui( refreshProfiles );
+    RETURN();
+}
 
-    if( !timer_->isActive() && counter() != 0 )
-        stop();
+void
+MainWindow::reconnectAndRefreshGui( bool refreshProfiles )
+{
+    ENTER();
+
+    reconnect();
+    refreshGui( refreshProfiles );
 
     RETURN();
 }
@@ -1253,6 +1264,9 @@ MainWindow::refreshGui( bool refreshProfiles )
     loadIssueStatuses();
 
     updateTitle();
+
+    if( !timer_->isActive() && counter() != 0 )
+        stop();
 
     RETURN();
 }
@@ -1342,6 +1356,7 @@ MainWindow::settingsApplied()
     }
 
     reconnect();
+    refreshGui();
 
     RETURN();
 }

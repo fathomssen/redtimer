@@ -304,10 +304,15 @@ private slots:
 
     /**
      * @brief Reconnect to Redmine
+     */
+    void reconnect();
+
+    /**
+     * @brief Reconnect to Redmine and refresh Redmine entities
      *
      * @param refreshProfiles Refresh profiles (default: true)
      */
-    void reconnect( bool refreshProfiles = true );
+    void reconnectAndRefreshGui( bool refreshProfiles = true );
 
     /**
      * @brief Refresh Redmine entities
