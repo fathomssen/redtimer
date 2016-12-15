@@ -3,7 +3,7 @@
 namespace redtimer {
 
 bool
-ProfileData::isValid( QString* errmsg )
+ProfileData::isValid( QString* errmsg ) const
 {
     ENTER();
 

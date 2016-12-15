@@ -97,7 +97,7 @@ struct ProfileData
      *
      * @return true if settings are valid, false otherwise
      */
-    bool isValid( QString* errmsg = nullptr );
+    bool isValid( QString* errmsg = nullptr ) const;
 };
 
 } // redtimer

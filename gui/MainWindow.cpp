@@ -38,22 +38,18 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     setProfileId( profile );
 
-    if( !profileData()->isValid() )
-    {
-        connected_ = false;
-        settings_->display();
-    }
-
     // Main window initialisation
     installEventFilter( this );
     setTitle( "RedTimer" );
 
     setWindowData( settings_->windowData()->mainWindow );
-
     display();
 
-    // Notify upon connection status change
-    connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &MainWindow::notifyConnectionStatus );
+    if( !profileData()->isValid() )
+    {
+        connected_ = false;
+        settings_->display();
+    }
 
     // Main window access members
     qmlCounter_ = qml( "counter" );
@@ -75,6 +71,9 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     // Initially connect and update the GUI
     reconnect();
+
+    // Notify upon connection status change
+    connect( redmine_, &SimpleRedmineClient::connectionChanged, this, &MainWindow::notifyConnectionStatus );
 
     setCtxProperty( "activityModel",     &activityModel_ );
     setCtxProperty( "issueStatusModel",  &issueStatusModel_ );
@@ -136,8 +135,12 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     // Connect the issue selected signal to the setIssue slot
     connect( issueSelector_, &IssueSelector::selected, [=](int issueId)
     {
+        ENTER()(issueId);
+
         profileData()->projectId = issueSelector_->getProjectId();
         loadIssue( issueId );
+
+        RETURN();
     } );
 
     loadProfiles();
@@ -311,7 +314,9 @@ MainWindow::event( QEvent* event )
     if( event->type() == QEvent::FocusIn )
     {
         DEBUG() << "Received window activated signal";
-        reconnect( false );
+
+        if( initialised_ )
+            reconnect( false );
     }
 
     // Control closing behaviour depending on tray icon usage
@@ -1198,9 +1203,12 @@ MainWindow::reconnect( bool refreshProfiles )
 
     const ProfileData* data = profileData();
 
-    redmine_->setUrl( data->url );
-    redmine_->setAuthenticator( data->apiKey );
-    redmine_->reconnect();
+    if( data->isValid() )
+    {
+        redmine_->setUrl( data->url );
+        redmine_->setAuthenticator( data->apiKey );
+        redmine_->reconnect();
+    }
 
     refreshGui( refreshProfiles );
 
