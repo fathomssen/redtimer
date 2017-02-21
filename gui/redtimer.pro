@@ -4,6 +4,11 @@ CONFIG += c++11
 
 QT += gui qml quick svg widgets
 
+unix:!macx {
+    # Required for global shortcuts on X11
+    QT += gui-private
+}
+
 RC_ICONS = icons/clock_red.ico
 ICON = icons/clock_red.icns
 
