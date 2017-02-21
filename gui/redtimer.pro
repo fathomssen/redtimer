@@ -3,7 +3,6 @@ TEMPLATE = app
 CONFIG += c++11
 
 QT += gui qml quick svg widgets
-QT += gui-private # Required for global shortcuts on some Linux distributions
 
 RC_ICONS = icons/clock_red.ico
 ICON = icons/clock_red.icns
