@@ -11,9 +11,9 @@ matrix:
       dist: trusty
       sudo: required
       env:
-        - qtenv: /opt/qt57/bin/qt57-env.sh
-        - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt57-trusty
+        - qtenv: /opt/qt58/bin/qt58-env.sh
+        - qtpkg: "'qt58base qt58quickcontrols qt58quickcontrols2 qt58svg qt58x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt58-trusty
     ####################### macOS #######################
     ###
     ### OS X 10.10

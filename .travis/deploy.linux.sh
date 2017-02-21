@@ -24,20 +24,8 @@ cp cli/redtimercli dist/opt/redtimer
 cp gui/icons/clock_red.svg dist/opt/redtimer/redtimer.svg
 cp .travis/redtimer.desktop dist/opt/redtimer
 
-# Include SVG icon engine
-# @todo Integrate into deploylinuxqt
-mkdir -p dist/opt/redtimer/plugins/iconengines
-cp -a /opt/qt57/plugins/iconengines/libqsvgicon.so dist/opt/redtimer/plugins/iconengines
-
-# First run
-.travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -verbose=2
+# Create AppImage
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
-
-# Stripping by linuxdeployqt does not satisfy lintian
-strip dist/opt/redtimer/redtimer
-strip dist/opt/redtimer/redtimercli
-
-# Second run, to include xcbglintegration
 .travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
 mv dist/opt/redtimer.AppImage $PREFIX.AppImage
