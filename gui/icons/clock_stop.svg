@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="273.06668"
+   height="273.06668"
+   viewBox="0 0 256 256"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="clock_stop.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs8" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1680"
+     inkscape:window-height="928"
+     id="namedview6"
+     showgrid="false"
+     inkscape:zoom="2"
+     inkscape:cx="74.949936"
+     inkscape:cy="113.62262"
+     inkscape:window-x="0"
+     inkscape:window-y="1"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <path
+     style="fill:#000000;fill-opacity:1"
+     d="M 99.302734 0 C 44.6863 0 0 44.661603 0 99.248047 C 0 153.83449 44.6863 198.49609 99.302734 198.49609 C 110.39605 198.49609 121.07977 196.65372 131.0625 193.25977 L 131.0625 166.61133 C 121.43319 171.1422 110.6736 173.68359 99.302734 173.68359 C 58.092153 173.68359 24.826172 140.43601 24.826172 99.248047 C 24.826172 58.060096 58.092153 24.8125 99.302734 24.8125 C 140.51332 24.8125 173.7793 58.060096 173.7793 99.248047 C 173.7793 110.67134 171.21229 121.47872 166.63477 131.14062 L 193.3125 131.14062 C 196.74121 121.12011 198.60547 110.39125 198.60547 99.248047 C 198.60547 44.661603 153.91917 0 99.302734 0 z M 86.890625 50.091797 L 86.890625 104.7168 L 90.894531 107.91992 L 103.30664 120.32422 L 111.71484 129.79688 L 129.59961 111.91992 L 120.125 103.44922 L 111.71484 95.046875 L 111.71484 50.091797 L 86.890625 50.091797 z "
+     transform="scale(0.93749995,0.93749995)"
+     id="path4" />
+  <rect
+     style="fill:#000000;fill-opacity:1;stroke-width:1.03414369"
+     id="rect5753"
+     width="73.125"
+     height="73.125"
+     x="154.57236"
+     y="153.70685" />
+</svg>

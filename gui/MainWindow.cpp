@@ -17,6 +17,10 @@
 #include <QSystemSemaphore>
 #include <QTime>
 
+#ifdef Q_OS_MACOS
+#include <Carbon/Carbon.h>
+#endif
+
 using namespace qtredmine;
 using namespace std;
 
@@ -24,9 +28,10 @@ namespace redtimer {
 
 #define MSG_CANNOT_PROCEDE "Cannot procede without a connection"
 
-MainWindow::MainWindow( QApplication* parent, const QString profile )
+MainWindow::MainWindow( QApplication* parent, const QString& profileId )
     : Window( "MainWindow", this ),
-      app_( parent )
+      app_( parent ),
+      profileId_( profileId )
 {
     ENTER();
 
@@ -34,16 +39,18 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
     redmine_ = new SimpleRedmineClient( this );
 
     // Settings initialisation
-    settings_ = new Settings( this );
-
-    setProfileId( profile );
+    settings_ = new Settings( this, profileId );
 
     // Main window initialisation
     installEventFilter( this );
     setTitle( "RedTimer" );
 
     setWindowData( settings_->windowData()->mainWindow );
-    display();
+
+    if( profileData()->hidden )
+        hide();
+    else
+        display();
 
     if( !profileData()->isValid() )
     {
@@ -78,14 +85,10 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
     setCtxProperty( "activityModel",     &activityModel_ );
     setCtxProperty( "issueStatusModel",  &issueStatusModel_ );
-    setCtxProperty( "profilesModel",     &profilesModel_ );
     setCtxProperty( "recentIssuesModel", &recentIssues_ );
 
     // Set transient window parent
     settings_->setTransientParent( this );
-
-    // Connect the profile selected signal to the profileSelected slot
-    connect( qml("profiles"), SIGNAL(activated(int)), this, SLOT(profileSelected(int)) );
 
     // Connect the create issue button
     connect( qml("createIssue"), SIGNAL(clicked()), this, SLOT(createIssue()) );
@@ -143,8 +146,6 @@ MainWindow::MainWindow( QApplication* parent, const QString profile )
 
         RETURN();
     } );
-
-    loadProfiles();
 
     server = new QLocalServer( this );
     server->setSocketOptions( QLocalServer::UserAccessOption );
@@ -251,6 +252,9 @@ MainWindow::createIssue()
 
     const ProfileData* data = profileData();
 
+    // Make sure that the main window is visible
+    display();
+
     // Display the issue creator with the current issue as parent
     IssueCreator* issueCreator = new IssueCreator( redmine_, this );
     issueCreator->setTransientParent( this );
@@ -287,9 +291,17 @@ MainWindow::display()
 {
     ENTER();
 
+#ifdef Q_OS_OSX
+    ProcessSerialNumber pn;
+    GetFrontProcess( &pn );
+    TransformProcessType( &pn, kProcessTransformToForegroundApplication );
+#endif
+
     raise();
     requestActivate();
     showNormal();
+
+    hidden_ = false;
 
     RETURN();
 }
@@ -299,13 +311,24 @@ MainWindow::hide()
 {
     ENTER();
 
+    hidden_ = true;
+
 #ifdef Q_OS_OSX
-    showMinimized();
+    ProcessSerialNumber pn;
+    GetFrontProcess( &pn );
+    TransformProcessType( &pn, kProcessTransformToUIElementApplication );
 #else
     Window::hide();
 #endif
 
     RETURN();
+}
+
+bool
+MainWindow::hidden()
+{
+    ENTER();
+    RETURN( hidden_ );
 }
 
 bool
@@ -364,42 +387,42 @@ MainWindow::exit()
 
         switch( ret )
         {
-        case QMessageBox::Cancel:
-            // Ignore the event
-            DEBUG() << "Ignoring the close event";
-            return;
+            case QMessageBox::Cancel:
+                // Ignore the event
+                DEBUG() << "Ignoring the close event";
+                return;
 
-        case QMessageBox::Save:
-        {
-            DEBUG() << "Saving time entry before closing the application";
-
-            // Only go on with closing the window if saving was successful
-            // If saving was successful before the blocker has been started, do not start it at all
-            QEventLoop* blocker = new QEventLoop();
-            bool startBlocker = true;
-            connect( this, &MainWindow::timeEntrySaved, [&]()
+            case QMessageBox::Save:
             {
-                startBlocker = false;
-                blocker->exit();
-            } );
+                DEBUG() << "Saving time entry before closing the application";
 
-            stop();
+                // Only go on with closing the window if saving was successful
+                // If saving was successful before the blocker has been started, do not start it at all
+                QEventLoop* blocker = new QEventLoop();
+                bool startBlocker = true;
+                connect( this, &MainWindow::timeEntrySaved, [&]()
+                {
+                    startBlocker = false;
+                    blocker->exit();
+                } );
 
-            if( startBlocker )
-                blocker->exec();
-        }
+                stop();
 
-        default:
-            DEBUG() << "Closing the application";
-            break;
+                if( startBlocker )
+                    blocker->exec();
+            }
+
+            default:
+                DEBUG() << "Closing the application";
+                break;
         }
     }
 
-    // Save settings
-    saveSettings();
-
     if( trayIcon_ )
         trayIcon_->hide();
+
+    // Save settings
+    saveSettings();
 
     server->close();
 
@@ -411,7 +434,7 @@ MainWindow::exit()
 QString
 MainWindow::getServerName( QString suffix )
 {
-    ENTER()(suffix)(profileId_);
+    ENTER()(suffix);
 
     QString uname = qgetenv( "USER" ); // UNIX
     if( uname.isEmpty() )
@@ -428,13 +451,13 @@ MainWindow::getServerName( QString suffix )
 void
 MainWindow::initServer()
 {
-    ENTER()(profileId_);
+    ENTER();
 
     server->close();
 
     if( profileData()->startLocalServer )
     {
-        QString serverName = getServerName( QString::number(profileId_) );
+        QString serverName = getServerName( profileId_ );
 
         if( server->listen(serverName) )
             DEBUG() << "Listening on socket";
@@ -453,18 +476,21 @@ MainWindow::initTrayIcon()
     const bool useSystemTrayIcon = profileData()->useSystemTrayIcon;
 
     // Create tray icon if desired and not yet available
-    if( !trayIcon_ && useSystemTrayIcon
-            && QSystemTrayIcon::isSystemTrayAvailable() )
+    if( !trayIcon_ && useSystemTrayIcon && QSystemTrayIcon::isSystemTrayAvailable() )
     {
         trayIcon_ = new QSystemTrayIcon( this );
-        trayIcon_->setIcon( QIcon(":/icons/clock_red_stop.svg") );
+        trayIcon_->setIcon( QIcon(ICON_CLOCK_STOP) );
         trayIcon_->show();
 
         QMenu* trayMenu = new QMenu( "RedTimer", qobject_cast<QWidget*>(this) );
-        trayMenu->addAction( QIcon(":/icons/clock_red.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
+        trayMenu->addAction( QIcon(":/icons/clock.svg"), tr("S&how/hide"), this, SLOT(toggle()) );
         trayMenu->addAction( QIcon(":/open-iconic/svg/media-play.svg"), tr("S&tart/stop"),
                              this, SLOT(startStop()) );
-        trayMenu->addAction( QIcon(":/open-iconic/svg/x.svg"), tr("E&xit"), this, SLOT(exit()) );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/plus.svg"), tr("&New issue"),
+                             this, SLOT(createIssue()) );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/cog.svg"), tr("S&ettings"),
+                             [this](){display(); settings_->display();} );
+        trayMenu->addAction( QIcon(":/open-iconic/svg/power-standby.svg"), tr("E&xit"), this, SLOT(exit()) );
         trayIcon_->setContextMenu( trayMenu );
 
         // Connect the tray icon to the window show slot
@@ -745,42 +771,6 @@ MainWindow::loadIssueStatuses()
 }
 
 void
-MainWindow::loadProfiles()
-{
-    ENTER();
-
-    if( profileId_ == NULL_ID )
-        profileId_ = profileId();
-
-    DEBUG()(profileId_);
-
-    // Only display profile selector when there is more than one profile
-    if( settings()->profiles().size() <= 1 )
-    {
-        qml("profiles")->setProperty( "visible", false );
-        RETURN();
-    }
-
-    qml("profiles")->setProperty( "visible", true );
-    profilesModel_.clear();
-
-    int currentIndex = 0;
-    for( const auto& profile : settings()->profiles() )
-    {
-        if( profile.id == profileId_ )
-            currentIndex = profilesModel_.rowCount();
-
-        profilesModel_.push_back( profile );
-    }
-
-    DEBUG()(currentIndex)(profilesModel_);
-    qml("profiles")->setProperty( "currentIndex", -1 );
-    qml("profiles")->setProperty( "currentIndex", currentIndex );
-
-    RETURN();
-}
-
-void
 MainWindow::loadLatestActivity()
 {
     ENTER();
@@ -1049,8 +1039,8 @@ MainWindow::notifyConnectionStatus( QNetworkAccessManager::NetworkAccessibility 
     {
         if( !connected_ )
         {
-            connected_ = true;            
-            refreshGui( false );
+            connected_ = true;
+            refreshGui();
         }
 
         qml("connectionStatus")->setProperty("tooltip", "Connection established" );
@@ -1081,56 +1071,6 @@ MainWindow::pauseCounterGui()
     QTime time = SimpleRedmineClient::getTime( qml("counter")->property("text").toString() );
     if( time.isValid() )
         counterBeforeEdit_ = time.hour()*3600 + time.minute()*60 + time.second();
-
-    RETURN();
-}
-
-int
-MainWindow::profileId()
-{
-    ENTER();
-    RETURN( settings_->profileId() );
-}
-
-void
-MainWindow::profileSelected( int index )
-{
-    ENTER();
-
-    int oldProfileId = profileId_;
-    int newProfileId = profilesModel_.at(index).id();
-
-    auto cb = [=](bool success, int id, RedmineError errorCode, QStringList errors)
-    {
-        CBENTER()(success)(id)(errorCode)(errors);
-
-        if( !success )
-        {
-            QString errorMsg = tr( "Could not save the time entry." );
-            for( const auto& error : errors )
-                errorMsg.append("\n").append(error);
-            message( errorMsg, QtCriticalMsg );
-
-            CBRETURN();
-        }
-
-        profileId_ = newProfileId;
-        setProfileId( profileId_ );
-
-        initServer();
-
-        connected_ = false;
-        reconnect();
-        refreshGui( false );
-
-        CBRETURN();
-    };
-
-    if( oldProfileId != newProfileId && counter() != 0 )
-        stop( true, true, cb );
-    else
-        cb( true, NULL_ID, RedmineError::NO_ERR, QStringList() );
-
 
     RETURN();
 }
@@ -1216,27 +1156,24 @@ MainWindow::reconnect()
 }
 
 void
-MainWindow::reconnectAndRefreshGui( bool refreshProfiles )
+MainWindow::reconnectAndRefreshGui()
 {
     ENTER();
 
     reconnect();
-    refreshGui( refreshProfiles );
+    refreshGui();
 
     RETURN();
 }
 
 void
-MainWindow::refreshGui( bool refreshProfiles )
+MainWindow::refreshGui()
 {
     ENTER();
 
     const ProfileData* data = profileData();
 
-    if( data->ignoreSslErrors )
-        redmine_->setCheckSsl( false );
-    else
-        redmine_->setCheckSsl( true );
+    redmine_->setCheckSsl( !data->ignoreSslErrors );
 
     shortcutCreateIssue_->setShortcut( QKeySequence(data->shortcutCreateIssue) );
     shortcutSelectIssue_->setShortcut( QKeySequence(data->shortcutSelectIssue) );
@@ -1244,9 +1181,6 @@ MainWindow::refreshGui( bool refreshProfiles )
     shortcutToggle_->setShortcut(  QKeySequence(data->shortcutToggle) );
 
     initTrayIcon();
-
-    if( refreshProfiles )
-        loadProfiles();
 
     if( data->activityId != NULL_ID)
         activityId_ = data->activityId;
@@ -1330,7 +1264,11 @@ MainWindow::start()
     // If no issue is selected, show issue selector
     if( issue_.id == NULL_ID )
     {
+        // Make sure that the main window is visible
+        display();
+
         selectIssue();
+
         RETURN();
     }
 
@@ -1387,7 +1325,7 @@ MainWindow::startTimer()
     qml("startStop")->setProperty( "tooltip", tr("Stop time tracking") );
 
     if( trayIcon_ )
-        trayIcon_->setIcon( QIcon(":/icons/clock_red_play.svg") );
+        trayIcon_->setIcon( QIcon(ICON_CLOCK_PLAY) );
 
     // Set the issue status ID to the worked on ID if not already done
     int workedOnId = profileData()->workedOnId;
@@ -1519,7 +1457,7 @@ MainWindow::stopTimer()
     qml("startStop")->setProperty( "tooltip", tr("Start time tracking") );
 
     if( trayIcon_ )
-        trayIcon_->setIcon( QIcon(":/icons/clock_red_stop.svg") );
+        trayIcon_->setIcon( QIcon(ICON_CLOCK_STOP) );
 
     RETURN();
 }
@@ -1542,7 +1480,7 @@ MainWindow::trayEvent( QSystemTrayIcon::ActivationReason reason )
 {
     ENTER()(reason);
 
-#ifndef Q_OS_OSX
+#ifndef Q_OS_MAC
     if( reason == QSystemTrayIcon::ActivationReason::Trigger )
         toggle();
 #endif
@@ -1602,10 +1540,7 @@ MainWindow::updateTitle()
 {
     ENTER();
 
-    const QString name = profileData()->name;
     QString title = "RedTimer";
-    if( !name.isEmpty() )
-        title.append(" - ").append( name );
     setTitle( title );
 
     if( trayIcon_ )

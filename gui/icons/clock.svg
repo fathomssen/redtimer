@@ -13,7 +13,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.92.1 r"
-   sodipodi:docname="clock_red_stop.svg">
+   sodipodi:docname="clock.svg">
   <metadata
      id="metadata10">
     <rdf:RDF>
@@ -22,7 +22,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -41,10 +41,10 @@
      inkscape:window-height="778"
      id="namedview6"
      showgrid="false"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="24.063148"
-     inkscape:cy="14.059434"
-     inkscape:window-x="13"
+     inkscape:zoom="1"
+     inkscape:cx="-79.73434"
+     inkscape:cy="161.64633"
+     inkscape:window-x="0"
      inkscape:window-y="23"
      inkscape:window-maximized="0"
      inkscape:current-layer="svg2"
@@ -53,13 +53,8 @@
      fit-margin-right="0"
      fit-margin-bottom="0" />
   <path
-     inkscape:connector-curvature="0"
+     d="M 128,0 C 57.6,0 0,57.6 0,128 0,198.4 57.6,256 128,256 198.4,256 256,198.4 256,128 256,57.6 198.4,0 128,0 Z m 0,32 c 53.12,0 96,42.88 96,96 0,53.12 -42.88,96 -96,96 -53.12,0 -96,-42.88 -96,-96 0,-53.12 42.88,-96 96,-96 z m -16,32 v 71.04 l 5.12,4.16 16,16 L 144,167.36 167.04,144.32 154.88,133.44 144,122.56 V 64.64 h -32 z"
      id="path4"
-     style="fill:#ff0000;fill-opacity:1"
-     d="m 81.459169,46.960248 v 51.212304 l 3.753875,3.001458 11.637026,11.63063 7.88314,8.8793 16.76733,-16.75811 -8.88418,-7.941351 -7.88315,-7.878818 V 46.960248 Z m 11.637022,-23.69898 c 38.634919,0 69.822139,31.1701 69.822139,69.783802 0,38.61371 -31.18722,69.7838 -69.822139,69.7838 -38.634918,0 -69.822143,-31.17009 -69.822143,-69.7838 0,-38.613702 31.187225,-69.783802 69.822143,-69.783802 z M 93.096191,0 C 41.893286,0 0,41.870282 0,93.04507 c 0,51.17479 41.893286,93.04507 93.096191,93.04507 51.202909,0 93.096189,-41.87028 93.096189,-93.04507 C 186.19238,41.870282 144.2991,0 93.096191,0 Z" />
-  <path
-     d="M 122.87045,122.94355 V 256 H 256 V 122.94355 Z"
-     id="path4177"
-     inkscape:connector-curvature="0"
-     style="fill:#ffffff" />
+     style="fill:#000000;fill-opacity:1"
+     inkscape:connector-curvature="0" />
 </svg>

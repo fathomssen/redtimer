@@ -16,7 +16,6 @@ Item {
     property alias counterMouseArea: counterMouseArea
     property alias description: description
     property alias issueStatus: issueStatus
-    property alias profiles: profiles
     property alias quickPick: quickPick
     property alias selectIssue: selectIssue
     property alias settings: settings
@@ -91,15 +90,6 @@ Item {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-
-        ComboBox {
-            id: profiles
-            Layout.fillWidth: true
-            objectName: "profiles"
-            model: profilesModel
-            textRole: "name"
-            visible: false // only display when there is more than one profile
-        }
 
         RowLayout {
             id: rowLayout1
@@ -206,7 +196,7 @@ Item {
                 text: "00:00:00"
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
                 Layout.fillWidth: true
-                
+
                 MouseArea {
                     id: counterMouseArea
                     anchors.fill: parent

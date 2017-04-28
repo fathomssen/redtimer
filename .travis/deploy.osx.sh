@@ -26,7 +26,6 @@ export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimer.app/Contents/PlugIns
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimer $QTDIR/
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimercli $QTDIR/
-cp -a $TRAVISDIR/Info.plist RedTimer.app/Contents
 sed -i '' "s/__VERSION__/${TRAVIS_TAG}/" RedTimer.app/Contents/Info.plist
 
 # Thanks to https://medium.com/juan-cruz-viotti/how-to-code-sign-os-x-electron-apps-in-travis-ci-6b6a0756c04a#.x84x807hk

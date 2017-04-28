@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-CONFIG += c++11
+CONFIG += c++14
 
 QT += gui qml quick svg widgets
 
@@ -12,6 +12,8 @@ unix:!macx {
 RC_ICONS = icons/clock_red.ico
 ICON = icons/clock_red.icns
 
+QMAKE_INFO_PLIST = Info.plist
+
 QMAKE_TARGET_COMPANY = "Thomssen IT"
 QMAKE_TARGET_PRODUCT = "RedTimer"
 QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
@@ -22,7 +24,6 @@ HEADERS += \
     IssueSelector.h \
     Models.h \
     MainWindow.h \
-    ProfileData.h \
     Settings.h \
     Window.h
 
@@ -32,11 +33,12 @@ SOURCES += \
     IssueSelector.cpp \
     IssueCreator.cpp \
     MainWindow.cpp \
-    ProfileData.cpp \
     Settings.cpp \
     Window.cpp
 
 RESOURCES += redtimer.qrc
+
+DISTFILES += Info.plist
 
 # External projects
 include($$PWD/qxtglobalshortcut5/qxt.pri)

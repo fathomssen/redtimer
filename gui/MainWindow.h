@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Models.h"
-#include "ProfileData.h"
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
@@ -23,6 +22,19 @@
 #include <QTimer>
 
 #include <memory>
+
+// Icons
+
+#ifdef Q_OS_MACOS
+    #define ICON_CLOCK      ":/icons/clock.svg"
+    #define ICON_CLOCK_PLAY ":/icons/clock_play.svg"
+    #define ICON_CLOCK_STOP ":/icons/clock_stop.svg"
+#else
+    #define ICON_CLOCK      ":/icons/clock_red.svg"
+    #define ICON_CLOCK_PLAY ":/icons/clock_red_play.svg"
+    #define ICON_CLOCK_STOP ":/icons/clock_red_stop.svg"
+#endif
+
 
 namespace redtimer {
 
@@ -55,6 +67,9 @@ private:
 
     /// RedTimer has been initialised
     bool initialised_ = false;
+
+    /// Window has been hidden
+    bool hidden_ = true;
 
     /// System tray icon
     QSystemTrayIcon* trayIcon_ = nullptr;
@@ -93,10 +108,7 @@ private:
     SimpleModel issueStatusModel_;
 
     /// Currently selected profile
-    int profileId_ = NULL_ID;
-
-    /// GUI profiles
-    SimpleModel profilesModel_;
+    QString profileId_;
 
     /// Recently opened issues
     IssueModel recentIssues_;
@@ -156,9 +168,9 @@ public:
      * @brief RedTimer constructor
      *
      * @param parent Parent QObject
-     * @param profile Load this profile on startup
+     * @param profileId Profile ID
      */
-    explicit MainWindow( QApplication* parent = nullptr, const QString profile = QString() );
+    explicit MainWindow( QApplication* parent, const QString& profileId );
 
     /**
      * @brief Determines whether a connection is currently available
@@ -168,16 +180,16 @@ public:
     bool connected();
 
     /**
+     * @brief Determines whether the main window is currently hidden
+     *
+     * @return true if main window is hidden, false otherwise
+     */
+    bool hidden();
+
+    /**
      * @brief Initialise the tray icon
      */
     void initTrayIcon();
-
-    /**
-     * @brief Get the current profile ID
-     *
-     * @return Profile ID
-     */
-    int profileId();
 
     /**
      * @brief Save the current configuration
@@ -276,11 +288,6 @@ private slots:
     void loadOrCreateIssue( CliOptions options );
 
     /**
-     * @brief Load profiles
-     */
-    void loadProfiles();
-
-    /**
      * @brief Notify about the current connection status
      *
      * @param connected Current connection status
@@ -291,11 +298,6 @@ private slots:
      * @brief Pause the update of the counter in the GUI
      */
     void pauseCounterGui();
-
-    /**
-     * @brief Slot to a selected profile
-     */
-    void profileSelected( int index );
 
     /**
      * @brief Resume the update of the counter in the GUI
@@ -309,17 +311,13 @@ private slots:
 
     /**
      * @brief Reconnect to Redmine and refresh Redmine entities
-     *
-     * @param refreshProfiles Refresh profiles (default: true)
      */
-    void reconnectAndRefreshGui( bool refreshProfiles = true );
+    void reconnectAndRefreshGui();
 
     /**
      * @brief Refresh Redmine entities
-     *
-     * @param refreshProfiles Refresh profiles (default: true)
      */
-    void refreshGui( bool refreshProfiles = true );
+    void refreshGui();
 
     /**
      * @brief Reset all GUI fields

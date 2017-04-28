@@ -11,13 +11,9 @@ already start.
 Usage
 -----
 
-After starting RedTimer for the first time, you are asked to create a new profile for the connection to the
-Redmine instance.
-
-![Profile creation](images/profile_creation.png?raw=true "Profile creation")
-
-In the settings window, you can specify the URL of the Redmine instance and the API key which can be found in
-the Redmine account settings.
+After starting RedTimer for the first time, the settings window will be displayed. In the settings window,
+you can specify the URL of the Redmine instance and the API key which can be found in the Redmine account
+settings.
 
 ![Settings window](images/settings.png?raw=true "Settings window")
 

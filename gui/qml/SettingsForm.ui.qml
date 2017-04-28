@@ -5,58 +5,6 @@ import QtQuick.Layouts 1.2
 ColumnLayout {
     id: columnLayout1
 
-    RowLayout {
-        Layout.fillWidth: true
-
-        Label {
-            text: qsTr("Profile")
-        }
-
-        ComboBox {
-            id: profiles
-            Layout.fillWidth: true
-            objectName: "profiles"
-            model: profilesModel
-            textRole: "name"
-        }
-
-        Button {
-            id: createProfile
-            Layout.preferredHeight: 24
-            Layout.preferredWidth: 24
-            objectName: "createProfile"
-            tooltip: "Create new profile"
-            iconSource: "/open-iconic/svg/plus.svg"
-        }
-
-        Button {
-            id: copyProfile
-            Layout.preferredHeight: 24
-            Layout.preferredWidth: 24
-            objectName: "copyProfile"
-            tooltip: "Copy profile"
-            iconSource: "/open-iconic/svg/layers.svg"
-        }
-
-        Button {
-            id: deleteProfile
-            Layout.preferredHeight: 24
-            Layout.preferredWidth: 24
-            objectName: "deleteProfile"
-            tooltip: "Delete profile"
-            iconSource: "/open-iconic/svg/trash.svg"
-        }
-
-        Button {
-            id: renameProfile
-            Layout.preferredHeight: 24
-            Layout.preferredWidth: 24
-            objectName: "renameProfile"
-            tooltip: "Rename profile"
-            iconSource: "/open-iconic/svg/pencil.svg"
-        }
-    }
-
     TabView {
         id: tabView1
         currentIndex: 0
@@ -154,7 +102,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: "\t"+qsTr("External ID field")
+                    text: "\t" + qsTr("External ID field")
                 }
 
                 ComboBox {
@@ -167,7 +115,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: "\t"+qsTr("Start time field")
+                    text: "\t" + qsTr("Start time field")
                 }
 
                 ComboBox {
@@ -180,7 +128,7 @@ ColumnLayout {
                 }
 
                 Label {
-                    text: "\t"+qsTr("End time field")
+                    text: "\t" + qsTr("End time field")
                 }
 
                 ComboBox {
@@ -289,12 +237,14 @@ ColumnLayout {
 
                 CheckBox {
                     id: useSystemTrayIcon
+                    enabled: Qt.platform.os != "osx"
                     objectName: "useSystemTrayIcon"
                     text: qsTr("Use system tray icon")
                 }
 
                 CheckBox {
                     id: closeToTray
+                    enabled: Qt.platform.os != "osx"
                     objectName: "closeToTray"
                     text: qsTr("Hide window instead of closing it")
                 }
@@ -306,11 +256,11 @@ ColumnLayout {
             }
         }
     }
-    
+
     RowLayout {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignCenter
-        
+
         Button {
             id: save
             objectName: "save"

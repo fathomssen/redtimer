@@ -15,8 +15,8 @@ private:
     /// All commands have been sent
     bool finished_ = false;
 
-    /// Just one profile receives a command
-    bool singleProfile_ = true;
+    /// Just one server receives a command
+    bool singleServer_ = true;
 
     /// Sockets
     QMap<QLocalSocket*, bool> sockets_;
@@ -44,12 +44,12 @@ public slots:
     void sendToAll( const redtimer::CliOptions& options );
 
     /**
-     * @brief Send commands to the running RedTimer instance with the specified profile selected
+     * @brief Send commands to the running RedTimer instance with the specified server selected
      *
-     * @param profileId Profile ID
+     * @param profileId Server ID
      * @param options Options
      */
-    void sendToProfile( int profileId, const redtimer::CliOptions& options );
+    void sendToServer( const QString& profileId, const redtimer::CliOptions& options );
 
 private slots:
     /**

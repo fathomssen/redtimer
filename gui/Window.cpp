@@ -1,7 +1,6 @@
 #include "qtredmine/Logging.h"
 
 #include "MainWindow.h"
-#include "ProfileData.h"
 #include "Settings.h"
 #include "Window.h"
 
@@ -123,22 +122,22 @@ Window::message( QString text, QtMsgType type, bool force )
 
     switch( type )
     {
-    case QtInfoMsg:
-        colour = "#006400";
-        icon = QSystemTrayIcon::Information;
-        break;
-    case QtWarningMsg:
-        colour = "#FF8C00";
-        icon = QSystemTrayIcon::Warning;
-        break;
-    case QtCriticalMsg:
-        colour = "#8B0000";
-        icon = QSystemTrayIcon::Critical;
-        break;
-    case QtDebugMsg:
-    case QtFatalMsg:
-        DEBUG() << "Error: Unsupported message type";
-        RETURN( nullptr );
+        case QtInfoMsg:
+            colour = "#006400";
+            icon = QSystemTrayIcon::Information;
+            break;
+        case QtWarningMsg:
+            colour = "#FF8C00";
+            icon = QSystemTrayIcon::Warning;
+            break;
+        case QtCriticalMsg:
+            colour = "#8B0000";
+            icon = QSystemTrayIcon::Critical;
+            break;
+        case QtDebugMsg:
+        case QtFatalMsg:
+            DEBUG() << "Error: Unsupported message type";
+            RETURN( nullptr );
     }
 
     QQuickItem* item = nullptr;
@@ -192,8 +191,7 @@ Window::profileData()
 {
     ENTER();
 
-    int profileId = mainWindow_->profileId();
-    ProfileData* profileData = settings_->profileData( profileId );
+    ProfileData* profileData = settings_->profileData();
 
     RETURN( profileData, *profileData );
 }
@@ -223,27 +221,6 @@ Window::setCtxProperty( QString key, QObject* value )
 {
     ENTER();
     ctx_->setContextProperty( key, value );
-    RETURN();
-}
-
-void
-Window::setProfileId( int profileId )
-{
-    ENTER()(profileId);
-
-    settings_->setProfileId( profileId );
-
-    RETURN();
-}
-
-void
-Window::setProfileId( QString profileName )
-{
-    ENTER()(profileName);
-
-    if( !profileName.isEmpty() )
-        settings_->setProfileId( profileName );
-
     RETURN();
 }
 

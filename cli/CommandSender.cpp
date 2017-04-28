@@ -28,7 +28,7 @@ CommandSender::deleteSocket( QLocalSocket* socket )
     socket->abort();
     socket->deleteLater();
 
-    if( (singleProfile_ || finished_) && sockets_.count() == 0 )
+    if( (singleServer_ || finished_) && sockets_.count() == 0 )
         emit finished();
 
     RETURN();
@@ -83,23 +83,14 @@ CommandSender::sendToAll( const CliOptions& options )
 {
     ENTER()(options);
 
-    singleProfile_ = false;
+    singleServer_ = false;
 
     QSettings settings( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this );
 
-    QStringList groups = settings.childGroups();
-    for( const auto& group : groups )
-    {
-        QRegularExpressionMatch match;
-        if( !group.contains(QRegularExpression("profile-(\\d+)"), &match) )
-            continue;
-
-        bool ok;
-        int profileId = match.captured(1).toInt( &ok );
-
-        if( ok )
-            sendToProfile( profileId, options );
-    }
+    settings.beginGroup( "profiles" );
+    for( const auto& profileId : settings.allKeys() )
+        sendToServer( profileId, options );
+    settings.endGroup();
 
     finished_ = true;
     if( sockets_.count() == 0 )
@@ -109,7 +100,7 @@ CommandSender::sendToAll( const CliOptions& options )
 }
 
 void
-CommandSender::sendToProfile( int profileId, const CliOptions& options )
+CommandSender::sendToServer( const QString& profileId, const CliOptions& options )
 {
     ENTER()(profileId)(options);
 

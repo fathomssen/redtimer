@@ -15,7 +15,7 @@ using namespace redtimer;
 using namespace std;
 
 bool
-parseCommandLine( QCoreApplication& app, QCommandLineParser& parser, CliOptions& options, qint32& profileId,
+parseCommandLine( QCoreApplication& app, QCommandLineParser& parser, CliOptions& options, QString& profileId,
                   QString& errmsg )
 {
     parser.setApplicationDescription( "RedTimer Command Line Interface" );
@@ -96,7 +96,7 @@ parseCommandLine( QCoreApplication& app, QCommandLineParser& parser, CliOptions&
         return false;
     }
 
-    auto getNumericId = [&]( const QString option, qint32& id )
+    auto getNumericId = [&]( const QString& option, qint32& id )
     {
         if( !parser.isSet(option) )
             return true;
@@ -114,8 +114,25 @@ parseCommandLine( QCoreApplication& app, QCommandLineParser& parser, CliOptions&
         return true;
     };
 
-    if( !getNumericId("profile-id", profileId) )
+    auto getString = [&]( const QString& option, QString& str, bool allowWhitespaces )
+    {
+        if( !parser.isSet(option) )
+            return true;
+
+        str = parser.value( option );
+
+        if( !allowWhitespaces && str.contains( QRegularExpression("\\W")) )
+        {
+            errmsg = QString("Option '--%1' must not contain whitespaces.").arg(option);
+            return false;
+        }
+
+        return true;
+    };
+
+    if( !getString("profile-id", profileId, false) )
         return false;
+    profileId = profileId.toLower();
 
     if( !getNumericId("assignee-id", options.assigneeId) )
         return false;
@@ -134,22 +151,6 @@ parseCommandLine( QCoreApplication& app, QCommandLineParser& parser, CliOptions&
 
     if( !getNumericId("version-id", options.versionId) )
         return false;
-
-    auto getString = [&]( const QString option, QString& str, bool allowWhitespaces )
-    {
-        if( !parser.isSet(option) )
-            return true;
-
-        str = parser.value( option );
-
-        if( !allowWhitespaces && str.contains( QRegularExpression("\\W")) )
-        {
-            errmsg = QString("Option '--%1' must not contain whitespaces.").arg(option);
-            return false;
-        }
-
-        return true;
-    };
 
     if( !getString("external-id", options.externalId, false) )
         return false;
@@ -262,7 +263,7 @@ int main( int argc, char *argv[] )
     // Command line options
     QCommandLineParser parser;
     CliOptions options;
-    qint32 profileId = NULL_ID;
+    QString profileId;
     QString errmsg;
 
     if( !parseCommandLine( app, parser, options, profileId, errmsg ) )
@@ -276,8 +277,8 @@ int main( int argc, char *argv[] )
     CommandSender* sender = new CommandSender( &app );
     QObject::connect( sender, &CommandSender::finished, &app, &QCoreApplication::quit );
 
-    if( profileId != NULL_ID )
-        QTimer::singleShot( 0, [&](){ sender->sendToProfile(profileId, options); } );
+    if( !profileId.isEmpty() )
+        QTimer::singleShot( 0, [&](){ sender->sendToServer(profileId, options); } );
     else
         QTimer::singleShot( 0, [&](){ sender->sendToAll(options); } );
 

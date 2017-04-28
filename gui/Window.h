@@ -108,20 +108,6 @@ protected:
      */
     void setCtxProperty( QString key, QObject* value );
 
-    /**
-     * @brief Set the profile ID by ID
-     *
-     * @param profileId Profile ID
-     */
-    void setProfileId( int profileId );
-
-    /**
-     * @brief Set the profile ID by name
-     *
-     * @param profileName Profile name
-     */
-    void setProfileId( QString profileName );
-
     /// @}
 
 public:

@@ -19,7 +19,8 @@ int main(int argc, char* argv[])
     parser.addHelpOption();
     parser.addVersionOption();
 
-    parser.addOption( {{"p", "profile"}, "Open specified profile on start", "profile"} );
+    parser.addOption( {{"p", "profile"}, "Load settings for <profile> (default: \"Default\")",
+                       "profile", "Default"} );
 
     // Process command line options
     parser.process( app );

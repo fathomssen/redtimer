@@ -3,7 +3,6 @@
 #include "qtredmine/Logging.h"
 #include "MainWindow.h"
 #include "Models.h"
-#include "ProfileData.h"
 #include "Window.h"
 
 #include "qtredmine/SimpleRedmineClient.h"
@@ -17,6 +16,93 @@
 #include <QSortFilterProxyModel>
 
 namespace redtimer {
+
+/**
+ * @brief Profile data
+ */
+struct ProfileData
+{
+    /// @name Settings GUI
+    /// @{
+
+    /// Redmine API key
+    QString apiKey;
+
+    /// Ignore SSL errors
+    bool ignoreSslErrors;
+
+    /// Maximum number of recently opened issues
+    int numRecentIssues;
+
+    /// Shortcuts
+    QString shortcutCreateIssue;
+    QString shortcutSelectIssue;
+    QString shortcutStartStop;
+    QString shortcutToggle;
+
+    /// Redmine base URL
+    QString url;
+
+    /// Use custom fields
+    bool useCustomFields;
+
+    /// Start a local socket server
+    bool startLocalServer;
+
+    /// Use system tray icon
+    bool useSystemTrayIcon;
+
+    /// Close to tray
+    bool closeToTray;
+
+    /// Issue status to switch after tracking time
+    int workedOnId;
+
+    /// Default tracker to use in the Issue Creator
+    int defaultTrackerId;
+
+    /// ID of the issue custom field for the external issue ID
+    int externalIdFieldId;
+
+    /// ID of the time entry custom field for the start time
+    int startTimeFieldId;
+
+    /// ID of the time entry custom field for the end time
+    int endTimeFieldId;
+
+    /// @}
+
+    /// @name Internal settings
+    /// @{
+
+    /// Last used activity
+    int activityId;
+
+    /// Last opened issue
+    int issueId;
+
+    /// Last opened project
+    int projectId;
+
+    /// Recently opened issues
+    qtredmine::Issues recentIssues;
+
+    /// Window was hidden on exit
+    bool hidden;
+
+    /// @}
+
+    /**
+     * @brief Determines whether this set of settings settings is valid
+     *
+     * To be valid, a set of settings must at least contain a URL and an API key.
+     *
+     * @param OUT errmsg Error message
+     *
+     * @return true if settings are valid, false otherwise
+     */
+    bool isValid( QString* errmsg = nullptr ) const;
+};
 
 /// Settings data structure for the currently loaded profile
 struct WindowData
@@ -36,11 +122,8 @@ struct WindowData
 
 struct SettingsData
 {
-    /// Current profile ID
-    int profileId = NULL_ID;
-
     /// Internal representation of the profiles
-    QMap<int, ProfileData> profiles;
+    ProfileData profileData;
 
     /// Window data
     WindowData windows;
@@ -78,116 +161,52 @@ private:
     /// Time entry custom fields for the end time
     SimpleModel endTimeModel_;
 
-    /// Currently selected profile ID
-    int profileId_ = NULL_ID;
-
-    /// GUI profiles
-    SimpleModel profilesModel_;
-    QSortFilterProxyModel profilesProxyModel_;
-
     /// Data pool
     SettingsData data_;
 
 private:
     /**
      * @brief Load profile-dependent settings from settings file
-     *
-     * @param profileId Profile to load data for
-     * @param initData Inital data
      */
-    void loadProfileData( const int profileId, ProfileData *initData = nullptr );
-
-    /**
-     * @brief Display a message box to get a profile name
-     *
-     * @param[out] name Profile name
-     * @param[in]  title Title
-     * @param[in]  initText Initial text
-     *
-     * @return true if valid profile name was specified, false otherwise
-     */
-    bool profileNameDialog( QString& name, QString title, QString initText );
-
-    /**
-     * @brief Get the current profile hash
-     *
-     * @param id Profile ID to get the hash for
-     *
-     * @return Profile hash
-     */
-    QString profileHash( int id = NULL_ID );
+    void loadProfileData();
 
     /**
      * @brief Save profile-dependent settings to settings file
-     *
-     * @param profileId Profile to save data for
      */
-    void saveProfileData( int profileId );
-
-    /**
-     * @brief Get the currently selected profile data
-     *
-     * @return Pointer to the profile data
-     */
-    ProfileData* profileData();
+    void saveProfileData();
 
 public:
     /**
      * @brief Constructor for a Settings object
      *
      * @param mainWindow Main window object
+     * @param profileId Profile ID
      */
-    explicit Settings( MainWindow* mainWindow );
+    explicit Settings( MainWindow* mainWindow, const QString& profileId );
 
     /**
      * @brief Load settings from settings file
      *
      * @param apply Apply the loaded settings
-     * @param createNewProfile Create new profile if none exists
      */
-    void load( const bool apply = true , const bool createNewProfile = true );
+    void load( const bool apply = true );
 
     /**
      * @brief Get the specified profile data
      *
-     * @param profileId Profile ID
-     *
      * @return Pointer to the profile data
      */
-    ProfileData* profileData( int profileId );
+    ProfileData* profileData();
 
     /**
-     * @brief Get the profile ID
-     *
-     * @return Profile ID
+     * @brief Refresh the GUI and display updated data
      */
-    int profileId();
-
-    /**
-     * @brief Get all profiles
-     *
-     * @return Map of profiles
-     */
-    QMap<int, ProfileData> profiles();
+    void refresh();
 
     /**
      * @brief Save settings to settings file
      */
     void save();
-
-    /**
-     * @brief Set the profile ID by ID
-     *
-     * @param profileId Profile ID
-     */
-    void setProfileId( int profileId );
-
-    /**
-     * @brief Set the profile ID by name
-     *
-     * @param profileName Profile name
-     */
-    void setProfileId( QString profileName );
 
     /**
      * @brief Get the window data
@@ -220,40 +239,14 @@ public slots:
     void close();
 
     /**
-     * @brief Copy profile
-     *
-     * Create a new profile and copy data from current profile.
-     *
-     * @return true if profile was copied successfully, false otherwise
-     */
-    bool copyProfile();
-
-    /**
-     * @brief Create a new profile
-     *
-     * @param copy Copy current profile
-     * @param force If no profile name was specified, use the default
-     *
-     * @return true if profile was created successfully, false otherwise
-     */
-    bool createProfile( bool copy = false, bool force = false);
-
-    /**
      * @brief Cancel and close
      */
     void cancel();
 
     /**
-     * @brief Delete the currently selected profile
-     */
-    void deleteProfile();
-
-    /**
      * @brief Display the settings dialog
-     *
-     * @param loadMainProfile Load profile from main window
      */
-    void display( bool loadMainProfile = true );
+    void display();
 
     /**
      * @brief Settings have been initialised
@@ -261,18 +254,6 @@ public slots:
      * @return true if settings have been initialised, false otherwise
      */
     bool initialised();
-
-    /**
-     * @brief A profile has been selected
-     *
-     * @param profileIndex Selected profile index
-     */
-    void profileSelected( int profileIndex );
-
-    /**
-     * @brief Rename the currently selected profile
-     */
-    void renameProfile();
 
     /**
      * @brief Update issue statuses
@@ -317,10 +298,21 @@ operator<<( QDebug debug, const redtimer::WindowData& data )
 }
 
 inline QDebug
+operator<<( QDebug debug, const redtimer::ProfileData& data )
+{
+    QDebugStateSaver saver( debug );
+    DEBUGFIELDS(apiKey)(ignoreSslErrors)(numRecentIssues)(shortcutCreateIssue)
+            (shortcutSelectIssue)(shortcutStartStop)(shortcutToggle)(url)(useCustomFields)
+            (useSystemTrayIcon)(closeToTray)(workedOnId)(defaultTrackerId)(startTimeFieldId)(endTimeFieldId)
+            (activityId)(issueId)(projectId)(recentIssues);
+    return debug;
+}
+
+inline QDebug
 operator<<( QDebug debug, const redtimer::SettingsData& data )
 {
     QDebugStateSaver saver( debug );
-    DEBUGFIELDS(profileId)(profiles)(windows);
+    DEBUGFIELDS(profileData)(windows);
     return debug;
 }
 
