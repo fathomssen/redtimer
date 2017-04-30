@@ -22,6 +22,17 @@ namespace redtimer {
  */
 struct ProfileData
 {
+    /// @name Profile
+    /// @{
+
+    /// Profile ID
+    int id = NULL_ID;
+
+    /// Profile name
+    QString name;
+
+    /// @}
+
     /// @name Settings GUI
     /// @{
 
@@ -164,6 +175,9 @@ private:
     /// Data pool
     SettingsData data_;
 
+    /// Profile ID
+    int profileId_ = NULL_ID;
+
 private:
     /**
      * @brief Load profile-dependent settings from settings file
@@ -180,9 +194,9 @@ public:
      * @brief Constructor for a Settings object
      *
      * @param mainWindow Main window object
-     * @param profileId Profile ID
+     * @param profile Profile to load
      */
-    explicit Settings( MainWindow* mainWindow, const QString& profileId );
+    explicit Settings( MainWindow* mainWindow, const QString& profile );
 
     /**
      * @brief Load settings from settings file

@@ -17,10 +17,6 @@
 #include <QSystemSemaphore>
 #include <QTime>
 
-#ifdef Q_OS_MACOS
-#include <Carbon/Carbon.h>
-#endif
-
 using namespace qtredmine;
 using namespace std;
 
@@ -30,8 +26,7 @@ namespace redtimer {
 
 MainWindow::MainWindow( QApplication* parent, const QString& profileId )
     : Window( "MainWindow", this ),
-      app_( parent ),
-      profileId_( profileId )
+      app_( parent )
 {
     ENTER();
 
@@ -292,9 +287,8 @@ MainWindow::display()
     ENTER();
 
 #ifdef Q_OS_OSX
-    ProcessSerialNumber pn;
-    GetFrontProcess( &pn );
-    TransformProcessType( &pn, kProcessTransformToForegroundApplication );
+    TransformProcessType( &psn_, kProcessTransformToForegroundApplication );
+    ShowHideProcess( &psn_, true );
 #endif
 
     raise();
@@ -314,9 +308,8 @@ MainWindow::hide()
     hidden_ = true;
 
 #ifdef Q_OS_OSX
-    ProcessSerialNumber pn;
-    GetFrontProcess( &pn );
-    TransformProcessType( &pn, kProcessTransformToUIElementApplication );
+    TransformProcessType( &psn_, kProcessTransformToUIElementApplication );
+    ShowHideProcess( &psn_, true );
 #else
     Window::hide();
 #endif
@@ -457,7 +450,7 @@ MainWindow::initServer()
 
     if( profileData()->startLocalServer )
     {
-        QString serverName = getServerName( profileId_ );
+        QString serverName = getServerName( QString::number(profileData()->id) );
 
         if( server->listen(serverName) )
             DEBUG() << "Listening on socket";
@@ -1540,7 +1533,7 @@ MainWindow::updateTitle()
 {
     ENTER();
 
-    QString title = "RedTimer";
+    QString title = QString("RedTimer - %1").arg(profileData()->name);
     setTitle( title );
 
     if( trayIcon_ )

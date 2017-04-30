@@ -27,19 +27,41 @@ ProfileData::isValid( QString* errmsg ) const
     RETURN( result );
 }
 
-Settings::Settings( MainWindow* mainWindow, const QString& profileId )
+Settings::Settings( MainWindow* mainWindow, const QString& profile )
     : Window( "Settings", mainWindow ),
-      settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer-"+profileId.toLower(),
-                 this )
+      settings_( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this )
 {
     ENTER();
 
-    // Add current profile to list of profiles
+    // Find profile ID by name
+    int maxProfileId = 0;
+    for( const auto& group : settings_.childGroups() )
     {
-        QSettings settings( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this );
-        settings.beginGroup( "profiles" );
-        settings.setValue( profileId.toLower(), true );
-        settings.endGroup();
+        QRegularExpressionMatch match = QRegularExpression("profile-(\\d+)").match( group );
+
+        bool ok;
+        int profileId = match.captured(1).toInt( &ok );
+
+        // Not a profile group entry
+        if( !ok )
+            continue;
+
+        if( profileId > maxProfileId )
+            maxProfileId = profileId;
+
+        if( settings_.value(group+"/name").toString().toLower() == profile.toLower() )
+        {
+            data_.profileData.id = profileId;
+            data_.profileData.name = settings_.value(group+"/name").toString();
+            break;
+        }
+    }
+
+    if( data_.profileData.id == NULL_ID )
+    {
+        // Create new profile
+        data_.profileData.id = maxProfileId + 1;
+        data_.profileData.name = profile;
     }
 
     // Connect to Redmine
@@ -284,7 +306,7 @@ Settings::load( const bool apply )
     {
         ENTER();
 
-        QString prefix = QString("windows/%1/%2").arg(name);
+        QString prefix = QString("profile-%1/%2/%3").arg(data_.profileData.id).arg(name);
 
         if( !settings_.value(prefix.arg("geometry")).isNull() )
             (data_.windows.*field).geometry = settings_.value(prefix.arg("geometry")).toRect();
@@ -316,7 +338,7 @@ Settings::loadProfileData()
 
     ProfileData* data = &data_.profileData;
 
-    settings_.beginGroup( "profileData" );
+    settings_.beginGroup( QString("profile-%1").arg(data_.profileData.id) );
 
     // Connection
     data->apiKey = settings_.value("apikey").toString();
@@ -390,20 +412,18 @@ Settings::loadProfileData()
 #endif
 
     // Recently used issues
+    data->recentIssues.clear();
+    int size = settings_.beginReadArray( "recentIssues" );
+    for( int i = 0; i < size; ++i )
     {
-        data->recentIssues.clear();
-        int size = settings_.beginReadArray( "recentIssues" );
-        for( int i = 0; i < size; ++i )
-        {
-            settings_.setArrayIndex( i );
+        settings_.setArrayIndex( i );
 
-            Issue issue;
-            issue.id      = settings_.value("id").toInt();
-            issue.subject = settings_.value("subject").toString();
-            data->recentIssues.append( issue );
-        }
-        settings_.endArray();
+        Issue issue;
+        issue.id      = settings_.value("id").toInt();
+        issue.subject = settings_.value("subject").toString();
+        data->recentIssues.append( issue );
     }
+    settings_.endArray();
 
     // Internal data
     data->hidden = settings_.value("hidden").isValid()
@@ -461,27 +481,23 @@ Settings::save()
 {
     ENTER();
 
-    settings_.clear();
-
     // General settings
+    auto saveWindowData = [&]( Window::Data WindowData::*field, QString name )
     {
-        auto saveWindowData = [&]( Window::Data WindowData::*field, QString name )
-        {
-            ENTER();
+        ENTER();
 
-            QString prefix = QString("windows/%1/%2").arg(name);
+        QString prefix = QString("profile-%1/%2/%3").arg(data_.profileData.id).arg(name);
 
-            settings_.setValue( prefix.arg("geometry"), (data_.windows.*field).geometry );
-            settings_.setValue( prefix.arg("position"), (data_.windows.*field).position );
+        settings_.setValue( prefix.arg("geometry"), (data_.windows.*field).geometry );
+        settings_.setValue( prefix.arg("position"), (data_.windows.*field).position );
 
-            RETURN();
-        };
+        RETURN();
+    };
 
-        saveWindowData( &WindowData::issueCreator,  "issueCreator"  );
-        saveWindowData( &WindowData::issueSelector, "issueSelector" );
-        saveWindowData( &WindowData::mainWindow,    "mainWindow"    );
-        saveWindowData( &WindowData::settings,      "settings"      );
-    }
+    saveWindowData( &WindowData::issueCreator,  "issueCreator"  );
+    saveWindowData( &WindowData::issueSelector, "issueSelector" );
+    saveWindowData( &WindowData::mainWindow,    "mainWindow"    );
+    saveWindowData( &WindowData::settings,      "settings"      );
 
     saveProfileData();
 
@@ -497,26 +513,24 @@ Settings::saveProfileData()
 
     ProfileData* data = &data_.profileData;
 
-    settings_.beginGroup( "profileData" );
+    settings_.beginGroup( QString("profile-%1").arg(data_.profileData.id) );
 
     // Connection
-    {
-        settings_.setValue( "apikey",            data->apiKey );
-        settings_.setValue( "ignoreSslErrors",   data->ignoreSslErrors );
-        settings_.setValue( "numRecentIssues",   data->numRecentIssues );
-        settings_.setValue( "startLocalServer",  data->startLocalServer );
-        settings_.setValue( "url",               data->url );
-        settings_.setValue( "useCustomFields",   data->useCustomFields );
-        settings_.setValue( "workedOnId",        data->workedOnId );
-        settings_.setValue( "defaultTrackerId",  data->defaultTrackerId );
-        settings_.setValue( "externalIdFieldId", data->externalIdFieldId );
-        settings_.setValue( "startTimeFieldId",  data->startTimeFieldId );
-        settings_.setValue( "endTimeFieldId",    data->endTimeFieldId );
+    settings_.setValue( "apikey",            data->apiKey );
+    settings_.setValue( "ignoreSslErrors",   data->ignoreSslErrors );
+    settings_.setValue( "numRecentIssues",   data->numRecentIssues );
+    settings_.setValue( "startLocalServer",  data->startLocalServer );
+    settings_.setValue( "url",               data->url );
+    settings_.setValue( "useCustomFields",   data->useCustomFields );
+    settings_.setValue( "workedOnId",        data->workedOnId );
+    settings_.setValue( "defaultTrackerId",  data->defaultTrackerId );
+    settings_.setValue( "externalIdFieldId", data->externalIdFieldId );
+    settings_.setValue( "startTimeFieldId",  data->startTimeFieldId );
+    settings_.setValue( "endTimeFieldId",    data->endTimeFieldId );
 
-        settings_.setValue( "activity", data->activityId );
-        settings_.setValue( "issue",    data->issueId );
-        settings_.setValue( "project",  data->projectId );
-    }
+    settings_.setValue( "activity", data->activityId );
+    settings_.setValue( "issue",    data->issueId );
+    settings_.setValue( "project",  data->projectId );
 
     // Shortcuts
     settings_.setValue("shortcutCreateIssue", data->shortcutCreateIssue );
@@ -526,22 +540,21 @@ Settings::saveProfileData()
 
     // Interface
     settings_.setValue( "useSystemTrayIcon", data->useSystemTrayIcon );
-    settings_.setValue( "closeToTray", data->closeToTray );
+    settings_.setValue( "closeToTray",       data->closeToTray );
 
     // Recently used issues for the data
+    settings_.beginWriteArray( "recentIssues" );
+    for( int i = 0; i < data->recentIssues.size(); ++i )
     {
-        settings_.beginWriteArray( "recentIssues" );
-        for( int i = 0; i < data->recentIssues.size(); ++i )
-        {
-            settings_.setArrayIndex( i );
-            settings_.setValue( "id",      data->recentIssues.at(i).id );
-            settings_.setValue( "subject", data->recentIssues.at(i).subject );
-        }
-        settings_.endArray();
+        settings_.setArrayIndex( i );
+        settings_.setValue( "id",      data->recentIssues.at(i).id );
+        settings_.setValue( "subject", data->recentIssues.at(i).subject );
     }
+    settings_.endArray();
 
     // Internal
     settings_.setValue( "hidden", mainWindow()->hidden() );
+    settings_.setValue( "name",   data->name );
 
     settings_.endGroup();
 

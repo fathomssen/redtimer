@@ -21,6 +21,10 @@
 #include <QTime>
 #include <QTimer>
 
+#ifdef Q_OS_MACOS
+#include <Carbon/Carbon.h>
+#endif
+
 #include <memory>
 
 // Icons
@@ -55,6 +59,11 @@ private:
 
     /// Main application
     QApplication* app_ = nullptr;
+
+#ifdef Q_OS_OSX
+    /// Process serial number on macOS
+    ProcessSerialNumber psn_ = { 0, kCurrentProcess };
+#endif
 
     /// Issue Selector
     IssueSelector* issueSelector_;
@@ -106,9 +115,6 @@ private:
 
     /// Cached issue statuses
     SimpleModel issueStatusModel_;
-
-    /// Currently selected profile
-    QString profileId_;
 
     /// Recently opened issues
     IssueModel recentIssues_;

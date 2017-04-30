@@ -87,10 +87,19 @@ CommandSender::sendToAll( const CliOptions& options )
 
     QSettings settings( QSettings::IniFormat, QSettings::UserScope, "Thomssen IT", "RedTimer", this );
 
-    settings.beginGroup( "profiles" );
-    for( const auto& profileId : settings.allKeys() )
+    for( const auto& group : settings.childGroups() )
+    {
+        QRegularExpressionMatch match = QRegularExpression("profile-(\\d+)").match( group );
+
+        bool ok;
+        int profileId = match.captured(1).toInt( &ok );
+
+        // Not a profile group entry
+        if( !ok )
+            continue;
+
         sendToServer( profileId, options );
-    settings.endGroup();
+    }
 
     finished_ = true;
     if( sockets_.count() == 0 )
@@ -100,7 +109,7 @@ CommandSender::sendToAll( const CliOptions& options )
 }
 
 void
-CommandSender::sendToServer( const QString& profileId, const CliOptions& options )
+CommandSender::sendToServer( const int profileId, const CliOptions& options )
 {
     ENTER()(profileId)(options);
 

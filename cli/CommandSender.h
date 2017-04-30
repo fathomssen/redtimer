@@ -46,10 +46,10 @@ public slots:
     /**
      * @brief Send commands to the running RedTimer instance with the specified server selected
      *
-     * @param profileId Server ID
+     * @param profileId Profile ID
      * @param options Options
      */
-    void sendToServer( const QString& profileId, const redtimer::CliOptions& options );
+    void sendToServer( const int profileId, const redtimer::CliOptions& options );
 
 private slots:
     /**

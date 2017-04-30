@@ -145,7 +145,7 @@ Window::message( QString text, QtMsgType type, bool force )
     // If tray icon is displayed, only show a tray notification
     if( mainWindow_->trayIcon() )
     {
-        mainWindow_->trayIcon()->showMessage( "RedTimer", text, icon );
+        mainWindow_->trayIcon()->showMessage( mainWindow()->title(), text, icon );
     }
     else
     {
