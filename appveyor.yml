@@ -78,7 +78,7 @@ after_build:
   - copy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
-  - robocopy %DIST% installer\packages\de.thomssen-it.redtimer\data /E
+  - xcopy %DIST%\*.* installer\packages\de.thomssen-it.redtimer\data\*.* /s /e /c /y
   - binarycreator.exe -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
 
 artifacts:
