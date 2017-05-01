@@ -10,9 +10,7 @@ build_script:
   - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - set DIST=redtimer-%VERSION%-win32
-  - set DEPLOYFILE=%DIST%.zip
   - echo %VERSION%
-  - echo %DEPLOYFILE%
   - echo %DIST%
   - cd %APPVEYOR_BUILD_FOLDER%
   - qmake -r
@@ -60,19 +58,41 @@ after_build:
   # Remove debug DLLs
   - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
   - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
-  # Create and push the archive
-  - 7z a -tzip -mx=9 %DEPLOYFILE% %DIST%
-  - appveyor PushArtifact %DEPLOYFILE%
+  #
+  # Create and push the archive for the portable version
+  #
+  - 7z a -tzip -mx=9 %DIST%-portable.zip %DIST%
+  - appveyor PushArtifact %DIST%-portable.zip
+  #
+  # Create the Qt Installer Framework version
+  #
+  - mkdir installer
+  - mkdir installer\config
+  - mkdir installer\packages
+  - mkdir installer\packages\de.thomssen-it.redtimer
+  - mkdir installer\packages\de.thomssen-it.redtimer\data
+  - mkdir installer\packages\de.thomssen-it.redtimer\meta
+  - xcopy %BUILD%\deploy\installer-config.xml installer\config\config.xml
+  - xcopy %BUILD%\deploy\installer-package.xml installer\packages\de.thomssen-it.redtimer\meta\package.xml
+  - xcopy %BUILD%\gui\icons\clock_red.incs installer\packages\de.thomssen-it.redtimer\meta
+  - xcopy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
+  - xcopy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
+  - xcopy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
+  - robocopy %DIST% installer\packages\de.thomssen-it.redtimer\data /E
+  - binarycreator.exe -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
 
 artifacts:
-  - name: Archive
-    path: $(DEPLOYFILE)
+  - name: installer
+    path: $(DIST)-installer.exe
+  - name: portable
+    path: $(DIST)-portable.zip
 
 deploy:
   - provider: GitHub
     release: $(VERSION)
+    tag: $(VERSION)
     auth_token:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
-    artifact: $(DEPLOYFILE)
+    artifact: installer, portable
     on:
       appveyor_repo_tag: true

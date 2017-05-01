@@ -16,6 +16,8 @@ libredtimer.depends = libqtredmine
 
 DISTFILES += \
     deploy/* \
+    deploy/debian/* \
+    deploy/macdeployqtfix/* \
     docs/* \
     images/* \
     .travis.yml \
