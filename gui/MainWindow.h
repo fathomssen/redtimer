@@ -432,7 +432,7 @@ public slots:
      *
      * \sa timer_
      */
-    void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true ,
+    void stop( bool resetTimerOnError = true, bool stopTimerAfterSaving = true,
                qtredmine::SuccessCb cb = nullptr );
 
 signals:

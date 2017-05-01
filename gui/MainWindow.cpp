@@ -1411,7 +1411,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
             CBRETURN();
         }
 
-        if( errorCode == RedmineError::ERR_TIME_ENTRY_TOO_SHORT )
+        if( errorCode == RedmineError::ERR_TIME_ENTRY_TOO_SHORT && stopTimerAfterSaving )
             message( tr("Not saving too short time entries."), QtWarningMsg );
 
         if( !stopTimerAfterSaving )
