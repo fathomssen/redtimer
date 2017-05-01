@@ -86,11 +86,11 @@ after_build:
   - copy %BUILD%\deploy\installer-package-cli.xml installer\packages\de.thomssenit.redtimercli\meta\package.xml
   - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimercli\meta\license.txt
   # Amend version and date
-  - sed -i '' "s/__VERSION__/%VERSION%/" installer\config\config.xml
-  - sed -i '' "s/__VERSION__/%VERSION%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
-  - sed -i '' "s/__VERSION__/%VERSION%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
-  - sed -i '' "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
-  - sed -i '' "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
+  - sed -i "s/__VERSION__/%VERSION%/" installer\config\config.xml
+  - sed -i "s/__VERSION__/%VERSION%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - sed -i "s/__VERSION__/%VERSION%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
+  - sed -i "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - sed -i "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
   # Copy RedTimer data
   - xcopy %DIST%\*.* installer\packages\de.thomssenit.redtimergui\data\*.* /s /e /c /y
   - move installer\packages\de.thomssenit.redtimergui\data\redtimercli.exe installer\packages\de.thomssenit.redtimercli\data
