@@ -80,7 +80,7 @@ after_build:
   - copy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
   - xcopy %DIST%\*.* installer\packages\de.thomssen-it.redtimer\data\*.* /s /e /c /y
   - mkdir tools
-  - curl -O https://download.qt.io/official_releases/qt-installer-framework/2.0.5-1/QtInstallerFramework-win-x86.exe
+  - curl -L -O https://download.qt.io/official_releases/qt-installer-framework/2.0.5-1/QtInstallerFramework-win-x86.exe
   - 7z x QtInstallerFramework-win-x86.exe -otools -aoa
   - set PATH=%BUILD%\tools\bin;%PATH%
   - binarycreator.exe -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
