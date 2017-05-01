@@ -13,6 +13,7 @@ build_script:
   - set DATE=%date:~6,4%-%date:~3,2%-%date:~0,2%
   - echo %VERSION%
   - echo %DIST%
+  - echo %DATE%
   - cd %APPVEYOR_BUILD_FOLDER%
   - qmake -r
   - mingw32-make
