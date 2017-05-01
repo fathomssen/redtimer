@@ -69,16 +69,22 @@ after_build:
   - mkdir installer
   - mkdir installer\config
   - mkdir installer\packages
-  - mkdir installer\packages\de.thomssen-it.redtimer
-  - mkdir installer\packages\de.thomssen-it.redtimer\data
-  - mkdir installer\packages\de.thomssen-it.redtimer\meta
+  - mkdir installer\packages\de.thomssenit.redtimergui
+  - mkdir installer\packages\de.thomssenit.redtimergui\data
+  - mkdir installer\packages\de.thomssenit.redtimergui\meta
+  - mkdir installer\packages\de.thomssenit.redtimercli
+  - mkdir installer\packages\de.thomssenit.redtimercli\data
+  - mkdir installer\packages\de.thomssenit.redtimercli\meta
   - copy %BUILD%\deploy\installer-config.xml installer\config\config.xml
-  - copy %BUILD%\deploy\installer-package.xml installer\packages\de.thomssen-it.redtimer\meta\package.xml
-  - copy %BUILD%\gui\icons\clock_red.icns installer\packages\de.thomssen-it.redtimer\meta
-  - copy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
-  - copy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
-  - copy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
-  - xcopy %DIST%\*.* installer\packages\de.thomssen-it.redtimer\data\*.* /s /e /c /y
+  - copy %BUILD%\gui\icons\clock_red.icns installer\config
+  - copy %BUILD%\gui\icons\clock_red.png installer\config
+  - copy %BUILD%\gui\icons\clock_red.svg installer\config
+  - copy %BUILD%\deploy\installer-package-gui.xml installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimergui\meta\license.txt
+  - copy %BUILD%\deploy\installer-package-cli.xml installer\packages\de.thomssenit.redtimercli\meta\package.xml
+  - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimercli\meta\license.txt
+  - xcopy %DIST%\*.* installer\packages\de.thomssenit.redtimergui\data\*.* /s /e /c /y
+  - move installer\packages\de.thomssenit.redtimergui\data\redtimercli.exe installer\packages\de.thomssenit.redtimercli\data
   - mkdir tools
   - curl -L -O https://download.qt.io/official_releases/qt-installer-framework/2.0.5-1/QtInstallerFramework-win-x86.exe
   - 7z x QtInstallerFramework-win-x86.exe -otools -aoa
