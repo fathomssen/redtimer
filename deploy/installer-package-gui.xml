@@ -9,4 +9,6 @@
     </Licenses>
     <Default>true</Default>
     <ForcedInstallation>true</ForcedInstallation>
+    <SortingPriority>100</SortingPriority>
+    <Script>installscript.qs</Script>
 </Package>

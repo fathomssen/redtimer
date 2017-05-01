@@ -10,4 +10,6 @@
     <Logo>clock_red.png</Logo>
     <StartMenuDir>Thomssen IT</StartMenuDir>
     <TargetDir>@ApplicationsDir@/Thomssen IT/RedTimer</TargetDir>
+    <RunProgram>@TargetDir@/redtimer.exe</RunProgram>
+    <RunProgramDescription>Run Redmine Time Tracker now</RunProgramDescription>
 </Installer>

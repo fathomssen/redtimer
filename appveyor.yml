@@ -76,10 +76,10 @@ after_build:
   - mkdir installer\packages\de.thomssenit.redtimercli\data
   - mkdir installer\packages\de.thomssenit.redtimercli\meta
   - copy %BUILD%\deploy\installer-config.xml installer\config\config.xml
-  - copy %BUILD%\gui\icons\clock_red.icns installer\config
+  - copy %BUILD%\gui\icons\clock_red.ico installer\config
   - copy %BUILD%\gui\icons\clock_red.png installer\config
-  - copy %BUILD%\gui\icons\clock_red.svg installer\config
   - copy %BUILD%\deploy\installer-package-gui.xml installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - copy %BUILD%\deploy\installer-script-gui.xml installer\packages\de.thomssenit.redtimergui\meta\installscript.qs
   - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimergui\meta\license.txt
   - copy %BUILD%\deploy\installer-package-cli.xml installer\packages\de.thomssenit.redtimercli\meta\package.xml
   - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimercli\meta\license.txt
