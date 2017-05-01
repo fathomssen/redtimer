@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>RedTimer GUI</DisplayName>
     <Description>Install RedTimer GUI.</Description>
-    <Version>1.2.2</Version>
-    <ReleaseDate>2017-05-01</ReleaseDate>
+    <Version>__VERSION__</Version>
+    <ReleaseDate>__DATE__</ReleaseDate>
     <Licenses>
         <License name="LGPL" file="license.txt" />
     </Licenses>

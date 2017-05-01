@@ -2,8 +2,8 @@
 <Package>
     <DisplayName>RedTimer CLI</DisplayName>
     <Description>Install RedTimer command line interface (CLI).</Description>
-    <Version>1.2.2</Version>
-    <ReleaseDate>2017-05-01</ReleaseDate>
+    <Version>__VERSION__</Version>
+    <ReleaseDate>__DATE__</ReleaseDate>
     <Default>true</Default>
     <SortingPriority>50</SortingPriority>
 </Package>

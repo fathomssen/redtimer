@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Installer>
     <Name>RedTimer</Name>
-    <Version>1.2.1</Version>
+    <Version>__VERSION__</Version>
     <Title>RedTimer Installer</Title>
     <Publisher>Thomssen IT</Publisher>
     <ProductUrl>https://www.redtimer.org</ProductUrl>
