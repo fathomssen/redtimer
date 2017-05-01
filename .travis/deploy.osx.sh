@@ -22,7 +22,7 @@ cp -a gui/qml dist
 cd dist
 
 macdeployqt RedTimer.app -appstore-compliant -qmldir=qml
-export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt5" | cut -f 1 -d " ")
+export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt/5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimer.app/Contents/PlugIns
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimer $QTDIR/
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimercli $QTDIR/
