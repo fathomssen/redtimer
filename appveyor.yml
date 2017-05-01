@@ -72,12 +72,12 @@ after_build:
   - mkdir installer\packages\de.thomssen-it.redtimer
   - mkdir installer\packages\de.thomssen-it.redtimer\data
   - mkdir installer\packages\de.thomssen-it.redtimer\meta
-  - xcopy %BUILD%\deploy\installer-config.xml installer\config\config.xml
-  - xcopy %BUILD%\deploy\installer-package.xml installer\packages\de.thomssen-it.redtimer\meta\package.xml
-  - xcopy %BUILD%\gui\icons\clock_red.incs installer\packages\de.thomssen-it.redtimer\meta
-  - xcopy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
-  - xcopy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
-  - xcopy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
+  - copy %BUILD%\deploy\installer-config.xml installer\config\config.xml
+  - copy %BUILD%\deploy\installer-package.xml installer\packages\de.thomssen-it.redtimer\meta\package.xml
+  - copy %BUILD%\gui\icons\clock_red.incs installer\packages\de.thomssen-it.redtimer\meta
+  - copy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
+  - copy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
+  - copy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
   - robocopy %DIST% installer\packages\de.thomssen-it.redtimer\data /E
   - binarycreator.exe -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
 
