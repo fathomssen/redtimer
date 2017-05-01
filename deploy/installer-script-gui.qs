@@ -11,8 +11,8 @@ Component.prototype.createOperations = function()
         if( installer.value("os") === "win" )
         {
             component.addOperation( "CreateShortcut", "@TargetDir@/redtimer.exe", "@StartMenuDir@/RedTimer.lnk",
-                                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@/redtimer.exe",
-                                    "iconId=1", "description=Redmine Time Tracker");
+                                    "workingDirectory=@TargetDir@", "iconPath=@TargetDir@\redtimer.exe",
+                                    "iconId=0", "description=Redmine Time Tracker");
         }
     }
     catch( e )
