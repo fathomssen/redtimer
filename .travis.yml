@@ -91,10 +91,10 @@ after_success:
   - run $isLinux sudo make install
   - run $isLinux cd ..
   - run $isLinux export VERSION=${TRAVIS_TAG#v}
-  - run $isLinux .travis/deploy.linux.sh $PREFIX $VERSION
+  - run $isLinux deploy/deploy.linux.sh $PREFIX $VERSION
   # OS X
   - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-${dist}-${distver}-${distname}
-  - run $isOsX .travis/deploy.osx.sh $PREFIX
+  - run $isOsX deploy/deploy.osx.sh $PREFIX
   # Both
   - export DEPLOYFILE=$PREFIX.*
 

@@ -22,11 +22,11 @@ mkdir -p dist/opt/redtimer
 cp gui/redtimer dist/opt/redtimer
 cp cli/redtimercli dist/opt/redtimer
 cp gui/icons/clock_red.svg dist/opt/redtimer/redtimer.svg
-cp .travis/redtimer.desktop dist/opt/redtimer
+cp deploy/redtimer.desktop dist/opt/redtimer
 
 # Create AppImage
-.travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
-.travis/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
+deploy/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
+deploy/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
 mv dist/opt/redtimer.AppImage $PREFIX.AppImage
 

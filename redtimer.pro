@@ -15,7 +15,7 @@ gui.depends = libredtimer
 libredtimer.depends = libqtredmine
 
 DISTFILES += \
-    .travis/* \
+    deploy/* \
     docs/* \
     images/* \
     .travis.yml \

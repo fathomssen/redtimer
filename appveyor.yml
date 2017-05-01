@@ -33,6 +33,10 @@ after_build:
   - xcopy %BUILD%\gui\release\redtimer.exe %DIST%
   - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
+  # Copy SSL libraries
+  - 7z x deploy\openssl-*-win32.zip -oopenssl
+  - xcopy openssl\libeay32.dll %DIST%
+  - xcopy openssl\ssleay32.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%
   - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
