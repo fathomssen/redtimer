@@ -74,7 +74,7 @@ after_build:
   - mkdir installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\deploy\installer-config.xml installer\config\config.xml
   - copy %BUILD%\deploy\installer-package.xml installer\packages\de.thomssen-it.redtimer\meta\package.xml
-  - copy %BUILD%\gui\icons\clock_red.incs installer\packages\de.thomssen-it.redtimer\meta
+  - copy %BUILD%\gui\icons\clock_red.icns installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\gui\icons\clock_red.png installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\gui\icons\clock_red.svg installer\packages\de.thomssen-it.redtimer\meta
   - copy %BUILD%\LICENSE installer\packages\de.thomssen-it.redtimer\meta\license.txt
