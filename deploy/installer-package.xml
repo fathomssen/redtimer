@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>RedTimer</DisplayName>
+    <Description>Install RedTimer GUI and command line interface (CLI).</Description>
+    <Version>1.2.2</Version>
+    <ReleaseDate>2017-05-01</ReleaseDate>
+    <Licenses>
+        <License name="LGPL" file="license.txt" />
+    </Licenses>
+    <Default>true</Default>
+</Package>
