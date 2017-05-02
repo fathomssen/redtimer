@@ -9,7 +9,7 @@ install:
 build_script:
   - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
-  - set INSTVERSION=%VERSION$
+  - set INSTVERSION=%VERSION%
   - if defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION:~1%
   - set DIST=redtimer-%VERSION%-win32
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
