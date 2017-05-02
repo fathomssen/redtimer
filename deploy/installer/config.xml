@@ -11,5 +11,5 @@
     <StartMenuDir>Thomssen IT</StartMenuDir>
     <TargetDir>@ApplicationsDir@/Thomssen IT/RedTimer</TargetDir>
     <RunProgram>@TargetDir@/redtimer.exe</RunProgram>
-    <RunProgramDescription>Run Redmine Time Tracker now</RunProgramDescription>
+    <ControlScript>controlscript.qs</ControlScript>
 </Installer>
