@@ -18,6 +18,8 @@ DISTFILES += \
     deploy/* \
     deploy/debian/* \
     deploy/installer/* \
+    deploy/installer/cli/* \
+    deploy/installer/gui/* \
     deploy/macdeployqtfix/* \
     docs/* \
     images/* \
