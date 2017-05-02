@@ -78,14 +78,15 @@ after_build:
   - mkdir installer\packages\de.thomssenit.redtimercli\data
   - mkdir installer\packages\de.thomssenit.redtimercli\meta
   # Copy installer data
-  - copy %BUILD%\deploy\installer-config.xml installer\config\config.xml
   - copy %BUILD%\gui\icons\clock_red.ico installer\config
   - copy %BUILD%\gui\icons\clock_red.png installer\config
-  - copy %BUILD%\deploy\installer-package-gui.xml installer\packages\de.thomssenit.redtimergui\meta\package.xml
-  - copy %BUILD%\deploy\installer-script-gui.qs installer\packages\de.thomssenit.redtimergui\meta\installscript.qs
   - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimergui\meta\license.txt
-  - copy %BUILD%\deploy\installer-package-cli.xml installer\packages\de.thomssenit.redtimercli\meta\package.xml
-  - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimercli\meta\license.txt
+  - copy %BUILD%\deploy\installer\config.xml installer\config
+  - copy %BUILD%\deploy\installer\controlscript.qs installer\config
+  - copy %BUILD%\deploy\installer\uninstall.qs installer\packages\de.thomssenit.redtimergui\data
+  - copy %BUILD%\deploy\installer\gui\package.xml installer\packages\de.thomssenit.redtimergui\meta
+  - copy %BUILD%\deploy\installer\gui\installscript.qs installer\packages\de.thomssenit.redtimergui\meta
+  - copy %BUILD%\deploy\installer\cli\package.xml installer\packages\de.thomssenit.redtimercli\meta
   # Amend version and date
   - sed -i "s/__VERSION__/%VERSION%/" installer\config\config.xml
   - sed -i "s/__VERSION__/%VERSION%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
@@ -99,7 +100,7 @@ after_build:
   - curl -L -O https://download.qt.io/official_releases/qt-installer-framework/2.0.5-1/QtInstallerFramework-win-x86.exe
   - 7z x QtInstallerFramework-win-x86.exe -otools -aoa
   - set PATH=%BUILD%\tools\bin;%PATH%
-  - binarycreator.exe --offline-only -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
+  - binarycreator.exe -f -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
 
 artifacts:
   - name: installer
