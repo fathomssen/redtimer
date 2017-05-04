@@ -1,9 +1,15 @@
 version: '{branch}-{build}'
 
+environment:
+  matrix:
+  - QTVER: 58
+    QTDIR: C:\Qt\5.8\mingw53_32
+  - QTVER: 57
+    QTDIR: C:\Qt\5.7\mingw53_32
+
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - set QTDIR=C:\Qt\5.8\mingw53_32
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
@@ -11,7 +17,7 @@ build_script:
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - set INSTVERSION=%VERSION%
   - if defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION:~1%
-  - set DIST=redtimer-%VERSION%-win32
+  - set DIST=redtimer-%VERSION%-win32-qt%QTVER%
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
   - echo %INSTVERSION%
