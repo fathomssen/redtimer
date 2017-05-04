@@ -9,6 +9,17 @@ export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
 export ROOTDIR=$TRAVISDIR/..
 export PREFIX=$ROOTDIR/$1
 
+if [ -z ${TRAVIS_TAG} ]; then
+  if [ "${TRAVIS_BRANCH}"=="master" ]; then
+    export BRANCH=99
+  else
+    export BRANCH=${TRAVIS_BRANCH}
+  fi
+  export VERSION=${BRANCH}-${TRAVIS_BUILD_ID}
+else
+  export VERSION=${TRAVIS_TAG/v/}
+fi
+
 cd $ROOTDIR
 
 # Create a new dist folder
@@ -26,7 +37,8 @@ export QTDIR=$(brew info qt5 | grep "^/usr/local/Cellar/qt/5" | cut -f 1 -d " ")
 cp -a $QTDIR/plugins/{bearer,iconengines} RedTimer.app/Contents/PlugIns
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimer $QTDIR/
 python $TRAVISDIR/macdeployqtfix/macdeployqtfix.py RedTimer.app/Contents/MacOS/redtimercli $QTDIR/
-sed -i '' "s/__VERSION__/${TRAVIS_TAG}/" RedTimer.app/Contents/Info.plist
+sed -i '' "s/__VERSION__/${VERSION}/" RedTimer.app/Contents/Info.plist
+sed -i '' "s/__YEAR__/$(date +%Y)/" RedTimer.app/Contents/Info.plist
 
 # Thanks to https://medium.com/juan-cruz-viotti/how-to-code-sign-os-x-electron-apps-in-travis-ci-6b6a0756c04a#.x84x807hk
 export CERTIFICATE_P12="Certificate.p12"
