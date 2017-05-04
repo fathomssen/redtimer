@@ -21,7 +21,7 @@ Window::Window( QString qml, MainWindow* mainWindow, std::function<void()> close
     item_ = qobject_cast<QQuickItem*>( rootObject() );
     mainWindow_ = mainWindow;
 
-    if( !settings_ )
+    if( !settings_ && mainWindow_ )
         settings_ = mainWindow_->settings();
 
     setResizeMode( QQuickView::SizeRootObjectToView );
@@ -29,10 +29,7 @@ Window::Window( QString qml, MainWindow* mainWindow, std::function<void()> close
     setMinimumHeight( height() );
     setMinimumWidth( width() );
 
-    if( closeCb )
-        closeCb_ = closeCb;
-    else
-        closeCb_ = [&](){ close(); };
+    closeCb_ = closeCb ? closeCb : [&](){ close(); };
 
     RETURN();
 }
@@ -69,7 +66,10 @@ Window::connected()
 {
     ENTER();
 
-    bool ret = mainWindow_->connected();
+    bool ret = false;
+
+    if( mainWindow_ )
+        mainWindow_->connected();
 
     RETURN( ret );
 }
@@ -143,7 +143,7 @@ Window::message( QString text, QtMsgType type, bool force )
     QQuickItem* item = nullptr;
 
     // If tray icon is displayed, only show a tray notification
-    if( mainWindow_->trayIcon() )
+    if( mainWindow_ && mainWindow_->trayIcon() )
     {
         mainWindow_->trayIcon()->showMessage( mainWindow()->title(), text, icon );
     }
@@ -191,7 +191,11 @@ Window::profileData()
 {
     ENTER();
 
-    ProfileData* profileData = settings_->profileData();
+    ProfileData* profileData;
+    if( settings_ )
+        profileData = settings_->profileData();
+    else
+        profileData = new ProfileData();
 
     RETURN( profileData, *profileData );
 }

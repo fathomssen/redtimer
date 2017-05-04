@@ -24,9 +24,6 @@ class Window : public QQuickView
     friend class MainWindow;
 
 private:
-    /// Emit the closed signal upon closing
-    bool emitClosedSignal_ = true;
-
     /// Close callback
     std::function<void()> closeCb_;
 
@@ -34,13 +31,13 @@ private:
     QHash<QString, bool> displayed_;
 
     /// Main item
-    QQuickItem* item_;
+    QQuickItem* item_ = nullptr;
 
     /// Window context
-    QQmlContext* ctx_;
+    QQmlContext* ctx_ = nullptr;
 
     /// Main window
-    MainWindow* mainWindow_;
+    MainWindow* mainWindow_ = nullptr;
 
     /// Settings
     Settings* settings_ = nullptr;
@@ -53,6 +50,9 @@ protected:
     bool deleteLater_ = false;
 
 protected:
+    /// Emit the closed signal upon closing
+    bool emitClosedSignal_ = true;
+
     /// @name Getter
     /// @{
 

@@ -39,7 +39,6 @@
     #define ICON_CLOCK_STOP ":/icons/clock_red_stop.svg"
 #endif
 
-
 namespace redtimer {
 
 // forward declarations
@@ -176,7 +175,7 @@ public:
      * @param parent Parent QObject
      * @param profileId Profile ID
      */
-    explicit MainWindow( QApplication* parent, const QString& profileId );
+    explicit MainWindow( QApplication* parent, QString profileId );
 
     /**
      * @brief Determines whether a connection is currently available

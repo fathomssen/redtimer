@@ -24,7 +24,7 @@ namespace redtimer {
 
 #define MSG_CANNOT_PROCEDE "Cannot procede without a connection"
 
-MainWindow::MainWindow( QApplication* parent, const QString& profileId )
+MainWindow::MainWindow( QApplication* parent, QString profileId )
     : Window( "MainWindow", this ),
       app_( parent )
 {
@@ -363,7 +363,9 @@ MainWindow::exit()
         if( server )
             server->close();
 
+        DEBUG() << "Quitting app";
         app_->quit();
+
         RETURN();
     }
 

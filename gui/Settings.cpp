@@ -4,7 +4,6 @@
 
 #include <QAbstractButton>
 #include <QInputDialog>
-#include <QMessageBox>
 #include <QQuickItem>
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>

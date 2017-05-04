@@ -24,6 +24,7 @@ HEADERS += \
     IssueSelector.h \
     Models.h \
     MainWindow.h \
+    ProfileSelector.h \
     Settings.h \
     Window.h
 
@@ -33,6 +34,7 @@ SOURCES += \
     IssueSelector.cpp \
     IssueCreator.cpp \
     MainWindow.cpp \
+    ProfileSelector.cpp \
     Settings.cpp \
     Window.cpp
 
