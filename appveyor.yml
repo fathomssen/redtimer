@@ -13,11 +13,14 @@ install:
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
-  - set VERSION=%APPVEYOR_REPO_BRANCH%-%APPVEYOR_BUILD_NUMBER%
-  - set INSTVERSION=%VERSION%
-  - if "%VERSION:~0,7%"=="master-" set INSTVERSION=99-%version:~7%
+  - set BRANCH=%APPVEYOR_REPO_BRANCH%
+  - if "%APPVEYOR_REPO_BRANCH%"=="master" set BRANCH=99.99
+  - if not defined APPVEYOR_REPO_TAG_NAME set VERSION=%BRANCH%-%APPVEYOR_BUILD_NUMBER%
+  - if not defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION%
+  - if not defined APPVEYOR_REPO_TAG_NAME set WINVERSION=%BRANCH%.0.0
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - if defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION:~1%
+  - if defined APPVEYOR_REPO_TAG_NAME set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
   - set DIST=redtimer-%VERSION%-win32-qt%QTVER%
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
@@ -25,6 +28,7 @@ build_script:
   - echo %DIST%
   - echo %DATE%
   - cd %APPVEYOR_BUILD_FOLDER%
+  - sed -i "s/VERSION = 1.0.0.0/VERSION = %WINVERSION%/" gui\redtimer.pro
   - qmake -r
   - mingw32-make
 

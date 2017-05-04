@@ -14,10 +14,12 @@ ICON = icons/clock_red.icns
 
 QMAKE_INFO_PLIST = Info.plist
 
+win32:VERSION = 1.0.0.0
+
 QMAKE_TARGET_COMPANY = "Thomssen IT"
 QMAKE_TARGET_PRODUCT = "RedTimer"
 QMAKE_TARGET_DESCRIPTION = "Redmine Time Tracker"
-QMAKE_TARGET_COPYRIGHT = "LGPL 3"
+QMAKE_TARGET_COPYRIGHT = "© Thomssen IT"
 
 HEADERS += \
     IssueCreator.h \
