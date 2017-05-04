@@ -2,6 +2,8 @@
 
 #include "ProfileSelector.h"
 
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QSettings>
 
 using namespace qtredmine;
