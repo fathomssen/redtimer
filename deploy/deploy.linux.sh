@@ -39,7 +39,7 @@ cp -a $QTDIR/plugins/xcbglintegrations dist/opt/redtimer/plugins
 deploy/linuxdeployqt dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
 deploy/linuxdeployqt dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
-mv RedTimer-x86_64.AppImage $PREFIX.AppImage
+mv RedTimer*.AppImage $PREFIX.AppImage
 
 ##################### DEB/RPM creation #####################
 
