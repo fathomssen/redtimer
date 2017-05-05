@@ -5,6 +5,11 @@ if [ $# -lt 1 -o $# -gt 2 ]; then
   exit 1
 fi
 
+# Set by /opt/qtXX/bin/qtXX-env.sh
+# These may not be set for linuxdeployqt
+unset LD_LIBRARY_PATH
+unset PKG_CONFIG_PATH
+
 export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
 export ROOTDIR=$TRAVISDIR/..
 export PREFIX=$1
@@ -25,8 +30,8 @@ cp gui/icons/clock_red.svg dist/opt/redtimer/redtimer.svg
 cp deploy/redtimer.desktop dist/opt/redtimer
 
 # Create AppImage
-deploy/linuxdeployqt.AppImage dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
-deploy/linuxdeployqt.AppImage dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
+deploy/linuxdeployqt dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
+deploy/linuxdeployqt dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
 mv dist/opt/redtimer.AppImage $PREFIX.AppImage
 
