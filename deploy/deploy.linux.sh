@@ -29,11 +29,17 @@ cp cli/redtimercli dist/opt/redtimer
 cp gui/icons/clock_red.svg dist/opt/redtimer/redtimer.svg
 cp deploy/redtimer.desktop dist/opt/redtimer
 
+# Include things possibly missing from linuxdeployqt
+mkdir -p dist/opt/redtimer/lib
+cp -a $QTDIR/lib/$(readlink $QTDIR/lib/libQt5Svg.so.5) dist/opt/redtimer/lib/libQt5Svg.so.5
+mkdir -p dist/opt/redtimer/plugins
+cp -a $QTDIR/plugins/xcbglintegrations dist/opt/redtimer/plugins
+
 # Create AppImage
 deploy/linuxdeployqt dist/opt/redtimer/redtimercli -qmldir=gui/qml -verbose=2
 deploy/linuxdeployqt dist/opt/redtimer/redtimer -qmldir=gui/qml -appimage -bundle-non-qt-libs -verbose=2
 
-mv dist/opt/redtimer.AppImage $PREFIX.AppImage
+mv RedTimer-x86_64.AppImage $PREFIX.AppImage
 
 ##################### DEB/RPM creation #####################
 

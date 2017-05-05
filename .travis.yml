@@ -6,33 +6,16 @@ matrix:
     # Workaround to prevent building in an empty environment
     - compiler: clang
   include:
-    ####################### Linux #######################
-    - os: linux
-      dist: trusty
-      sudo: required
-      env:
-        - qtenv: /opt/qt58/bin/qt58-env.sh
-        - qtpkg: "'qt58base qt58quickcontrols qt58quickcontrols2 qt58svg qt58x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt58-trusty
-        - qtver: 58
-    - os: linux
-      dist: trusty
-      sudo: required
-      env:
-        - qtenv: /opt/qt57/bin/qt57-env.sh
-        - qtpkg: "'qt57base qt57quickcontrols qt57quickcontrols2 qt57svg qt57x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt571-trusty
-        - qtver: 57
     ####################### macOS #######################
     ###
-    ### OS X 10.10
+    ### macOS 10.12
     ###
     - os: osx
-      osx_image: xcode6.4
+      osx_image: xcode8.3
       env:
-        - dist: "osx"
-        - distver: "10.10"
-        - distname: "yosemite"
+        - dist: "macos"
+        - distver: "10.12"
+        - distname: "sierra"
     ###
     ### OS X 10.11
     ###
@@ -43,14 +26,23 @@ matrix:
         - distver: "10.11"
         - distname: "el-capitan"
     ###
-    ### macOS 10.12
+    ### OS X 10.10
     ###
     - os: osx
-      osx_image: xcode8.3
+      osx_image: xcode6.4
       env:
-        - dist: "macos"
-        - distver: "10.12"
-        - distname: "sierra"
+        - dist: "osx"
+        - distver: "10.10"
+        - distname: "yosemite"
+    ####################### Linux #######################
+    - os: linux
+      dist: trusty
+      sudo: required
+      env:
+        - qtenv: /opt/qt58/bin/qt58-env.sh
+        - qtpkg: "'qt58base qt58quickcontrols qt58quickcontrols2 qt58svg qt58x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt58-trusty
+        - qtver: 58
 
 services:
   - docker
