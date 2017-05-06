@@ -62,6 +62,8 @@ after_build:
   - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
+  # Copy D3D library required for some graphics drivers
+  - xcopy %QTDIR%\Tools\QtCreator\bin\d3dcompiler_*.dll %DIST%
   # Copy Qt plugins
   - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
   - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
