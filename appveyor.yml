@@ -62,8 +62,6 @@ after_build:
   - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
-  # Copy D3D library required for some graphics drivers
-  - xcopy %QTDIR%\bin\d3dcompiler_*.dll %DIST%
   # Copy Qt plugins
   - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
   - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
@@ -71,6 +69,11 @@ after_build:
   # Copy Qt QML modules
   - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
   - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
+  # Copy D3D library required for some graphics drivers
+  #- xcopy C:\Windows\System32\D3DCompiler_47.dll %DIST%
+  - cd \
+  - dir /a-d /b /s d3dcompiler*
+  - cd %APPVEYOR_BUILD_FOLDER%
   # Remove debug DLLs
   - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
   - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
