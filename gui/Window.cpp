@@ -69,7 +69,7 @@ Window::connected()
     bool ret = false;
 
     if( mainWindow_ )
-        mainWindow_->connected();
+        RETURN( mainWindow_->connected() );
 
     RETURN( ret );
 }
