@@ -39,10 +39,10 @@ matrix:
       dist: trusty
       sudo: required
       env:
-        - qtenv: /opt/qt58/bin/qt58-env.sh
-        - qtpkg: "'qt58base qt58quickcontrols qt58quickcontrols2 qt58svg qt58x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt58-trusty
-        - qtver: 58
+        - qtenv: /opt/qt59/bin/qt59-env.sh
+        - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt59-trusty
+        - qtver: 59
 
 services:
   - docker

@@ -4,6 +4,8 @@ environment:
   matrix:
   - QTVER: 58
     QTDIR: C:\Qt\5.8\mingw53_32
+  - QTVER: 59
+    QTDIR: C:\Qt\5.9\mingw53_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
