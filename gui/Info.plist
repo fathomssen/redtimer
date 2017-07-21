@@ -28,5 +28,9 @@
         <string>1</string>
         <key>LSUIElement</key>
         <string>1</string>
+        <key>NSHighResolutionCapable</key>
+        <true/>
+        <key>NSHighResolutionMagnifyAllowed</key>
+        <false/>
 </dict>
 </plist>
