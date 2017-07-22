@@ -58,5 +58,3 @@ sync
 hdiutil detach "${DEVICE}"
 hdiutil convert tmp.dmg -format UDZO -imagekey zlib-level=9 -o $PREFIX.dmg
 
-# Generate tar.bz2 file
-tar jcf $PREFIX.tar.bz2 RedTimer.app
