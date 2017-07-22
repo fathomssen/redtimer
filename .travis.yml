@@ -115,8 +115,7 @@ after_success:
       git config user.email "thomssen@thomssen-it.de";
       git add .;
       git commit -m "Deploy branch ${TRAVIS_BRANCH} builds to GitHub";
-      git fetch;
-      git push --force-with-lease "https://${GH_TOKEN}@${GH_REF}" builds;
+      git push --force-with-lease="${DEPLOYFILE}" "https://${GH_TOKEN}@${GH_REF}" builds;
       popd;
     fi
 
