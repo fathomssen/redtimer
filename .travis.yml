@@ -1,6 +1,11 @@
 language: cpp
 compiler: clang
 
+env:
+  global:
+  - GH_REF=github.com/fathomssen/redtimer.git
+  - secure: "NB/LJ6BgV9bIzHiC48jCajvDQqnp178cBx94R7bJQYqCP2Q+NbO0tV1wAn29ewaIqTaZT/E2qpuMM2uUBZAEqDva8JSXaX2yAHlp2DW4G90/ZIncDFlRqVhUxEq+dW5wL35xakMkkcZpBAfdOEvsPxmg1O071N6b02bPX/dP5QqUm1xqq73iyK+vfRlAIK7npua7nQIAwJk28eQ0OrsRNupsxZYjp1nmMouvUb6/qDc6SzJdSlqGaP+qMyOPlLkkTd2zgC59UR0P4KF7MbvGpQ+jEQ7jh9tZ4mfZbIz9rKy/5TnUs2giCpHEO+Ah1baLuDakOthdeaP57dw92NhMmZA1++2GUp1FxJ4fRsjuctyj8lXKgBVJV55GXGRzphuNQdfNwfc54CzyO4tXpAbX8IFmndJEia+FWIOD3q+N0o8UwouWhwE79U9vCDFA8SOTHtyLkMl+6QIiuQgocPpBCeJs5Jmd9W2lJL3aQoDnjsEDJAF9So9mUWCEKrTRl1szk0Yw4QIxp4WIfn79h8F8sPYtnp/7dqqlGqf2vSZ3+mlkVS4r8Me0nS5qrDRMC3JmCS5QSfO0TrJgTfW8eUn/ru3F2KpN1EngO1phM0n1SSpIdW2G6EDnHpwj2Wauw+p8RA4zRmC8GLbFBScXIW4yQPiaF/E9gFeNrajGWCbWKt0="
+
 matrix:
   exclude:
     # Workaround to prevent building in an empty environment
@@ -95,18 +100,25 @@ after_success:
   # Linux
   - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
   - run $isLinux git clone https://github.com/jordansissel/fpm.git
-  - run $isLinux cd fpm
+  - run $isLinux pushd fpm
   - run $isLinux bundle install
   - run $isLinux make
   - run $isLinux sudo make install
-  - run $isLinux cd ..
+  - run $isLinux popd
   - run $isLinux deploy/deploy.linux.sh $PREFIX $VERSION
   # OS X
   - run $isOsX deploy/deploy.osx.sh $PREFIX $VERSION
   # Both
   - export DEPLOYFILE=$PREFIX.*
-  - mkdir upload
-  - cp -a $DEPLOYFILE upload
+  - git clone --branch gh-pages --single-branch --depth 1 https://github.com/fathomssen/redtimer.git gh-pages
+  - cp -a $DEPLOYFILE gh-pages
+  - pushd gh-pages
+  - git config user.name "Frederick Thomssen"
+  - git config user.email "thomssen@thomssen-it.de"
+  - git add .
+  - git commit -m "Deploy to GitHub Pages"
+  - git push --quiet "https://${GH_TOKEN}@${GH_REF}" gh-pages > /dev/null 2>&1
+  - popd
 
 deploy:
   ### Upload releases
@@ -118,23 +130,3 @@ deploy:
     skip_cleanup: true
     on:
       tags: true
-  ### Upload each build for branch master
-  - provider: pages
-    github_token:
-      secure: F3wBYR8oHwrLEJWwH6eQbTjhrNFCdklUQhjfq4wzixZO3bm5PTR/K3wvxaINmhsSoEdYHnSwzyVC3kWzcKWQX/3msCV4VyLvo1SULoz3RA2f4iY63Kbo0KzKiT+2rmOuGNHDDXCvIVKIhD81H5hR5YYhTPF7aBGfxvpb1Z2l9zfASP7fd6oZhdxolNfT3OS03AIB1on6pLgtv/aaizh5vAlVn32OwyFiJ5iOo+owFvYgImj082YTN025tVUh9KMjWD5naLgQ5ltflcWnIndjOwnasHQesmSKmCU5TBB7gAjpaRt0zKNdgDZ2RS8UFmaV5BIzF6TgP3I/IsVET5Fqqjil8PUSJZrGm/fbL+8yp9tpQ5chQcTV/ssYoQPZ0I2asZjuV6ypgSCIVuCdzcUewZgkLJglfKKTf1WqxKsjleaTZu9HpCyZ+XYp5L2Y+twsFZGgzYZoa43+/GtinNabNG75rIq0mc3cnNM/BQRvyUeAf9JUGeauQhTjJloiSKs3wl3VVYtvCiggWmKEjPYDNqgDLMaw10WMLt55f+i1VwzcBtRyZOkBC0/YVKLrM21JGOgbgEBtTam5G9+0Ysb6bwymTTD02N6tXjLFS9om2UyN1LzGzW+Sy0PW4L8RhoafwZEVTMDwxZh6Noo8JTZAN/XmOPM7cGfavVZchn2CWZc=
-    local_dir: upload
-    skip_cleanup: true
-    verbose: true
-    keep-history: true
-    on:
-      branch: master
-  ### Upload each build for branch 1.2
-  - provider: pages
-    github_token:
-      secure: F3wBYR8oHwrLEJWwH6eQbTjhrNFCdklUQhjfq4wzixZO3bm5PTR/K3wvxaINmhsSoEdYHnSwzyVC3kWzcKWQX/3msCV4VyLvo1SULoz3RA2f4iY63Kbo0KzKiT+2rmOuGNHDDXCvIVKIhD81H5hR5YYhTPF7aBGfxvpb1Z2l9zfASP7fd6oZhdxolNfT3OS03AIB1on6pLgtv/aaizh5vAlVn32OwyFiJ5iOo+owFvYgImj082YTN025tVUh9KMjWD5naLgQ5ltflcWnIndjOwnasHQesmSKmCU5TBB7gAjpaRt0zKNdgDZ2RS8UFmaV5BIzF6TgP3I/IsVET5Fqqjil8PUSJZrGm/fbL+8yp9tpQ5chQcTV/ssYoQPZ0I2asZjuV6ypgSCIVuCdzcUewZgkLJglfKKTf1WqxKsjleaTZu9HpCyZ+XYp5L2Y+twsFZGgzYZoa43+/GtinNabNG75rIq0mc3cnNM/BQRvyUeAf9JUGeauQhTjJloiSKs3wl3VVYtvCiggWmKEjPYDNqgDLMaw10WMLt55f+i1VwzcBtRyZOkBC0/YVKLrM21JGOgbgEBtTam5G9+0Ysb6bwymTTD02N6tXjLFS9om2UyN1LzGzW+Sy0PW4L8RhoafwZEVTMDwxZh6Noo8JTZAN/XmOPM7cGfavVZchn2CWZc=
-    local_dir: upload
-    skip_cleanup: true
-    verbose: true
-    keep-history: true
-    on:
-      branch: 1.2
