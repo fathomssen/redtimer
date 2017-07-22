@@ -107,15 +107,17 @@ after_success:
   - run $isOsX deploy/deploy.osx.sh $PREFIX $VERSION
   # Both
   - export DEPLOYFILE=$PREFIX.*
-  - git clone --branch gh-pages --single-branch --depth 1 https://github.com/fathomssen/redtimer.git gh-pages
-  - cp -a $DEPLOYFILE gh-pages
-  - pushd gh-pages
-  - git config user.name "Frederick Thomssen"
-  - git config user.email "thomssen@thomssen-it.de"
-  - git add .
-  - git commit -m "Deploy to GitHub Pages"
-  - git push --quiet "https://${GH_TOKEN}@${GH_REF}" gh-pages > /dev/null 2>&1
-  - popd
+  - if [ -n "${TRAVIS_BRANCH}" ]; then
+      git clone --branch=gh-pages --depth=1 https://github.com/fathomssen/redtimer.git gh-pages;
+      cp -a $DEPLOYFILE gh-pages;
+      pushd gh-pages;
+      git config user.name "Frederick Thomssen";
+      git config user.email "thomssen@thomssen-it.de";
+      git add .;
+      git commit -m "Deploy branch ${TRAVIS_BRANCH} to GitHub Pages";
+      git push --quiet "https://${GH_TOKEN}@${GH_REF}" gh-pages > /dev/null 2>&1;
+      popd;
+    fi
 
 deploy:
   ### Upload releases
