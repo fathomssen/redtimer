@@ -109,7 +109,7 @@ after_success:
   # Both
   - export DEPLOYFILE=$PREFIX.*
   - if [ -n "${TRAVIS_BRANCH}" ]; then
-      curl -T $DEPLOYFILE -u $FTP_USER:$FTP_PASS ftp://$FTP_HOST/;
+      find $DEPLOYFILE -exec curl -T '{}' -u ${FTP_USER}:${FTP_PASS} ftp://${FTP_HOST}/ \;;
     fi
 
 deploy:
