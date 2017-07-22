@@ -110,7 +110,7 @@ deploy:
     on:
       repo: fathomssen/redtimer
       tags: true
-  ### Upload each build
+  ### Upload each build for branch master
   - provider: pages
     github_token:
       secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
@@ -119,3 +119,14 @@ deploy:
     skip_cleanup: true
     on:
       repo: fathomssen/redtimer
+      branch: master
+  ### Upload each build for branch 1.2
+  - provider: pages
+    github_token:
+      secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
+    file_glob: true
+    file: ${DEPLOYFILE}
+    skip_cleanup: true
+    on:
+      repo: fathomssen/redtimer
+      branch: 1.2
