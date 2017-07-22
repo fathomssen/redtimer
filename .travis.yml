@@ -36,8 +36,6 @@ matrix:
         - distname: "yosemite"
     ####################### Linux #######################
     - os: linux
-      dist: trusty
-      sudo: required
       env:
         - qtenv: /opt/qt59/bin/qt59-env.sh
         - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
@@ -59,9 +57,9 @@ before_install:
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Version names
-  - [[ -n "${TRAVIS_TAG}" ]] && export TRAVIS_VERSION="${TRAVIS_TAG}"
-  - [[ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" != "master" ]] && export TRAVIS_VERSION="v${TRAVIS_BRANCH}"
-  - [[ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" == "master" ]] && export TRAVIS_VERSION="v9999"
+  - if [ -n "${TRAVIS_TAG}" ]; then export TRAVIS_VERSION="${TRAVIS_TAG}"; fi
+  - if [ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" != "master" ]; then export TRAVIS_VERSION="v${TRAVIS_BRANCH}"; fi
+  - if [ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" == "master" ]; then export TRAVIS_VERSION="v9999"; fi
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
   - run $isLinux sudo apt-get update
