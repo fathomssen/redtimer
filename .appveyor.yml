@@ -136,7 +136,6 @@ deploy:
   - provider: FTP
     protocol: ftp
     beta: true
-    folder: /builds
     host:
       secure: 9KakK2IjmX6egQDXn5SR1g==
     username:
