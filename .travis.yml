@@ -108,15 +108,15 @@ after_success:
   # Both
   - export DEPLOYFILE=$PREFIX.*
   - if [ -n "${TRAVIS_BRANCH}" ]; then
-      git clone --branch=gh-pages --depth=1 https://github.com/fathomssen/redtimer.git gh-pages;
-      cp -a $DEPLOYFILE gh-pages;
-      pushd gh-pages;
+      git clone --branch=builds --depth=1 https://github.com/fathomssen/redtimer.git gh-builds;
+      cp -a $DEPLOYFILE gh-builds;
+      pushd gh-builds;
       git config user.name "Frederick Thomssen";
       git config user.email "thomssen@thomssen-it.de";
       git add .;
-      git commit -m "Deploy branch ${TRAVIS_BRANCH} to GitHub Pages";
+      git commit -m "Deploy branch ${TRAVIS_BRANCH} builds to GitHub";
       git pull;
-      git push "https://${GH_TOKEN}@${GH_REF}" gh-pages;
+      git push --force-with-lease "https://${GH_TOKEN}@${GH_REF}" builds;
       popd;
     fi
 
