@@ -48,9 +48,6 @@ matrix:
         - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
         - qtppa: ppa:beineri/opt-qt591-trusty
 
-services:
-  - docker
-
 before_install:
   ### Create aliases for checking variables
   - function run() {
