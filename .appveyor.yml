@@ -135,12 +135,13 @@ deploy:
       appveyor_repo_tag: true
   - provider: FTP
     protocol: ftp
+    beta: true
+    folder: /builds
     host:
       secure: 9KakK2IjmX6egQDXn5SR1g==
     username:
       secure: u/YPxalk2syD16X0NI1DKA==
     password:
       secure: Ke98HK9PyMOnHW1XVyQRdETC6YrVmv17/gYRcN38SYs=
-    folder: /builds
     on:
       appveyor_repo_tag: false
