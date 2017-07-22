@@ -141,6 +141,6 @@ deploy:
       secure: u/YPxalk2syD16X0NI1DKA==
     password:
       secure: Ke98HK9PyMOnHW1XVyQRdETC6YrVmv17/gYRcN38SYs=
-    folder: /build
+    folder: /builds
     on:
       appveyor_repo_tag: false
