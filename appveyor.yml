@@ -2,10 +2,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTVER: 58
-    QTDIR: C:\Qt\5.8\mingw53_32
-  - QTVER: 59
-    QTDIR: C:\Qt\5.9\mingw53_32
+  - QTDIR: C:\Qt\5.9.1\mingw53_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -21,7 +18,7 @@ build_script:
   - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - if defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION:~1%
   - if defined APPVEYOR_REPO_TAG_NAME set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
-  - set DIST=redtimer-%VERSION%-win32-qt%QTVER%
+  - set DIST=redtimer-%VERSION%-win32
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
   - echo %INSTVERSION%

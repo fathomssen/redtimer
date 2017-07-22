@@ -41,8 +41,7 @@ matrix:
       env:
         - qtenv: /opt/qt59/bin/qt59-env.sh
         - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt59-trusty
-        - qtver: 59
+        - qtppa: ppa:beineri/opt-qt591-trusty
 
 services:
   - docker
@@ -59,6 +58,10 @@ before_install:
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
+  ### Version names
+  - [[ -n "${TRAVIS_TAG}" ]] && export TRAVIS_VERSION="${TRAVIS_TAG}"
+  - [[ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" != "master" ]] && export TRAVIS_VERSION="v${TRAVIS_BRANCH}"
+  - [[ -n "${TRAVIS_BRANCH}" && "${TRAVIS_BRANCH}" == "master" ]] && export TRAVIS_VERSION="v9999"
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
   - run $isLinux sudo apt-get update
@@ -83,7 +86,7 @@ script:
 after_success:
   ### The following commands have to define a $DEPLOYFILE
   # Linux
-  - run $isLinux export PREFIX=redtimer-${TRAVIS_TAG}-linux-x86_64-qt${qtver}
+  - run $isLinux export PREFIX=redtimer-${TRAVIS_VERSION}-linux-x86_64
   - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
   - run $isLinux git clone https://github.com/jordansissel/fpm.git
   - run $isLinux cd fpm
@@ -91,13 +94,15 @@ after_success:
   - run $isLinux make
   - run $isLinux sudo make install
   - run $isLinux cd ..
-  - run $isLinux export VERSION=${TRAVIS_TAG#v}
+  - run $isLinux export VERSION=${TRAVIS_VERSION#v}
   - run $isLinux deploy/deploy.linux.sh $PREFIX $VERSION
   # OS X
-  - run $isOsX export PREFIX=redtimer-${TRAVIS_TAG}-${dist}-${distver}-${distname}
+  - run $isOsX export PREFIX=redtimer-${TRAVIS_VERSION}-${dist}-${distver}-${distname}
   - run $isOsX deploy/deploy.osx.sh $PREFIX
   # Both
   - export DEPLOYFILE=$PREFIX.*
+  - mkdir upload
+  - cp -a $DEPLOYFILE upload
 
 deploy:
   ### Upload releases
@@ -114,8 +119,7 @@ deploy:
   - provider: pages
     github_token:
       secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
-    file_glob: true
-    file: ${DEPLOYFILE}
+    local_dir: upload
     skip_cleanup: true
     on:
       repo: fathomssen/redtimer
@@ -124,8 +128,7 @@ deploy:
   - provider: pages
     github_token:
       secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
-    file_glob: true
-    file: ${DEPLOYFILE}
+    local_dir: upload
     skip_cleanup: true
     on:
       repo: fathomssen/redtimer
