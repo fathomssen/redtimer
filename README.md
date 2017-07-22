@@ -37,7 +37,7 @@ Installation instructions
 
 For Ubuntu instructions, please have a look at the [Ubuntu README](README.Ubuntu.md).
 
-The simplest way is to pick a binary from GitHub (https://github.com/fathomssen/redtimer/releases).
+The simplest way is to pick a binary from GitHub (https://github.com/fathomssen/redtimer/releases). Daily builds can be found at https://www.redtimer.org/builds.
 
 The latest development build for Windows can be found at
 https://ci.appveyor.com/project/fathomssen/redtimer/build/artifacts.
