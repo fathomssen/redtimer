@@ -62,14 +62,13 @@ before_install:
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Version names
-  - if [ -n "${TRAVIS_TAG}" ]; then
-      export TRAVIS_VERSION="${TRAVIS_TAG}";
-      export VERSION="${TRAVIS_TAG#v}";
-    fi
-  - if [ -n "${TRAVIS_BRANCH}" ]; then
+  - if [ -z "${TRAVIS_TAG}" ]; then
       export TRAVIS_VERSION="branch-${TRAVIS_BRANCH}";
       export VERSION="${TRAVIS_BRANCH}";
       if [ "${TRAVIS_BRANCH}" == "master" ]; then export VERSION="9999"; fi;
+    else
+      export TRAVIS_VERSION="${TRAVIS_TAG}";
+      export VERSION="${TRAVIS_TAG#v}";
     fi
   - run $isLinux export PREFIX=redtimer-${TRAVIS_VERSION}-linux-x86_64
   - run $isOsX export PREFIX=redtimer-${TRAVIS_VERSION}-${dist}-${distver}-${distname}
@@ -108,7 +107,7 @@ after_success:
   - run $isOsX deploy/deploy.osx.sh $PREFIX $VERSION
   # Both
   - export DEPLOYFILE=$PREFIX.*
-  - if [ -n "${TRAVIS_BRANCH}" ]; then
+  - if [ -z "${TRAVIS_TAG}" ]; then
       find $DEPLOYFILE -exec curl -T '{}' -u ${FTP_USER}:${FTP_PASS} ftp://${FTP_HOST}/ \;;
     fi
 
