@@ -1,24 +1,14 @@
 #!/bin/bash
 
-if [ $# -ne 1 ]; then
-  echo "Usage: $0 <output prefix>"
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <output prefix> <version>"
   exit 1
 fi
 
 export TRAVISDIR=$(cd "$(dirname "$0")"; pwd)
 export ROOTDIR=$TRAVISDIR/..
 export PREFIX=$ROOTDIR/$1
-
-if [ -z ${TRAVIS_TAG} ]; then
-  if [ "${TRAVIS_BRANCH}"=="master" ]; then
-    export BRANCH=99
-  else
-    export BRANCH=${TRAVIS_BRANCH}
-  fi
-  export VERSION=${BRANCH}-${TRAVIS_BUILD_ID}
-else
-  export VERSION=${TRAVIS_TAG/v/}
-fi
+export VERSION=$2
 
 cd $ROOTDIR
 

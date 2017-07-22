@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ $# -lt 1 -o $# -gt 2 ]; then
-  echo "Usage: $0 <output prefix> [<version for .deb and .rpm>]"
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 <output prefix> <version>"
   exit 1
 fi
 

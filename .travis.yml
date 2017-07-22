@@ -59,9 +59,17 @@ before_install:
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
   - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Version names
-  - if [ -n "${TRAVIS_TAG}" ]; then export TRAVIS_VERSION="${TRAVIS_TAG}"; fi
-  - if [ -n "${TRAVIS_BRANCH}" -a "${TRAVIS_BRANCH}" != "master" ]; then export TRAVIS_VERSION="v${TRAVIS_BRANCH}"; fi
-  - if [ -n "${TRAVIS_BRANCH}" -a "${TRAVIS_BRANCH}" == "master" ]; then export TRAVIS_VERSION="v9999"; fi
+  - if [ -n "${TRAVIS_TAG}" ]; then
+      export TRAVIS_VERSION="${TRAVIS_TAG}";
+      export VERSION="${TRAVIS_TAG#v}";
+    fi
+  - if [ -n "${TRAVIS_BRANCH}" ]; then
+      export TRAVIS_VERSION="branch-${TRAVIS_BRANCH}";
+      export VERSION="${TRAVIS_BRANCH}";
+      if [ "${TRAVIS_BRANCH}" == "master" ]; then export VERSION="9999"; fi;
+    fi
+  - run $isLinux export PREFIX=redtimer-${TRAVIS_VERSION}-linux-x86_64
+  - run $isOsX export PREFIX=redtimer-${TRAVIS_VERSION}-${dist}-${distver}-${distname}
   ### Linux
   - run $isLinux sudo add-apt-repository -y ${qtppa}
   - run $isLinux sudo apt-get update
@@ -84,9 +92,7 @@ script:
   - make
 
 after_success:
-  ### The following commands have to define a $DEPLOYFILE
   # Linux
-  - run $isLinux export PREFIX=redtimer-${TRAVIS_VERSION}-linux-x86_64
   - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
   - run $isLinux git clone https://github.com/jordansissel/fpm.git
   - run $isLinux cd fpm
@@ -94,11 +100,9 @@ after_success:
   - run $isLinux make
   - run $isLinux sudo make install
   - run $isLinux cd ..
-  - run $isLinux export VERSION=${TRAVIS_VERSION#v}
   - run $isLinux deploy/deploy.linux.sh $PREFIX $VERSION
   # OS X
-  - run $isOsX export PREFIX=redtimer-${TRAVIS_VERSION}-${dist}-${distver}-${distname}
-  - run $isOsX deploy/deploy.osx.sh $PREFIX
+  - run $isOsX deploy/deploy.osx.sh $PREFIX $VERSION
   # Both
   - export DEPLOYFILE=$PREFIX.*
   - mkdir upload
@@ -113,7 +117,6 @@ deploy:
     file: ${DEPLOYFILE}
     skip_cleanup: true
     on:
-      repo: fathomssen/redtimer
       tags: true
   ### Upload each build for branch master
   - provider: pages
@@ -121,8 +124,9 @@ deploy:
       secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
     local_dir: upload
     skip_cleanup: true
+    verbose: true
+    keep-history: true
     on:
-      repo: fathomssen/redtimer
       branch: master
   ### Upload each build for branch 1.2
   - provider: pages
@@ -130,6 +134,7 @@ deploy:
       secure: "NU5+89iRg4f2Thkpk/Fwci3Uuv0Q15B0+4Z6imKpi6MhPqB/aQLu41Z+kujx+Qb5PKcttUt73quOSv1aey+COCozn7nslksrPDbEDvYzh04t2bdECa5sEJSejucu1ZmcUETTlc2/X3+Bi6GrYTk02temGveeJ/tAFm3yyLA0sHwCY47MHjVxUVWMqcoJLYK2gaJzcB5xn2uKtGK2LiuewT4+omkogGYO0fQvfjg6gwr8nXYGYGNIhQKVLzeIhojfRDKPrrTPGvXdlFyC0TwuLLk7BmA2eoPxcDLviRaBlcbCnjVWmbNU9GaB+F3UOpydCiFml0Tc0BfFQneNtoGlF5HwjFGBpcY0kNklO/PX4SroDOKfohdnrjPySXpCVaW4CsYEUVoCMrDhqc8wjWP7iQYy1yVG4LIsaB4NlGspqX7TW/joASKhi8vCroWUqF2c+GNhy8cA3Z2LaYNOaNjY6soQzeMqWt5Zyrs16MH7eEI+QsdAQWab8/OAapl1VRCBinakNs0c1ROfLnRXn8mQXI+OP+rhr4zxowlFFjVdzNBAwgUjwlphxcE8TXPIIavId+EepgVqu/EIFijtWbX4qLVE7hSdGyEkH133EOs7SdIHzYPvQ8RrtREKDdzi2Rr4yIip5lT0g0aRnZoaYjT30JqobB9Y03hpsajdM13gQ6A="
     local_dir: upload
     skip_cleanup: true
+    verbose: true
+    keep-history: true
     on:
-      repo: fathomssen/redtimer
       branch: 1.2
