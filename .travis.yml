@@ -36,6 +36,8 @@ matrix:
         - distname: "yosemite"
     ####################### Linux #######################
     - os: linux
+      dist: trusty
+      sudo: required
       env:
         - qtenv: /opt/qt59/bin/qt59-env.sh
         - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
