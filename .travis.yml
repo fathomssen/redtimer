@@ -115,7 +115,7 @@ after_success:
       git config user.email "thomssen@thomssen-it.de";
       git add .;
       git commit -m "Deploy branch ${TRAVIS_BRANCH} to GitHub Pages";
-      git push --quiet "https://${GH_TOKEN}@${GH_REF}" gh-pages > /dev/null 2>&1;
+      git push "https://${GH_TOKEN}@${GH_REF}" gh-pages;
       popd;
     fi
 
