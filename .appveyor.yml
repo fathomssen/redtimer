@@ -10,14 +10,19 @@ install:
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
-  - set BRANCH=%APPVEYOR_REPO_BRANCH%
-  - if "%APPVEYOR_REPO_BRANCH%"=="master" set BRANCH=99.99
-  - if not defined APPVEYOR_REPO_TAG_NAME set VERSION=%BRANCH%-%APPVEYOR_BUILD_NUMBER%
-  - if not defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION%
-  - if not defined APPVEYOR_REPO_TAG_NAME set WINVERSION=%BRANCH%.0.0
-  - if defined APPVEYOR_REPO_TAG_NAME set VERSION=%APPVEYOR_REPO_TAG_NAME%
-  - if defined APPVEYOR_REPO_TAG_NAME set INSTVERSION=%VERSION:~1%
-  - if defined APPVEYOR_REPO_TAG_NAME set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
+  # VERSION format:     branch-master/branch-1.2
+  # INSTVERSION format: 9999.0/1.2
+  # WINVERSION format:  9999.0.0.123/1.2.0.234
+  - if "%APPVEYOR_REPO_TAG%"=="false" set VERSION=branch-%APPVEYOR_REPO_BRANCH%
+  - if "%APPVEYOR_REPO_TAG%"=="false" set INSTVERSION=%APPVEYOR_REPO_BRANCH%
+  - if "%APPVEYOR_REPO_TAG%"=="false" if "%APPVEYOR_REPO_BRANCH%"=="master" set INSTVERSION=9999.0
+  - if "%APPVEYOR_REPO_TAG%"=="false" set WINVERSION=%INSTVERSION%.0.%APPVEYOR_BUILD_NUMBER%
+  # VERSION format:     v1.2.3/v1.3.4
+  # INSTVERSION format: 1.2.3/1.3.4
+  # WINVERSION format:  1.2.3.123/1.3.4.234
+  - if "%APPVEYOR_REPO_TAG%"=="true" set VERSION=%APPVEYOR_REPO_TAG_NAME%
+  - if "%APPVEYOR_REPO_TAG%"=="true" set INSTVERSION=%VERSION:~1%
+  - if "%APPVEYOR_REPO_TAG%"=="true" set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
   - set DIST=redtimer-%VERSION%-win32
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
@@ -126,6 +131,16 @@ deploy:
     release: $(VERSION)
     auth_token:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
-    artifact: installer, portable
     on:
       appveyor_repo_tag: true
+  - provider: FTP
+    protocol: ftp
+    host:
+      secure: 9KakK2IjmX6egQDXn5SR1g==
+    username:
+      secure: u/YPxalk2syD16X0NI1DKA==
+    password:
+      secure: Ke98HK9PyMOnHW1XVyQRdETC6YrVmv17/gYRcN38SYs=
+    folder: /build
+    on:
+      appveyor_repo_tag: false

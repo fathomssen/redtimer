@@ -23,8 +23,8 @@ DISTFILES += \
     deploy/macdeployqtfix/* \
     docs/* \
     images/* \
+    .appveyor.yml \
     .travis.yml \
-    appveyor.yml \
     LICENSE \
     README.md \
     README.Ubuntu.md \
