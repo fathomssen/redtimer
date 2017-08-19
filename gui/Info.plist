@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+        <key>NSPrincipalClass</key>
+        <string>NSApplication</string>
+        <key>NSHumanReadableCopyright</key>
+        <string>© __YEAR__, Thomssen IT</string>
+        <key>CFBundleDisplayName</key>
+        <string>RedTimer</string>
+        <key>CFBundleExecutable</key>
+        <string>redtimer</string>
+        <key>CFBundleIconFile</key>
+        <string>clock_red.icns</string>
+        <key>CFBundleIdentifier</key>
+        <string>de.thomssen-it.redtimer</string>
+        <key>CFBundleName</key>
+        <string>RedTimer</string>
+        <key>CFBundlePackageType</key>
+        <string>APPL</string>
+        <key>CFBundleShortVersionString</key>
+        <string>__VERSION__</string>
+        <key>CFBundleSignature</key>
+        <string>Thomssen IT</string>
+        <key>CFBundleVersion</key>
+        <string>__VERSION__</string>
+        <key>NSUIElement</key>
+        <string>1</string>
+        <key>LSUIElement</key>
+        <string>1</string>
+        <key>NSHighResolutionCapable</key>
+        <true/>
+        <key>NSHighResolutionMagnifyAllowed</key>
+        <false/>
+</dict>
+</plist>

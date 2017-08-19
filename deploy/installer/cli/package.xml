@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>RedTimer CLI</DisplayName>
+    <Description>Install RedTimer command line interface (CLI).</Description>
+    <Version>__VERSION__</Version>
+    <ReleaseDate>__DATE__</ReleaseDate>
+    <Default>true</Default>
+    <SortingPriority>50</SortingPriority>
+</Package>

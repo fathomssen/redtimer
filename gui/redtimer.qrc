@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/clock.svg</file>
+        <file>icons/clock_play.svg</file>
+        <file>icons/clock_stop.svg</file>
+        <file>icons/clock_red.svg</file>
+        <file>icons/clock_red_play.svg</file>
+        <file>icons/clock_red_stop.svg</file>
+        <file>icons/clock_red.icns</file>
+        <file>open-iconic/svg/media-play.svg</file>
+        <file>open-iconic/svg/list.svg</file>
+        <file>open-iconic/svg/cog.svg</file>
+        <file>open-iconic/svg/media-stop.svg</file>
+        <file>open-iconic/svg/reload.svg</file>
+        <file>open-iconic/svg/power-standby.svg</file>
+        <file>open-iconic/svg/plus.svg</file>
+        <file>open-iconic/svg/vertical-align-bottom.svg</file>
+        <file>open-iconic/svg/vertical-align-top.svg</file>
+        <file>open-iconic/svg/signal.svg</file>
+        <file>open-iconic/svg/layers.svg</file>
+        <file>qml/IssueCreator.qml</file>
+        <file>qml/IssueCreatorForm.ui.qml</file>
+        <file>qml/IssueSelector.qml</file>
+        <file>qml/IssueSelectorForm.ui.qml</file>
+        <file>qml/MainWindow.qml</file>
+        <file>qml/MainWindowForm.ui.qml</file>
+        <file>qml/MessageBox.qml</file>
+        <file>qml/MessageBoxForm.ui.qml</file>
+        <file>qml/ProfileSelector.qml</file>
+        <file>qml/ProfileSelectorForm.ui.qml</file>
+        <file>qml/Settings.qml</file>
+        <file>qml/SettingsForm.ui.qml</file>
+    </qresource>
+</RCC>

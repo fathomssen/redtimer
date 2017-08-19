@@ -1,0 +1,146 @@
+version: '{branch}-{build}'
+
+environment:
+  matrix:
+  - QTDIR: C:\Qt\5.9.1\mingw53_32
+
+install:
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git submodule update --init
+  - '%QTDIR%\bin\qtenv2.bat'
+
+build_script:
+  # VERSION format:     branch-master/branch-1.2
+  # INSTVERSION format: 9999.0/1.2
+  # WINVERSION format:  9999.0.0.123/1.2.0.234
+  - if "%APPVEYOR_REPO_TAG%"=="false" set VERSION=branch-%APPVEYOR_REPO_BRANCH%
+  - if "%APPVEYOR_REPO_TAG%"=="false" set INSTVERSION=%APPVEYOR_REPO_BRANCH%
+  - if "%APPVEYOR_REPO_TAG%"=="false" if "%APPVEYOR_REPO_BRANCH%"=="master" set INSTVERSION=9999.0
+  - if "%APPVEYOR_REPO_TAG%"=="false" set WINVERSION=%INSTVERSION%.0.%APPVEYOR_BUILD_NUMBER%
+  # VERSION format:     v1.2.3/v1.3.4
+  # INSTVERSION format: 1.2.3/1.3.4
+  # WINVERSION format:  1.2.3.123/1.3.4.234
+  - if "%APPVEYOR_REPO_TAG%"=="true" set VERSION=%APPVEYOR_REPO_TAG_NAME%
+  - if "%APPVEYOR_REPO_TAG%"=="true" set INSTVERSION=%VERSION:~1%
+  - if "%APPVEYOR_REPO_TAG%"=="true" set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
+  - set DIST=redtimer-%VERSION%-win32
+  - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
+  - echo %VERSION%
+  - echo %INSTVERSION%
+  - echo %DIST%
+  - echo %DATE%
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - sed -i "s/VERSION = 1.0.0.0/VERSION = %WINVERSION%/" gui\redtimer.pro
+  - qmake -r
+  - mingw32-make
+
+after_build:
+  # Variables
+  - set BUILD=%APPVEYOR_BUILD_FOLDER%
+  - echo %BUILD%
+  # Create directories
+  - mkdir %DIST%
+  - mkdir %DIST%\iconengines
+  - mkdir %DIST%\imageformats
+  - mkdir %DIST%\platforms
+  - mkdir %DIST%\QtQuick
+  - mkdir %DIST%\QtQuick.2
+  # Copy redtimer, redtimercli and qtredmine
+  - xcopy %BUILD%\gui\release\redtimer.exe %DIST%
+  - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
+  - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
+  # Copy SSL libraries
+  - 7z x deploy\openssl-*-win32.zip -oopenssl
+  - xcopy openssl\libeay32.dll %DIST%
+  - xcopy openssl\ssleay32.dll %DIST%
+  # Copy Qt libraries
+  - xcopy %QTDIR%\bin\libEGL.dll %DIST%
+  - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
+  - xcopy %QTDIR%\bin\libGLESv2.dll %DIST%
+  - xcopy %QTDIR%\bin\libstdc++-6.dll %DIST%
+  - xcopy %QTDIR%\bin\libwinpthread-1.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Core.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Gui.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Network.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Qml.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
+  # Copy Qt plugins
+  - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
+  - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
+  - xcopy %QTDIR%\plugins\platforms\qwindows.dll %DIST%\platforms
+  # Copy Qt QML modules
+  - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
+  - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
+  # Copy D3D library required for some graphics drivers
+  - xcopy C:\Qt\Tools\QtCreator\bin\d3dcompiler_47.dll %DIST%
+  # Remove debug DLLs
+  - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
+  - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
+  #
+  # Create and push the archive for the portable version
+  #
+  - 7z a -tzip -mx=9 %DIST%-portable.zip %DIST%
+  - appveyor PushArtifact %DIST%-portable.zip
+  #
+  # Create the Qt Installer Framework version
+  #
+  - mkdir installer
+  - mkdir installer\config
+  - mkdir installer\packages
+  - mkdir installer\packages\de.thomssenit.redtimergui
+  - mkdir installer\packages\de.thomssenit.redtimergui\data
+  - mkdir installer\packages\de.thomssenit.redtimergui\meta
+  - mkdir installer\packages\de.thomssenit.redtimercli
+  - mkdir installer\packages\de.thomssenit.redtimercli\data
+  - mkdir installer\packages\de.thomssenit.redtimercli\meta
+  # Copy installer data
+  - copy %BUILD%\gui\icons\clock_red.ico installer\config
+  - copy %BUILD%\gui\icons\clock_red.png installer\config
+  - copy %BUILD%\LICENSE installer\packages\de.thomssenit.redtimergui\meta\license.txt
+  - copy %BUILD%\deploy\installer\config.xml installer\config
+  - copy %BUILD%\deploy\installer\controlscript.qs installer\config
+  - copy %BUILD%\deploy\installer\uninstall.qs installer\packages\de.thomssenit.redtimergui\data
+  - copy %BUILD%\deploy\installer\gui\package.xml installer\packages\de.thomssenit.redtimergui\meta
+  - copy %BUILD%\deploy\installer\gui\installscript.qs installer\packages\de.thomssenit.redtimergui\meta
+  - copy %BUILD%\deploy\installer\cli\package.xml installer\packages\de.thomssenit.redtimercli\meta
+  # Amend version and date
+  - sed -i "s/__VERSION__/%INSTVERSION%/" installer\config\config.xml
+  - sed -i "s/__VERSION__/%INSTVERSION%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - sed -i "s/__VERSION__/%INSTVERSION%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
+  - sed -i "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimergui\meta\package.xml
+  - sed -i "s/__DATE__/%DATE%/" installer\packages\de.thomssenit.redtimercli\meta\package.xml
+  # Copy RedTimer data
+  - xcopy %DIST%\*.* installer\packages\de.thomssenit.redtimergui\data\*.* /s /e /c /y
+  - move installer\packages\de.thomssenit.redtimergui\data\redtimercli.exe installer\packages\de.thomssenit.redtimercli\data
+  - mkdir tools
+  - curl -L -O https://download.qt.io/official_releases/qt-installer-framework/2.0.5-1/QtInstallerFramework-win-x86.exe
+  - 7z x QtInstallerFramework-win-x86.exe -otools -aoa
+  - set PATH=%BUILD%\tools\bin;%PATH%
+  - binarycreator.exe -f -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
+
+artifacts:
+  - name: installer
+    path: $(DIST)-installer.exe
+  - name: portable
+    path: $(DIST)-portable.zip
+
+deploy:
+  - provider: GitHub
+    release: $(VERSION)
+    auth_token:
+      secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
+    on:
+      appveyor_repo_tag: true
+  - provider: FTP
+    protocol: ftp
+    beta: true
+    host:
+      secure: 9KakK2IjmX6egQDXn5SR1g==
+    username:
+      secure: u/YPxalk2syD16X0NI1DKA==
+    password:
+      secure: Ke98HK9PyMOnHW1XVyQRdETC6YrVmv17/gYRcN38SYs=
+    on:
+      appveyor_repo_tag: false

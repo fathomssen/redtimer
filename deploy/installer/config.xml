@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Name>RedTimer</Name>
+    <Version>__VERSION__</Version>
+    <Title>RedTimer Installer</Title>
+    <Publisher>Thomssen IT</Publisher>
+    <ProductUrl>https://www.redtimer.org</ProductUrl>
+    <InstallerWindowIcon>clock_red</InstallerWindowIcon>
+    <InstallerApplicationIcon>clock_red</InstallerApplicationIcon>
+    <Logo>clock_red.png</Logo>
+    <StartMenuDir>Thomssen IT</StartMenuDir>
+    <TargetDir>@ApplicationsDir@/Thomssen IT/RedTimer</TargetDir>
+    <RunProgram>@TargetDir@/redtimer.exe</RunProgram>
+    <ControlScript>controlscript.qs</ControlScript>
+</Installer>
