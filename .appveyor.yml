@@ -2,7 +2,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.9.1\mingw53_32
+  - QTDIR: C:\Qt\5.10.1\mingw53_32
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
