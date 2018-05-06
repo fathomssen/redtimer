@@ -14,32 +14,23 @@ matrix:
   include:
     ####################### macOS #######################
     ###
+    ### macOS 10.13
+    ###
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - dist: "macos"
+        - distver: "10.13"
+        - distname: "high-sierra"
+    ###
     ### macOS 10.12
     ###
     - os: osx
-      osx_image: xcode8.3
+      osx_image: xcode9.2
       env:
         - dist: "macos"
         - distver: "10.12"
         - distname: "sierra"
-    ###
-    ### OS X 10.11
-    ###
-    - os: osx
-      osx_image: xcode8
-      env:
-        - dist: "osx"
-        - distver: "10.11"
-        - distname: "el-capitan"
-    ###
-    ### OS X 10.10
-    ###
-    - os: osx
-      osx_image: xcode6.4
-      env:
-        - dist: "osx"
-        - distver: "10.10"
-        - distname: "yosemite"
     ####################### Linux #######################
     - os: linux
       dist: trusty
@@ -85,7 +76,6 @@ install:
   ### OS X
   ### Install Qt5
   - run $isOsX brew install qt5
-  - run $isOsX brew linkapps qt5
   - run $isOsX brew link --force qt5
 
 script:
