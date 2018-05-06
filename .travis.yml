@@ -36,9 +36,9 @@ matrix:
       dist: trusty
       sudo: required
       env:
-        - qtenv: /opt/qt59/bin/qt59-env.sh
-        - qtpkg: "'qt59base qt59quickcontrols qt59quickcontrols2 qt59svg qt59x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt591-trusty
+        - qtenv: /opt/qt510/bin/qt510-env.sh
+        - qtpkg: "'qt510base qt510quickcontrols qt510quickcontrols2 qt510svg qt510x11extras mesa-common-dev libgl1-mesa-dev'"
+        - qtppa: ppa:beineri/opt-qt5101-trusty
 
 before_install:
   ### Create aliases for checking variables
