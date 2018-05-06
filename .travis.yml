@@ -38,7 +38,7 @@ matrix:
       env:
         - qtenv: /opt/qt510/bin/qt510-env.sh
         - qtpkg: "'qt510base qt510quickcontrols qt510quickcontrols2 qt510svg qt510x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt5101-trusty
+        - qtppa: ppa:beineri/opt-qt-5.10.1-trusty
 
 before_install:
   ### Create aliases for checking variables
