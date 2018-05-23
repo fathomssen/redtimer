@@ -46,6 +46,15 @@ Item {
         }
     }
 
+    Connections {
+        target: mainForm.entryComment
+        onFocusChanged: {
+            if( ( mainForm.entryComment.focus ) && ( mainForm.entryComment.text.match("<Enter time entry comment>" ) ) ) {
+                mainForm.entryComment.text=""
+            }
+        }
+    }
+
     MainWindowForm {
         id: mainForm
 
