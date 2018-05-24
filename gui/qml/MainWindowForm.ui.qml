@@ -226,7 +226,7 @@ Item {
             width: 259
             height: 30
             objectName: "entryComment"
-            text: qsTr("<Enter time entry comment>")
+            text: qsTr("")
             Layout.fillWidth: true
             font.pointSize: 0
         }

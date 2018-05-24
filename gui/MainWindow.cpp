@@ -71,6 +71,9 @@ MainWindow::MainWindow( QApplication* parent, QString profileId )
     timer_->setTimerType( Qt::VeryCoarseTimer );
     timer_->setInterval( 1000 );
 
+    // Placeholders sets
+    qml("entryComment")->setProperty( "placeholderText", quickComment_ );
+
     // Initially connect and update the GUI
     reconnect();
     refreshGui();
@@ -650,7 +653,6 @@ MainWindow::loadIssue( int issueId, bool startTimer, bool saveNewIssue )
         qml("subject")->setProperty( "text", issue.subject );
         qml("subject")->setProperty( "cursorPosition", 0 );
         qml("description")->setProperty( "text", issue.description );
-        qml("entryComment")->setProperty( "text", QString("<Enter time entry comment>") );
 
         QString more;
         if( issue.tracker.id != NULL_ID )
@@ -1366,11 +1368,7 @@ MainWindow::stop( bool resetTimerOnError, bool stopTimerAfterSaving, SuccessCb c
     timeEntry.activity.id = activityId_;
     timeEntry.hours       = counter() / 3600; // Seconds to hours conversion
     timeEntry.issue.id    = issue_.id;
-
-    if( QString::compare (qml("entryComment")->property("text").toString(),"<Enter time entry comment>", Qt::CaseSensitive ) ){
-            timeEntry.comment     = qml("entryComment")->property("text").toString();
-    }
-
+    timeEntry.comment     = qml("entryComment")->property("text").toString();  // Time entry comment
 
     // Possibly save start and end time as well
     const ProfileData* data = profileData();
