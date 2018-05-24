@@ -127,6 +127,9 @@ private:
     /// Quick pick placeholder text
     const QString quickPick_ = "<Enter or select issue>";
 
+    /// Time entry placeholder text
+    const QString quickComment_ = "<Enter time entry comment>";
+
 private:
     /**
      * @brief Add an issue to the list of recent issues

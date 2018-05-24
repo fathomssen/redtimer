@@ -20,6 +20,7 @@ Item {
     property alias selectIssue: selectIssue
     property alias settings: settings
     property alias startStop: startStop
+    property alias entryComment: entryComment
 
     ToolBar {
         id: toolBar
@@ -50,11 +51,13 @@ Item {
             anchors.right: reload.left
             tooltip: "Connection status"
             iconSource: "qrc:/open-iconic/svg/signal.svg"
-            style: ButtonStyle{ background: Rectangle{
+            style: ButtonStyle{
+                background: Rectangle {
                     id: connectionStatusStyle
                     objectName: "connectionStatusStyle"
                     color: "transparent"
-                } }
+                }
+            }
         }
 
         Button {
@@ -168,8 +171,6 @@ Item {
                         verticalScrollBarPolicy: Qt.ScrollBarAsNeeded
                     }
                 }
-
-
             }
         }
 
@@ -219,6 +220,15 @@ Item {
             model: issueStatusModel
             textRole: "name"
         }
+
+        TextField {
+            id: entryComment
+            width: 259
+            height: 30
+            objectName: "entryComment"
+            text: qsTr("")
+            Layout.fillWidth: true
+            font.pointSize: 0
+        }
     }
 }
-
