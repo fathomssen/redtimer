@@ -14,23 +14,23 @@ matrix:
   include:
     ####################### macOS #######################
     ###
+    ### macOS 10.14
+    ###
+    - os: osx
+      osx_image: xcode11.3
+      env:
+        - dist: "macos"
+        - distver: "10.14"
+        - distname: "mojave"
+    ###
     ### macOS 10.13
     ###
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode9.4
       env:
         - dist: "macos"
         - distver: "10.13"
         - distname: "high-sierra"
-    ###
-    ### macOS 10.12
-    ###
-    - os: osx
-      osx_image: xcode9.2
-      env:
-        - dist: "macos"
-        - distver: "10.12"
-        - distname: "sierra"
     ####################### Linux #######################
     - os: linux
       dist: trusty
@@ -51,7 +51,6 @@ before_install:
     }
   - export isLinux=$( [[ "$TRAVIS_OS_NAME" == "linux" ]] && echo true || echo false )
   - export isOsX=$( [[ "$TRAVIS_OS_NAME" == "osx" ]] && echo true || echo false )
-  - export isMacOs=$( [[ "$isOsX" == "true" && "${distver}" > "10.11" ]] && echo true || echo false )
   ### Version names
   - if [ -z "${TRAVIS_TAG}" ]; then
       export TRAVIS_VERSION="branch-${TRAVIS_BRANCH}";
