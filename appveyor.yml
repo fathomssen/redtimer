@@ -9,6 +9,7 @@ environment:
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
+  - dir %QTDIR%\bin
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
