@@ -8,10 +8,6 @@ env:
   - secure: "HNGOyYffISvFt2+ITAkjJ+SJL0Eur0q8crPJa35AIcxUWHe52vJgnO+ORKOukD8b/2V5i/7SemXqsUMw+xyIH+vEnmUwTzVWg+6ZfRScLrQgwLVgLT5Ni1Ll2lrwMno13L+0KoXwCPn4d/QZNqwJOvhQAsHnbwtzdJmtcrLQL89Ghg76NmUNGCzw1PyU88gM51Br0lTi+KeQ/ypkDp72cznoBSRonMsjGITrfduRPtZm1/uDpjSd+z4Cb1Oexi/wSgXBHlVte81tJBgjWCFy3C55kv2M1KpQKLrGZLslcFyEz3p6GzN98nv6AV0H5IFr3knGxvTNVGziefhoma4d+c++asFtdh/FQliMYZvyW6dn6F3gkGh/YK2ZMGuXbQ+XaAoJ8axurobqr9GjG2JNPLsB7R0gu7lHEX59+2X0p7RPxo+1SNUTxpEIwmLKI2dmvaetNGyW+IKR1dNTAi9IHEbgcQ2cYCGaz6PAwgtKMPBzLhd9V73RwIWwwjEYDheNb2OF1tUQNbVgnGz3n/z8ng8+KZU3F49of7efLJ4hFJhecwkJ88ulLz7ZxDna/nmeE+EztlbtHapUf4QHYXO2ImDzWj3WX528U05djkFzkuI2dJaTahz+FpnFNLcGcqvEm7UI3bxVZ5BVdER7FZLkJFDkb+hTtnw2NE/mfbZq0Mc="
 
 jobs:
-  exclude:
-  # Workaround to prevent building in an empty environment
-  - compiler: clang
-
   include:
   ####################### macOS #######################
   ###
