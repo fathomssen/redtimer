@@ -39,12 +39,12 @@ jobs:
     - distname: "high-sierra"
   ####################### Linux #######################
   - os: linux
-    dist: xenial
+    dist: bionic
     sudo: required
     env:
     - qtenv: /opt/qt514/bin/qt514-env.sh
     - qtpkg: "'qt514base qt514quickcontrols qt514quickcontrols2 qt514svg qt514x11extras mesa-common-dev libgl1-mesa-dev'"
-    - qtppa: ppa:beineri/opt-qt-5.14.2-xenial
+    - qtppa: ppa:beineri/opt-qt-5.14.2-bionic
 
 before_install:
   ### Create aliases for checking variables
