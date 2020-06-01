@@ -43,7 +43,7 @@ jobs:
     sudo: required
     env:
     - qtenv: /opt/qt514/bin/qt514-env.sh
-    - qtpkg: "'qt514base qt510quickcontrols qt514quickcontrols2 qt514svg qt514x11extras mesa-common-dev libgl1-mesa-dev'"
+    - qtpkg: "'qt514base qt514quickcontrols qt514quickcontrols2 qt514svg qt514x11extras mesa-common-dev libgl1-mesa-dev'"
     - qtppa: ppa:beineri/opt-qt-5.14.2-xenial
 
 before_install:
