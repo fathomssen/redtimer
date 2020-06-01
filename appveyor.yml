@@ -9,7 +9,6 @@ environment:
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - dir %QTDIR%\bin
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
@@ -136,14 +135,3 @@ deploy:
       secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
     on:
       appveyor_repo_tag: true
-  - provider: FTP
-    protocol: ftp
-    beta: true
-    host:
-      secure: 9KakK2IjmX6egQDXn5SR1g==
-    username:
-      secure: u/YPxalk2syD16X0NI1DKA==
-    password:
-      secure: Ke98HK9PyMOnHW1XVyQRdETC6YrVmv17/gYRcN38SYs=
-    on:
-      appveyor_repo_tag: false
