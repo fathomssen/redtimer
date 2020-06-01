@@ -14,6 +14,15 @@ matrix:
   include:
     ####################### macOS #######################
     ###
+    ### macOS 10.15
+    ###
+    - os: osx
+      osx_image: xcode11.5
+      env:
+        - dist: "macos"
+        - distver: "10.15"
+        - distname: "catalina"
+    ###
     ### macOS 10.14
     ###
     - os: osx
@@ -33,12 +42,12 @@ matrix:
         - distname: "high-sierra"
     ####################### Linux #######################
     - os: linux
-      dist: trusty
+      dist: xenial
       sudo: required
       env:
-        - qtenv: /opt/qt510/bin/qt510-env.sh
+        - qtenv: /opt/qt514/bin/qt514-env.sh
         - qtpkg: "'qt510base qt510quickcontrols qt510quickcontrols2 qt510svg qt510x11extras mesa-common-dev libgl1-mesa-dev'"
-        - qtppa: ppa:beineri/opt-qt-5.10.1-trusty
+        - qtppa: ppa:beineri/opt-qt-5.14.2-xenial
 
 before_install:
   ### Create aliases for checking variables
