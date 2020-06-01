@@ -132,6 +132,6 @@ deploy:
   - provider: GitHub
     release: $(VERSION)
     auth_token:
-      secure: ZUc8vdcr9GvoW987f+m2L364JHu2b1ScdHVGiAFfOrR1fUfafKI6j7rT9MEe/vWG
+      secure: cQP8DKuqRynjlY8tFrYQTeUZyH829wFpXvNBQNJu8SAY7awKmaNi3ELN5mgyUoRS
     on:
       appveyor_repo_tag: true
