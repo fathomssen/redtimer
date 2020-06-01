@@ -97,13 +97,8 @@ script:
 
 after_success:
   # Linux
-  - run $isLinux sudo apt-get install -y --force-yes ruby-dev build-essential rpm
-  - run $isLinux git clone https://github.com/jordansissel/fpm.git
-  - run $isLinux pushd fpm
-  - run $isLinux bundle install
-  - run $isLinux make
-  - run $isLinux sudo make install
-  - run $isLinux popd
+  - run $isLinux sudo apt-get install -y --force-yes ruby ruby-dev rubygems build-essential rpm
+  - gem install --no-document fpm
   - run $isLinux deploy/deploy.linux.sh $PREFIX $VERSION
   # OS X
   - run $isOsX deploy/deploy.osx.sh $PREFIX $VERSION
