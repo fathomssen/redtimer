@@ -4,7 +4,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.14.2\mingw73_32
+  - QTDIR: C:\Qt\5.14.2\mingw73_64
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -25,7 +25,7 @@ build_script:
   - if "%APPVEYOR_REPO_TAG%"=="true" set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - if "%APPVEYOR_REPO_TAG%"=="true" set INSTVERSION=%VERSION:~1%
   - if "%APPVEYOR_REPO_TAG%"=="true" set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
-  - set DIST=redtimer-%VERSION%-win32
+  - set DIST=redtimer-%VERSION%-win64
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
   - echo %INSTVERSION%
@@ -52,7 +52,7 @@ after_build:
   - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
   # Copy SSL libraries
-  - 7z x deploy\openssl-*-win32.zip -oopenssl
+  - 7z x deploy\openssl-*-win64.zip -oopenssl
   - xcopy openssl\libeay32.dll %DIST%
   - xcopy openssl\ssleay32.dll %DIST%
   # Copy Qt libraries
