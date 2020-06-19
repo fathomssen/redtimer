@@ -47,6 +47,7 @@ after_build:
   - mkdir %DIST%\platforms
   - mkdir %DIST%\QtQuick
   - mkdir %DIST%\QtQuick.2
+  - mkdir %DIST%\styles
   # Copy redtimer, redtimercli and qtredmine
   - xcopy %BUILD%\gui\release\redtimer.exe %DIST%
   - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
@@ -74,6 +75,7 @@ after_build:
   - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
   - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
   - xcopy %QTDIR%\plugins\platforms\qwindows.dll %DIST%\platforms
+  - xcopy %QTDIR%\plugins\styles\*.dll %DIST%\styles
   # Copy Qt QML modules
   - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
   - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
