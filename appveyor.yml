@@ -4,7 +4,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.13.2\mingw73_64
+  - QTDIR: C:\Qt\5.14.2\mingw73_64
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -83,8 +83,8 @@ after_build:
   #- xcopy C:\Qt\Tools\QtCreator\bin\d3dcompiler_47.dll %DIST%
   # Remove debug DLLs
   - for /f %%i in ('dir /s /b %DIST%\*d.dll') do del %%i
-  - for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
-  - for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
+  #- for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
+  #- for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
   #
   # Create and push the archive for the portable version
   #
