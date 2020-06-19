@@ -67,8 +67,7 @@ after_build:
   - xcopy %QTDIR%\bin\Qt5Core.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Gui.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Network.dll %DIST%
-  - xcopy %QTDIR%\bin\Qt5Qml.dll %DIST%
-  - xcopy %QTDIR%\bin\Qt5QmlModels.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Qml*.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
