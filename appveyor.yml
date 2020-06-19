@@ -5,12 +5,14 @@ version: '{branch}-{build}'
 environment:
   matrix:
   - QTDIR: C:\Qt\5.14.2\msvc2017_64
+    QT_INSTALLER_URL: https://download.qt.io/official_releases/qt-installer-framework/3.2.2
+    MSVC_BUILD: 'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build'
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
   - '%QTDIR%\bin\qtenv2.bat'
-  - "C:\Program\ Files\ (x86)\\Microsoft\ Visual\ Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvarsall.bat" amd64
+  - '%MSVC_BUILD%\vcvarsall.bat' amd64
 
 build_script:
   # VERSION format:     branch-master/branch-1.2
@@ -123,7 +125,7 @@ after_build:
   - xcopy %DIST%\*.* installer\packages\de.thomssenit.redtimergui\data\*.* /s /e /c /y
   - move installer\packages\de.thomssenit.redtimergui\data\redtimercli.exe installer\packages\de.thomssenit.redtimercli\data
   - mkdir tools
-  - curl -L -O https://download.qt.io/official_releases/qt-installer-framework/3.2.2/QtInstallerFramework-win-x86.exe
+  - curl -L -O %QT_INSTALLER_URL%/QtInstallerFramework-win-x86.exe
   - 7z x QtInstallerFramework-win-x86.exe -otools -aoa
   - set PATH=%BUILD%\tools\bin;%PATH%
   - binarycreator.exe -f -c installer\config\config.xml -p installer\packages %DIST%-installer.exe
