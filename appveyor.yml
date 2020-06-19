@@ -4,7 +4,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.14.2\mingw73_64
+  - QTDIR: C:\Qt\5.14.2\msvc2017_64
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
@@ -34,7 +34,7 @@ build_script:
   - cd %APPVEYOR_BUILD_FOLDER%
   - sed -i "s/VERSION = 1.0.0.0/VERSION = %WINVERSION%/" gui\redtimer.pro
   - qmake -r
-  - mingw32-make
+  - make
 
 after_build:
   # Variables
