@@ -58,7 +58,7 @@ after_build:
   - xcopy openssl\ssleay32.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%
-  - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
+  #- xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
   - xcopy %QTDIR%\bin\libGLESv2.dll %DIST%
   - xcopy %QTDIR%\bin\libstdc++-6.dll %DIST%
   - xcopy %QTDIR%\bin\libwinpthread-1.dll %DIST%
