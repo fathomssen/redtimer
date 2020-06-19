@@ -10,7 +10,7 @@ install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
   - '%QTDIR%\bin\qtenv2.bat'
-  - "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
+  - C:\Program\ Files\ (x86)\Microsoft\ Visual\ Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
 build_script:
   # VERSION format:     branch-master/branch-1.2
