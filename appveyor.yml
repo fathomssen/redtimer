@@ -58,20 +58,20 @@ after_build:
   - xcopy openssl\libeay32.dll %DIST%
   - xcopy openssl\ssleay32.dll %DIST%
   # Copy Qt libraries
-  #- xcopy %QTDIR%\bin\libEGL.dll %DIST%
-  #- xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
-  #- xcopy %QTDIR%\bin\libGLESv2.dll %DIST%
-  #- xcopy %QTDIR%\bin\libstdc++-6.dll %DIST%
-  #- xcopy %QTDIR%\bin\libwinpthread-1.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Core.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Gui.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Network.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Qml.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5QmlModels.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
-  #- xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
-  - xcopy /y %QTDIR%\bin\*.dll %DIST%
+  - xcopy %QTDIR%\bin\d3dcompiler_47.dll %DIST%
+  - xcopy %QTDIR%\bin\libEGL.dll %DIST%
+  - xcopy %QTDIR%\bin\libgcc_s_dw2-1.dll %DIST%
+  - xcopy %QTDIR%\bin\libGLESv2.dll %DIST%
+  - xcopy %QTDIR%\bin\libstdc++-6.dll %DIST%
+  - xcopy %QTDIR%\bin\libwinpthread-1.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Core.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Gui.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Network.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Qml.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5QmlModels.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
+  - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
   # Copy Qt plugins
   - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
   - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
@@ -80,12 +80,8 @@ after_build:
   # Copy Qt QML modules
   - xcopy %QTDIR%\qml\QtQuick\*.* %DIST%\QtQuick\*.* /s /e /c /y
   - xcopy %QTDIR%\qml\QtQuick.2\*.* %DIST%\QtQuick.2\*.* /s /e /c /y
-  # Copy D3D library required for some graphics drivers
-  #- xcopy C:\Qt\Tools\QtCreator\bin\d3dcompiler_47.dll %DIST%
   # Remove debug DLLs
   - for /f %%i in ('dir /s /b %DIST%\*d.dll') do del %%i
-  #- for /f %%i in ('dir /s /b %DIST%\QtQuick\*d.dll') do del %%i
-  #- for /f %%i in ('dir /s /b %DIST%\QtQuick.2\*d.dll') do del %%i
   #
   # Create and push the archive for the portable version
   #
