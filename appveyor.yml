@@ -13,7 +13,7 @@ install:
   - git submodule update --init
   - '%QTDIR%\bin\qtenv2.bat'
   - echo %MSVC_BUILD%
-  - '%MSVC_BUILD%\vcvarsall.bat x86_amd64'
+  - call '%MSVC_BUILD%\vcvarsall.bat' x86_amd64
 
 build_script:
   # VERSION format:     branch-master/branch-1.2
