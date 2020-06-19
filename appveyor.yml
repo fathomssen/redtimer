@@ -69,7 +69,7 @@ after_build:
   - xcopy %QTDIR%\bin\Qt5Quick.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Svg.dll %DIST%
   - xcopy %QTDIR%\bin\Qt5Widgets.dll %DIST%
-  - xcopy %QTDIR%\bin\*.dll %DIST%
+  - xcopy /y %QTDIR%\bin\*.dll %DIST%
   # Copy Qt plugins
   - xcopy %QTDIR%\plugins\iconengines\qsvgicon.dll %DIST%\iconengines
   - xcopy %QTDIR%\plugins\imageformats\qsvg.dll %DIST%\imageformats
