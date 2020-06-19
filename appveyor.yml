@@ -4,15 +4,13 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.14.2\msvc2017_64
+  - QTDIR: C:\Qt\5.13.2\mingw73_32
     QT_INSTALLER_URL: https://download.qt.io/official_releases/qt-installer-framework/3.2.2
-    MSVC_BUILD: '%ProgramFiles(x86)%\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build'
 
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
   - '%QTDIR%\bin\qtenv2.bat'
-  - call "%MSVC_BUILD%\vcvarsall.bat" x86_amd64
 
 build_script:
   # VERSION format:     branch-master/branch-1.2
@@ -28,7 +26,7 @@ build_script:
   - if "%APPVEYOR_REPO_TAG%"=="true" set VERSION=%APPVEYOR_REPO_TAG_NAME%
   - if "%APPVEYOR_REPO_TAG%"=="true" set INSTVERSION=%VERSION:~1%
   - if "%APPVEYOR_REPO_TAG%"=="true" set WINVERSION=%VERSION:~1%.%APPVEYOR_BUILD_NUMBER%
-  - set DIST=redtimer-%VERSION%-win64
+  - set DIST=redtimer-%VERSION%-win32
   - set DATE=%date:~10,4%-%date:~4,2%-%date:~7,2%
   - echo %VERSION%
   - echo %INSTVERSION%
@@ -37,7 +35,7 @@ build_script:
   - cd %APPVEYOR_BUILD_FOLDER%
   - sed -i "s/VERSION = 1.0.0.0/VERSION = %WINVERSION%/" gui\redtimer.pro
   - qmake -r
-  - nmake
+  - mingw32-make
 
 after_build:
   # Variables
@@ -56,7 +54,7 @@ after_build:
   - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
   # Copy SSL libraries
-  - 7z x deploy\openssl-*-win64.zip -oopenssl
+  - 7z x deploy\openssl-*-win32.zip -oopenssl
   - xcopy openssl\libeay32.dll %DIST%
   - xcopy openssl\ssleay32.dll %DIST%
   # Copy Qt libraries
