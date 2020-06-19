@@ -87,7 +87,7 @@ after_build:
   #
   # Create and push the archive for the portable version
   #
-  - 7z a -tzip -mx=9 %DIST%-portable.zip %DIST%
+  - 7z a -bb -tzip -mx=9 %DIST%-portable.zip %DIST%
   - appveyor PushArtifact %DIST%-portable.zip
   #
   # Create the Qt Installer Framework version
