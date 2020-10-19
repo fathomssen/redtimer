@@ -11,7 +11,7 @@ environment:
 install:
   - cd %APPVEYOR_BUILD_FOLDER%
   - git submodule update --init
-  - set PATH=%QTDIR%\bin;%QTDIR%\lib;%MINGWDIR%\bin\mingw32\bin;%MINGWDIR%\bin\mingw32;%PATH%
+  - set PATH=%QTDIR%\bin;%QTDIR%\lib;%MINGWDIR%\mingw32\bin;%PATH%
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
@@ -36,7 +36,6 @@ build_script:
   - echo %DATE%
   - cd %APPVEYOR_BUILD_FOLDER%
   - sed -i "s/VERSION = 1.0.0.0/VERSION = %WINVERSION%/" gui\redtimer.pro
-  - dir /S %MINGWDIR%
   - qmake -v
   - qmake -r
   - mingw32-make
