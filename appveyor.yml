@@ -15,6 +15,12 @@ install:
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
+  # Copy SSL libraries
+  - 7z x deploy\openssl-*-win32*.zip
+  - dir
+  - dir deploy
+  - xcopy openssl*\libcrypto-1_1.dll %DIST%
+  - xcopy openssl*\libssl-1_1.dll %DIST%
   # VERSION format:     branch-master/branch-1.2
   # INSTVERSION format: 9999.0/1.2
   # WINVERSION format:  9999.0.0.123/1.2.0.234
