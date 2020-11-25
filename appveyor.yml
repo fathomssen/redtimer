@@ -19,7 +19,7 @@ build_script:
   - dir %APPVEYOR_BUILD_FOLDER%
   - 7z x %APPVEYOR_BUILD_FOLDER%\deploy\openssl-*-win32*.zip -o%APPVEYOR_BUILD_FOLDER%
   - dir %APPVEYOR_BUILD_FOLDER%
-  - dir %APPVEYOR_BUILD_FOLDER%\openssl*
+  - dir %APPVEYOR_BUILD_FOLDER%\openssl*\*
   - xcopy %APPVEYOR_BUILD_FOLDER%\openssl*\libcrypto-1_1.dll %DIST%
   - xcopy %APPVEYOR_BUILD_FOLDER%\openssl*\libssl-1_1.dll %DIST%
   - xxxXXXxxx
