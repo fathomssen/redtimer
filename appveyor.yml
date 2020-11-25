@@ -16,9 +16,10 @@ install:
 
 build_script:
   # Copy SSL libraries
-  - 7z x deploy\openssl-*-win32*.zip
-  - dir
-  - dir deploy
+  - dir %APPVEYOR_BUILD_FOLDER%
+  - 7z x %APPVEYOR_BUILD_FOLDER%\deploy\openssl-*-win32*.zip
+  - dir %APPVEYOR_BUILD_FOLDER%
+  - dir %APPVEYOR_BUILD_FOLDER%\deploy
   - xcopy openssl*\libcrypto-1_1.dll %DIST%
   - xcopy openssl*\libssl-1_1.dll %DIST%
   # VERSION format:     branch-master/branch-1.2
