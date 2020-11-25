@@ -19,9 +19,9 @@ build_script:
   - dir %APPVEYOR_BUILD_FOLDER%
   - 7z x %APPVEYOR_BUILD_FOLDER%\deploy\openssl-*-win32*.zip -o%APPVEYOR_BUILD_FOLDER%
   - dir %APPVEYOR_BUILD_FOLDER%
-  - dir %APPVEYOR_BUILD_FOLDER%\openssl*\*
-  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl*\libcrypto-1_1.dll %DIST%
-  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl*\libssl-1_1.dll %DIST%
+  - dir %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw
+  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw\libcrypto-1_1.dll %DIST%
+  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw\libssl-1_1.dll %DIST%
   - xxxXXXxxx
   # VERSION format:     branch-master/branch-1.2
   # INSTVERSION format: 9999.0/1.2
