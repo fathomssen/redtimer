@@ -4,7 +4,7 @@ version: '{branch}-{build}'
 
 environment:
   matrix:
-  - QTDIR: C:\Qt\5.15.0\mingw81_32
+  - QTDIR: C:\Qt\5.15\mingw81_32
     MINGWDIR: C:\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0
     QT_INSTALLER_URL: https://download.qt.io/official_releases/qt-installer-framework/3.2.2
 
