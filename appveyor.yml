@@ -6,6 +6,7 @@ environment:
   matrix:
   - QTDIR: C:\Qt\5.15\mingw81_32
     MINGWDIR: C:\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0
+    OPENSSL: openssl-1.1.1h_3-win32-mingw
     QT_INSTALLER_URL: https://download.qt.io/official_releases/qt-installer-framework/3.2.2
 
 install:
@@ -15,14 +16,6 @@ install:
   - '%QTDIR%\bin\qtenv2.bat'
 
 build_script:
-  # Copy SSL libraries
-  - dir %APPVEYOR_BUILD_FOLDER%
-  - 7z x %APPVEYOR_BUILD_FOLDER%\deploy\openssl-*-win32*.zip -o%APPVEYOR_BUILD_FOLDER%
-  - dir %APPVEYOR_BUILD_FOLDER%
-  - dir %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw
-  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw\libcrypto-1_1.dll %DIST%
-  - xcopy %APPVEYOR_BUILD_FOLDER%\openssl-1.1.1h_3-win32-mingw\libssl-1_1.dll %DIST%
-  - xxxXXXxxx
   # VERSION format:     branch-master/branch-1.2
   # INSTVERSION format: 9999.0/1.2
   # WINVERSION format:  9999.0.0.123/1.2.0.234
@@ -65,9 +58,9 @@ after_build:
   - xcopy %BUILD%\cli\release\redtimercli.exe %DIST%
   - xcopy %BUILD%\libqtredmine\release\qtredmine.dll %DIST%
   # Copy SSL libraries
-  - 7z x deploy\openssl-*-win32*.zip
-  - xcopy openssl*\libcrypto-1_1.dll %DIST%
-  - xcopy openssl*\libssl-1_1.dll %DIST%
+  - 7z x deploy\openssl-*-win32*.zip -o%APPVEYOR_BUILD_FOLDER%
+  - xcopy %OPENSSL%\libcrypto-1_1.dll %DIST%
+  - xcopy %OPENSSL%\libssl-1_1.dll %DIST%
   # Copy Qt libraries
   - xcopy %QTDIR%\bin\d3dcompiler_47.dll %DIST%
   - xcopy %QTDIR%\bin\libEGL.dll %DIST%
