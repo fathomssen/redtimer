@@ -28,15 +28,6 @@ jobs:
     - dist: "macos"
     - distver: "10.14"
     - distname: "mojave"
-  ###
-  ### macOS 10.13
-  ###
-  - os: osx
-    osx_image: xcode10.1
-    env:
-    - dist: "macos"
-    - distver: "10.13"
-    - distname: "high-sierra"
   ####################### Linux #######################
   - os: linux
     dist: xenial
