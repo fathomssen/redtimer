@@ -11,6 +11,15 @@ jobs:
   include:
   ####################### macOS #######################
   ###
+  ### macOS 11.6
+  ###
+  - os: osx
+    osx_image: xcode13.1
+    env:
+    - dist: "macos"
+    - distver: "11"
+    - distname: "bigsur"
+  ###
   ### macOS 10.15
   ###
   - os: osx
@@ -43,6 +52,13 @@ jobs:
     - qtenv: /opt/qt514/bin/qt514-env.sh
     - qtpkg: "'qt514base qt514quickcontrols qt514quickcontrols2 qt514svg qt514x11extras mesa-common-dev libgl1-mesa-dev'"
     - qtppa: ppa:beineri/opt-qt-5.14.2-bionic
+  - os: linux
+    dist: focal
+    sudo: required
+    env:
+    - qtenv: /opt/qt514/bin/qt514-env.sh
+    - qtpkg: "'qt514base qt514quickcontrols qt514quickcontrols2 qt514svg qt514x11extras mesa-common-dev libgl1-mesa-dev'"
+    - qtppa: ppa:beineri/opt-qt-5.14.2-focal
 
 before_install:
   ### Create aliases for checking variables
